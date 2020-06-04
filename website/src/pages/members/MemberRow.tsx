@@ -1,18 +1,24 @@
 import React from 'react';
 import Member from '../../model/Member';
+import styles from './MemberRow.module.css';
+import { Link } from 'react-router-dom';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 export default class MemberRow extends React.Component<{ member: Member }> {
   render() {
     return (
-      <tr>
-        <td>{this.props.member.name}</td>
-        <td>{this.props.member.x500}</td>
-        <td>{this.props.member.isTeamMember ? 'Yes' : 'No'}</td>
-        <td>status</td>
-        <td>
-          <button>Button</button>
-        </td>
-      </tr>
+      <Link
+        to={'/members/' + this.props.member.x500}
+        className={'list-group-item list-group-item-action ' + styles.row}
+      >
+        <Row>
+          <Col xs={5}>{this.props.member.name}</Col>
+          <Col xs={3}>{this.props.member.x500}</Col>
+          <Col xs={2}>{this.props.member.isTeamMember ? 'Yes' : 'No'}</Col>
+          <Col xs={2}>Status</Col>
+        </Row>
+      </Link>
     );
   }
 }
