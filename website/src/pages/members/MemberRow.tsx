@@ -1,9 +1,9 @@
 import React from 'react';
-import Member from '../../model/Member';
-import styles from './MemberRow.module.css';
-import { Link } from 'react-router-dom';
-import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import { Link } from 'react-router-dom';
+import { Member } from '../../model/Member';
+import styles from './MemberRow.module.css';
 
 export default class MemberRow extends React.Component<{ member: Member }> {
   render() {

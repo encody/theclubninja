@@ -1,8 +1,8 @@
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
-import Member from '../../model/Member';
 import moment from 'moment';
+import { Member } from '../../model/Member';
 
 interface MemberDetailsProps {
   member: Member | undefined;
@@ -23,7 +23,7 @@ export default class MemberDetails extends React.Component<
             this.props.member.waivers.length - 1
           ];
           return lastWaiver
-            ? moment(lastWaiver.timestamp.toDate()).calendar()
+            ? moment(lastWaiver.timestamp).calendar()
             : 'N/A';
         })()
       : '';

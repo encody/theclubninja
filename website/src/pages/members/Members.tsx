@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -6,20 +6,16 @@ import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
-import {
-  Route,
-  useParams,
-  RouteComponentProps,
-  withRouter,
-} from 'react-router-dom';
+import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
 import { members } from '../../dummydata';
-import Member from '../../model/Member';
-import MemberRow from './MemberRow';
+import { Member } from '../../model/Member';
 import MemberDetails from './MemberDetails';
+import MemberRow from './MemberRow';
+import NewMemberModal from './NewMemberModal';
 
 export default class Members extends React.Component<
   {},
-  { filter: string; filteredMembers: Member[] }
+  { filter: string; filteredMembers: Member[]; showNewMemberModal: boolean }
 > {
   constructor(props: {}) {
     super(props);
@@ -27,7 +23,20 @@ export default class Members extends React.Component<
     this.state = {
       filter: '',
       filteredMembers: members,
+      showNewMemberModal: false,
     };
+  }
+
+  openNewMemberModal() {
+    this.setState({
+      showNewMemberModal: true,
+    });
+  }
+
+  closeNewMemberModal() {
+    this.setState({
+      showNewMemberModal: false,
+    });
   }
 
   updateFilter(filter: string) {
@@ -59,7 +68,9 @@ export default class Members extends React.Component<
             />
           </div>
           <div className="ml-3 flex-shrink-1">
-            <Button>New Member</Button>
+            <Button onClick={() => this.openNewMemberModal()}>
+              New Member
+            </Button>
           </div>
         </div>
 
@@ -82,6 +93,11 @@ export default class Members extends React.Component<
         <Route path="/members/:id?">
           <MemberDetailsModalWithRouter />
         </Route>
+
+        <NewMemberModal
+          show={this.state.showNewMemberModal}
+          onClose={() => this.closeNewMemberModal()}
+        />
       </Container>
     );
   }
@@ -112,7 +128,7 @@ class MemberDetailsModal extends React.Component<
   render() {
     const member = members.find(m => m.x500 === this.props.match.params.id);
     return (
-      <Modal show={!!this.props.match.params.id} onHide={() => this.close()}>
+      <Modal size="lg" show={!!this.props.match.params.id} onHide={() => this.close()}>
         <MemberDetails member={member} />
       </Modal>
     );

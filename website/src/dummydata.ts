@@ -1,15 +1,15 @@
-import Member from './model/Member';
-import firebase from 'firebase';
 import moment from 'moment';
+import { Member, MemberType } from './model/Member';
 
 export const members: Member[] = [
   {
     name: 'John Doe on team',
     x500: 'doe500',
+    memberType: 'student',
     studentId: '123456789',
     isTeamMember: true,
     graduationYear: 2020,
-    referral: '',
+    referralMember: '',
     source: 'Mural on the bridge',
     attendance: [],
     waivers: [],
@@ -17,27 +17,44 @@ export const members: Member[] = [
   {
     name: 'Jane Doe on team',
     x500: 'doe501',
+    memberType: 'student',
     studentId: '123456780',
     isTeamMember: true,
     graduationYear: 2020,
-    referral: 'doe500',
+    referralMember: 'doe500',
     source: 'Mural on the bridge',
     attendance: [],
     waivers: [
       {
-        timestamp: new firebase.firestore.Timestamp(moment().subtract(5, 'days').unix(), 0),
+        timestamp: moment().subtract(5, 'days').toDate(),
       },
     ],
   },
   {
     name: 'Joe Shmo not team',
     x500: 'shmo500',
+    memberType: 'other',
     studentId: '123456781',
     isTeamMember: false,
     graduationYear: 2020,
-    referral: '',
+    referralMember: '',
     source: 'Mural on the bridge',
     attendance: [],
     waivers: [],
   },
 ];
+
+export const memberTypes: { [key in MemberType]: { name: string } } = {
+  student: {
+    name: 'Student',
+  },
+  alumni: {
+    name: 'Alumni',
+  },
+  faculty_staff: {
+    name: 'Faculty/Staff',
+  },
+  other: {
+    name: 'Other',
+  },
+};
