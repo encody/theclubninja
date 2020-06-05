@@ -1,12 +1,12 @@
 import firebase from 'firebase';
-import { Credit, FCredit } from './Credit';
+import { CreditTypeId } from './CreditType';
 
 export interface Attendance {
-  credit: Credit | null;
+  credit: CreditTypeId | null;
   timestamp: Date;
 }
 
 export interface FAttendance {
-  credit: firebase.firestore.DocumentReference | null;
+  credit: CreditTypeId | null;
   timestamp: firebase.firestore.Timestamp;
 }

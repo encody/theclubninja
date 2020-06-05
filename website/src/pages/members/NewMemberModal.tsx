@@ -4,8 +4,9 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import { Member, MemberType } from '../../model/Member';
+import { Member } from '../../model/Member';
 import { memberTypes } from '../../dummydata';
+import { MemberTypeId } from '../../model/MemberType';
 
 interface NewMemberModalProps {
   show: boolean;
@@ -97,7 +98,7 @@ export default class NewMemberModal extends React.Component<
                   onChange={e =>
                     this.updateMember(
                       'memberType',
-                      e.target.value as MemberType,
+                      e.target.value as MemberTypeId,
                     )
                   }
                 >
@@ -107,7 +108,7 @@ export default class NewMemberModal extends React.Component<
                       value={k}
                       selected={k === this.state.member.memberType}
                     >
-                      {memberTypes[k as MemberType].name}
+                      {memberTypes[k as MemberTypeId].name}
                     </option>
                   ))}
                 </Form.Control>

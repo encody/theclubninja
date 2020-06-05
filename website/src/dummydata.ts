@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { Member, MemberType } from './model/Member';
+import { Member } from './model/Member';
+import { MemberTypeId } from './model/MemberType';
 
 export const members: Member[] = [
   {
@@ -44,7 +45,7 @@ export const members: Member[] = [
   },
 ];
 
-export const memberTypes: { [key in MemberType]: { name: string } } = {
+export const memberTypes: { [key in MemberTypeId]: { name: string } } = {
   student: {
     name: 'Student',
   },
