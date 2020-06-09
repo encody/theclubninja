@@ -7,22 +7,31 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
-import { members } from '../../dummydata';
 import { Member } from '../../model/Member';
 import MemberDetails from './MemberDetails';
 import MemberRow from './MemberRow';
 import NewMemberModal from './NewMemberModal';
 
+interface MembersProps {
+  members: Member[];
+}
+
+interface MembersState {
+  filter: string;
+  filteredMembers: Member[];
+  showNewMemberModal: boolean;
+}
+
 export default class Members extends React.Component<
-  {},
-  { filter: string; filteredMembers: Member[]; showNewMemberModal: boolean }
+  MembersProps,
+  MembersState
 > {
-  constructor(props: {}) {
+  constructor(props: MembersProps) {
     super(props);
 
     this.state = {
       filter: '',
-      filteredMembers: members,
+      filteredMembers: props.members.slice(),
       showNewMemberModal: false,
     };
   }
@@ -42,11 +51,11 @@ export default class Members extends React.Component<
   updateFilter(filter: string) {
     this.setState({
       filter,
-      filteredMembers: members.filter(
+      filteredMembers: this.props.members.filter(
         member =>
           member.name.toLowerCase().includes(filter.toLowerCase()) ||
           member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.x500.toLowerCase().includes(filter.toLowerCase()),
+          member.accountId.toLowerCase().includes(filter.toLowerCase()),
       ),
     });
   }
@@ -78,20 +87,24 @@ export default class Members extends React.Component<
           <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
             <Row className="font-weight-bold">
               <Col xs={5}>Name</Col>
-              <Col xs={3}>x500</Col>
+              <Col xs={3}>Account ID</Col>
               <Col xs={2}>Team Member</Col>
               <Col xs={2}>Status</Col>
             </Row>
           </ListGroup.Item>
           {this.state.filteredMembers.map(member => (
-            <MemberRow key={member.x500} member={member} />
+            <MemberRow key={member.accountId} member={member} />
           ))}
         </ListGroup>
 
-        {this.state.filteredMembers.length ? null : <EmptyTable />}
+        {this.state.filteredMembers.length ? null : (
+          <div className="row justify-content-center m-3">
+            <p>No members.</p>
+          </div>
+        )}
 
         <Route path="/members/:id?">
-          <MemberDetailsModalWithRouter />
+          <MemberDetailsModalWithRouter members={this.props.members} />
         </Route>
 
         <NewMemberModal
@@ -103,15 +116,9 @@ export default class Members extends React.Component<
   }
 }
 
-function EmptyTable() {
-  return (
-    <div className="row justify-content-center m-3">
-      <p>No members.</p>
-    </div>
-  );
-}
-
-type MemberDetailsModalProps = RouteComponentProps<{ id: string }>;
+type MemberDetailsModalProps = RouteComponentProps<{ id: string }> & {
+  members: Member[];
+};
 
 class MemberDetailsModal extends React.Component<
   MemberDetailsModalProps,
@@ -126,9 +133,15 @@ class MemberDetailsModal extends React.Component<
   }
 
   render() {
-    const member = members.find(m => m.x500 === this.props.match.params.id);
+    const member = this.props.members.find(
+      m => m.accountId === this.props.match.params.id,
+    );
     return (
-      <Modal size="lg" show={!!this.props.match.params.id} onHide={() => this.close()}>
+      <Modal
+        size="lg"
+        show={!!this.props.match.params.id}
+        onHide={() => this.close()}
+      >
         <MemberDetails member={member} />
       </Modal>
     );

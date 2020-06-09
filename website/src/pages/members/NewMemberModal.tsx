@@ -27,10 +27,11 @@ export default class NewMemberModal extends React.Component<
         graduationYear: moment().year() + 2,
         memberType: 'student',
         isTeamMember: false,
+        isActiveMember: true,
         referralMember: '',
         source: '',
         studentId: '',
-        x500: '',
+        accountId: '',
         waivers: [],
         attendance: [],
       },
@@ -67,13 +68,13 @@ export default class NewMemberModal extends React.Component<
               </td>
             </tr>
             <tr>
-              <td>x500:</td>
+              <td>Account ID:</td>
               <td>
                 <Form.Control
                   required
                   type="text"
-                  value={this.state.member.x500}
-                  onChange={e => this.updateMember('x500', e.target.value)}
+                  value={this.state.member.accountId}
+                  onChange={e => this.updateMember('accountId', e.target.value)}
                 />
               </td>
             </tr>

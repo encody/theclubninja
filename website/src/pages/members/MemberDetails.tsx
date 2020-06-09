@@ -22,9 +22,7 @@ export default class MemberDetails extends React.Component<
           const lastWaiver = this.props.member.waivers[
             this.props.member.waivers.length - 1
           ];
-          return lastWaiver
-            ? moment(lastWaiver.timestamp).calendar()
-            : 'N/A';
+          return lastWaiver ? moment(lastWaiver.timestamp).calendar() : 'N/A';
         })()
       : '';
 
@@ -36,8 +34,8 @@ export default class MemberDetails extends React.Component<
         <Modal.Body>
           <Table responsive>
             <tr>
-              <td>x500:</td>
-              <td>{this.props.member.x500}</td>
+              <td>Account ID:</td>
+              <td>{this.props.member.accountId}</td>
             </tr>
             <tr>
               <td>Student ID:</td>

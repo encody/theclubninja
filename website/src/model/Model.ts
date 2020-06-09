@@ -12,7 +12,7 @@ export class Model {
     [key in MemberTypeId]?: MemberType;
   } = {};
   members: {
-    [x500: string]: Member;
+    [accountId: string]: Member;
   } = {};
   terms: {
     [termId: string]: Term;

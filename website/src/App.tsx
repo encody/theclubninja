@@ -5,6 +5,7 @@ import Club from './pages/club/Club';
 import Team from './pages/team/Team';
 import Members from './pages/members/Members';
 import Payments from './pages/payments/Payments';
+import { members } from './dummydata';
 
 export default function App() {
   return (
@@ -18,13 +19,13 @@ export default function App() {
               <Home />
             </Route>
             <Route path="/club">
-              <Club />
+              <Club members={members} />
             </Route>
             <Route path="/team">
-              <Team />
+              <Team members={members} />
             </Route>
             <Route path="/members">
-              <Members />
+              <Members members={members} />
             </Route>
             <Route path="/payments">
               <Payments />

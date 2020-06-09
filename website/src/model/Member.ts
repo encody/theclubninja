@@ -33,7 +33,7 @@ export const memberConverter: firebase.firestore.FirestoreDataConverter<Member> 
             ),
           } as FWaiver),
       ),
-      x500: modelObject.x500,
+      accountId: modelObject.accountId,
     } as FMember;
   },
   fromFirestore(snapshot, options) {
@@ -48,6 +48,7 @@ export const memberConverter: firebase.firestore.FirestoreDataConverter<Member> 
       ),
       graduationYear: data.graduationYear,
       isTeamMember: data.isTeamMember,
+      isActiveMember: data.isActiveMember,
       memberType: data.memberType,
       name: data.name,
       referralMember: data.referralMember,
@@ -59,7 +60,7 @@ export const memberConverter: firebase.firestore.FirestoreDataConverter<Member> 
             timestamp: w.timestamp.toDate(),
           } as Waiver),
       ),
-      x500: data.x500,
+      accountId: data.accountId,
     };
   },
 };
@@ -68,8 +69,9 @@ export interface Member {
   name: string;
   studentId: string;
   memberType: MemberTypeId;
-  x500: string;
+  accountId: string;
   isTeamMember: boolean;
+  isActiveMember: boolean;
   graduationYear: number;
   source: string;
   referralMember: string;
@@ -81,8 +83,9 @@ export interface FMember {
   name: string;
   studentId: string;
   memberType: MemberTypeId;
-  x500: string;
+  accountId: string;
   isTeamMember: boolean;
+  isActiveMember: boolean;
   graduationYear: number;
   source: MemberTypeId;
   referralMember: string;
