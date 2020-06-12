@@ -4,11 +4,11 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import { Member } from '../../model/Member';
-import { memberTypes } from '../../dummydata';
-import { MemberTypeId } from '../../model/MemberType';
+import { Member } from '../model/Member';
+import { MemberTypeId, MemberType } from '../model/MemberType';
 
 interface NewMemberModalProps {
+  memberTypes: { [key in MemberTypeId]?: MemberType };
   show: boolean;
   onClose: () => void;
 }
@@ -33,7 +33,7 @@ export default class NewMemberModal extends React.Component<
         studentId: '',
         accountId: '',
         waivers: [],
-        attendance: [],
+        memberTerms: {},
       },
     };
   }
@@ -103,13 +103,13 @@ export default class NewMemberModal extends React.Component<
                     )
                   }
                 >
-                  {Object.keys(memberTypes).map(k => (
+                  {Object.keys(this.props.memberTypes).map(k => (
                     <option
                       key={k}
                       value={k}
                       selected={k === this.state.member.memberType}
                     >
-                      {memberTypes[k as MemberTypeId].name}
+                      {this.props.memberTypes[k as MemberTypeId]!.name}
                     </option>
                   ))}
                 </Form.Control>

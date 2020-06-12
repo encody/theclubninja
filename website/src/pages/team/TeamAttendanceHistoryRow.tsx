@@ -11,25 +11,34 @@ import { Attendance } from '../../model/Attendance';
 
 interface TeamAttendanceHistoryRowProps {
   member: Member;
+  term: string;
 }
 
 export default class TeamAttendanceHistoryRow extends React.Component<
   TeamAttendanceHistoryRowProps
 > {
   render() {
-    const attendanceHistory = this.props.member.attendance.reduce(
-      (acc, record) => {
-        acc[record.type]++;
-        return acc;
-      },
-      {
-        present: 0,
-        late: 0,
-        excused: 0,
-        unexcused: 0,
-      },
-    );
-    const attendances = this.props.member.attendance.length;
+    const currentTerm = this.props.member.memberTerms[this.props.term];
+    const attendanceHistory = currentTerm
+      ? currentTerm.teamAttendance.reduce(
+          (acc, record) => {
+            acc[record.type]++;
+            return acc;
+          },
+          {
+            present: 0,
+            late: 0,
+            excused: 0,
+            unexcused: 0,
+          },
+        )
+      : {
+          present: 0,
+          late: 0,
+          excused: 0,
+          unexcused: 0,
+        };
+    const attendanceCount = currentTerm ? currentTerm.teamAttendance.length : 0;
 
     return (
       <Container className={'list-group-item ' + styles.row}>
@@ -43,7 +52,7 @@ export default class TeamAttendanceHistoryRow extends React.Component<
                   variant="success"
                   label="Present"
                   title={'Present: ' + attendanceHistory.present}
-                  now={(attendanceHistory.present / attendances) * 100}
+                  now={(attendanceHistory.present / attendanceCount) * 100}
                 ></ProgressBar>
               )}
               {!!attendanceHistory.late && (
@@ -51,7 +60,7 @@ export default class TeamAttendanceHistoryRow extends React.Component<
                   variant="warning"
                   label="Late"
                   title={'Arrived late: ' + attendanceHistory.late}
-                  now={(attendanceHistory.late / attendances) * 100}
+                  now={(attendanceHistory.late / attendanceCount) * 100}
                 ></ProgressBar>
               )}
               {!!attendanceHistory.excused && (
@@ -59,7 +68,7 @@ export default class TeamAttendanceHistoryRow extends React.Component<
                   variant="info"
                   label="Excused"
                   title={'Excused absences: ' + attendanceHistory.excused}
-                  now={(attendanceHistory.excused / attendances) * 100}
+                  now={(attendanceHistory.excused / attendanceCount) * 100}
                 ></ProgressBar>
               )}
               {!!attendanceHistory.unexcused && (
@@ -67,7 +76,7 @@ export default class TeamAttendanceHistoryRow extends React.Component<
                   variant="danger"
                   label="Unexcused"
                   title={'Unexcused absences: ' + attendanceHistory.unexcused}
-                  now={(attendanceHistory.unexcused / attendances) * 100}
+                  now={(attendanceHistory.unexcused / attendanceCount) * 100}
                 ></ProgressBar>
               )}
             </ProgressBar>

@@ -7,20 +7,26 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { Member } from '../../model/Member';
 import styles from './ClubRow.module.css';
 import { Attendance } from '../../model/Attendance';
+import FormGroup from 'react-bootstrap/FormGroup';
+import { MemberTerm } from '../../model/MemberTerm';
 
 interface ClubRowProps {
   member: Member;
+  term: string;
 }
 
 export default class ClubRow extends React.Component<ClubRowProps> {
   getAttendanceRecord(): Attendance | undefined {
     const now = Date.now();
     const today = new Date().getDate();
-    return this.props.member.attendance.find(
-      a =>
-        now - a.timestamp.getTime() < 24 * 60 * 60 * 1000 &&
-        a.timestamp.getDate() === today,
-    );
+    const memberTerm = this.props.member.memberTerms[this.props.term];
+    return memberTerm
+      ? memberTerm.clubAttendance.find(
+          a =>
+            now - a.timestamp.toDate().getTime() < 24 * 60 * 60 * 1000 &&
+            a.timestamp.toDate().getDate() === today,
+        )
+      : undefined;
   }
 
   render() {
@@ -32,34 +38,18 @@ export default class ClubRow extends React.Component<ClubRowProps> {
           <Col xs={5}>{this.props.member.name}</Col>
           <Col xs={3}>{this.props.member.accountId}</Col>
           <Col xs={4}>
-            <ButtonGroup>
-              <Button
-                variant="outline-success"
-                active={attendanceRecord && attendanceRecord.type === 'present'}
-              >
-                Present
+            {attendanceRecord ? (
+              <Button variant="success" disabled>
+                Already checked in
               </Button>
-              <Button
-                variant="outline-warning"
-                active={attendanceRecord && attendanceRecord.type === 'late'}
-              >
-                Late
-              </Button>
-              <Button
-                variant="outline-secondary"
-                active={attendanceRecord && attendanceRecord.type === 'excused'}
-              >
-                Excused
-              </Button>
-              <Button
-                variant="outline-danger"
-                active={
-                  attendanceRecord && attendanceRecord.type === 'unexcused'
-                }
-              >
-                Unexcused
-              </Button>
-            </ButtonGroup>
+            ) : (
+              <>
+                <Button className="mr-2" variant="primary">
+                  Pay Now
+                </Button>
+                <Button variant="success">Check In</Button>
+              </>
+            )}
           </Col>
         </Row>
       </Container>

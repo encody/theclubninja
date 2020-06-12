@@ -10,14 +10,16 @@ import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
 import { Member } from '../../model/Member';
 import MemberDetails from './MemberDetails';
 import MemberRow from './MemberRow';
-import NewMemberModal from './NewMemberModal';
+import NewMemberModal from '../../shared/NewMemberModal';
+import { Model } from '../../model/Model';
 
 interface MembersProps {
-  members: Member[];
+  model: Model;
 }
 
 interface MembersState {
   filter: string;
+  memberList: Member[];
   filteredMembers: Member[];
   showNewMemberModal: boolean;
 }
@@ -29,9 +31,12 @@ export default class Members extends React.Component<
   constructor(props: MembersProps) {
     super(props);
 
+    const members = Object.values(this.props.model.members);
+
     this.state = {
       filter: '',
-      filteredMembers: props.members.slice(),
+      memberList: members,
+      filteredMembers: members.slice(),
       showNewMemberModal: false,
     };
   }
@@ -51,7 +56,7 @@ export default class Members extends React.Component<
   updateFilter(filter: string) {
     this.setState({
       filter,
-      filteredMembers: this.props.members.filter(
+      filteredMembers: this.state.memberList.filter(
         member =>
           member.name.toLowerCase().includes(filter.toLowerCase()) ||
           member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
@@ -104,10 +109,11 @@ export default class Members extends React.Component<
         )}
 
         <Route path="/members/:id?">
-          <MemberDetailsModalWithRouter members={this.props.members} />
+          <MemberDetailsModalWithRouter members={this.state.memberList} />
         </Route>
 
         <NewMemberModal
+          memberTypes={this.props.model.memberTypes}
           show={this.state.showNewMemberModal}
           onClose={() => this.closeNewMemberModal()}
         />

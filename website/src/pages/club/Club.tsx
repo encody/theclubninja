@@ -8,30 +8,50 @@ import Row from 'react-bootstrap/Row';
 import styles from './Club.module.css';
 import { Member } from '../../model/Member';
 import ClubRow from './ClubRow';
+import NewMemberModal from '../../shared/NewMemberModal';
+import { Model } from '../../model/Model';
 
 interface ClubProps {
-  members: Member[];
+  model: Model;
 }
 
 interface ClubState {
   filter: string;
+  memberList: Member[];
   filteredMembers: Member[];
+  showNewMemberModal: boolean;
 }
 
 export default class Club extends React.Component<ClubProps, ClubState> {
   public constructor(props: ClubProps) {
     super(props);
 
+    const members = Object.values(props.model.members);
+
     this.state = {
       filter: '',
-      filteredMembers: props.members,
+      memberList: members,
+      filteredMembers: members.slice(),
+      showNewMemberModal: false,
     };
+  }
+
+  openNewMemberModal() {
+    this.setState({
+      showNewMemberModal: true,
+    });
+  }
+
+  closeNewMemberModal() {
+    this.setState({
+      showNewMemberModal: false,
+    });
   }
 
   updateFilter(filter: string) {
     this.setState({
       filter,
-      filteredMembers: this.props.members.filter(
+      filteredMembers: this.state.memberList.filter(
         member =>
           member.name.toLowerCase().includes(filter.toLowerCase()) ||
           member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
@@ -41,10 +61,14 @@ export default class Club extends React.Component<ClubProps, ClubState> {
   }
 
   render() {
+    const currentTerm = this.props.model.terms[
+      this.props.model.terms.length - 1
+    ];
+
     return (
       <Container>
         <Row as="header">
-          <h2 className="mb-3">Members</h2>
+          <h2 className="mb-3">Club Check-In</h2>
         </Row>
 
         <div className="d-flex mb-3">
@@ -55,6 +79,11 @@ export default class Club extends React.Component<ClubProps, ClubState> {
               value={this.state.filter}
               onChange={e => this.updateFilter(e.target.value)}
             />
+          </div>
+          <div className="ml-3 flex-shrink-1">
+            <Button onClick={() => this.openNewMemberModal()}>
+              New Member
+            </Button>
           </div>
         </div>
 
@@ -67,7 +96,11 @@ export default class Club extends React.Component<ClubProps, ClubState> {
             </Row>
           </ListGroup.Item>
           {this.state.filteredMembers.map(member => (
-            <ClubRow key={member.accountId} member={member} />
+            <ClubRow
+              key={member.accountId}
+              member={member}
+              term={currentTerm.id}
+            />
           ))}
         </ListGroup>
 
@@ -76,6 +109,12 @@ export default class Club extends React.Component<ClubProps, ClubState> {
             <p>No members.</p>
           </div>
         )}
+
+        <NewMemberModal
+          memberTypes={this.props.model.memberTypes}
+          show={this.state.showNewMemberModal}
+          onClose={() => this.closeNewMemberModal()}
+        />
       </Container>
     );
   }

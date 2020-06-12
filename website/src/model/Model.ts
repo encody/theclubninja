@@ -14,7 +14,5 @@ export class Model {
   members: {
     [accountId: string]: Member;
   } = {};
-  terms: {
-    [termId: string]: Term;
-  } = {};
+  terms: Term[] = [];
 }

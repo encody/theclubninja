@@ -5,7 +5,7 @@ import Club from './pages/club/Club';
 import Team from './pages/team/Team';
 import Members from './pages/members/Members';
 import Payments from './pages/payments/Payments';
-import { members } from './dummydata';
+import model from './dummydata';
 
 export default function App() {
   return (
@@ -19,13 +19,13 @@ export default function App() {
               <Home />
             </Route>
             <Route path="/club">
-              <Club members={members} />
+              <Club model={model} />
             </Route>
             <Route path="/team">
-              <Team members={members} />
+              <Team model={model} />
             </Route>
             <Route path="/members">
-              <Members members={members} />
+              <Members model={model} />
             </Route>
             <Route path="/payments">
               <Payments />

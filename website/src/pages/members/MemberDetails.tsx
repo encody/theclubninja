@@ -22,7 +22,7 @@ export default class MemberDetails extends React.Component<
           const lastWaiver = this.props.member.waivers[
             this.props.member.waivers.length - 1
           ];
-          return lastWaiver ? moment(lastWaiver.timestamp).calendar() : 'N/A';
+          return lastWaiver ? moment(lastWaiver.timestamp.toDate()).calendar() : 'N/A';
         })()
       : '';
 

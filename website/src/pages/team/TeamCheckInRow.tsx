@@ -10,6 +10,7 @@ import { Attendance } from '../../model/Attendance';
 
 interface TeamCheckInRowProps {
   member: Member;
+  term: string;
 }
 
 export default class TeamCheckInRow extends React.Component<
@@ -18,11 +19,14 @@ export default class TeamCheckInRow extends React.Component<
   getAttendanceRecord(): Attendance | undefined {
     const now = Date.now();
     const today = new Date().getDate();
-    return this.props.member.attendance.find(
-      a =>
-        now - a.timestamp.getTime() < 24 * 60 * 60 * 1000 &&
-        a.timestamp.getDate() === today,
-    );
+    const memberTerm = this.props.member.memberTerms[this.props.term];
+    return memberTerm
+      ? memberTerm.teamAttendance.find(
+          a =>
+            now - a.timestamp.toDate().getTime() < 24 * 60 * 60 * 1000 &&
+            a.timestamp.toDate().getDate() === today,
+        )
+      : undefined;
   }
 
   render() {
