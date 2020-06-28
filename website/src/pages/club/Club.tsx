@@ -53,9 +53,9 @@ export default class Club extends React.Component<ClubProps, ClubState> {
       filter,
       filteredMembers: this.state.memberList.filter(
         member =>
-          member.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.accountId.toLowerCase().includes(filter.toLowerCase()),
+          member.data.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.data.studentId.toLowerCase().includes(filter.toLowerCase()) ||
+          member.data.accountId.toLowerCase().includes(filter.toLowerCase()),
       ),
     });
   }
@@ -97,7 +97,7 @@ export default class Club extends React.Component<ClubProps, ClubState> {
           </ListGroup.Item>
           {this.state.filteredMembers.map(member => (
             <ClubRow
-              key={member.accountId}
+              key={member.data.accountId}
               member={member}
               term={currentTerm.id}
             />
@@ -111,7 +111,6 @@ export default class Club extends React.Component<ClubProps, ClubState> {
         )}
 
         <NewMemberModal
-          memberTypes={this.props.model.memberTypes}
           show={this.state.showNewMemberModal}
           onClose={() => this.closeNewMemberModal()}
         />

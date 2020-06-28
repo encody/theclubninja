@@ -6,9 +6,9 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { Member } from '../../model/Member';
 import styles from './ClubRow.module.css';
-import { Attendance } from '../../model/Attendance';
+import { IAttendance, AttendanceEvent } from '../../model/Attendance';
 import FormGroup from 'react-bootstrap/FormGroup';
-import { MemberTerm } from '../../model/MemberTerm';
+import { IMemberTerm } from '../../model/MemberTerm';
 
 interface ClubRowProps {
   member: Member;
@@ -16,16 +16,18 @@ interface ClubRowProps {
 }
 
 export default class ClubRow extends React.Component<ClubRowProps> {
-  getAttendanceRecord(): Attendance | undefined {
+  getAttendanceRecord(): IAttendance | undefined {
     const now = Date.now();
     const today = new Date().getDate();
-    const memberTerm = this.props.member.memberTerms[this.props.term];
+    const memberTerm = this.props.member.data.terms[this.props.term];
     return memberTerm
-      ? memberTerm.clubAttendance.find(
-          a =>
-            now - a.timestamp.toDate().getTime() < 24 * 60 * 60 * 1000 &&
-            a.timestamp.toDate().getDate() === today,
-        )
+      ? memberTerm.attendance
+          .filter(a => a.event === AttendanceEvent.Club)
+          .find(
+            a =>
+              now - a.timestamp.toDate().getTime() < 24 * 60 * 60 * 1000 &&
+              a.timestamp.toDate().getDate() === today,
+          )
       : undefined;
   }
 
@@ -35,8 +37,8 @@ export default class ClubRow extends React.Component<ClubRowProps> {
     return (
       <Container className={'list-group-item ' + styles.row}>
         <Row>
-          <Col xs={5}>{this.props.member.name}</Col>
-          <Col xs={3}>{this.props.member.accountId}</Col>
+          <Col xs={5}>{this.props.member.data.name}</Col>
+          <Col xs={3}>{this.props.member.data.accountId}</Col>
           <Col xs={4}>
             {attendanceRecord ? (
               <Button variant="success" disabled>

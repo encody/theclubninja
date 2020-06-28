@@ -21,7 +21,10 @@ export default class Navbar extends React.Component {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="navbar-nav collapse navbar-collapse" id="navbarSupportedContent">
+        <div
+          className="navbar-nav collapse navbar-collapse"
+          id="navbarSupportedContent"
+        >
           <NavLink className="nav-link" activeClassName="active" to="/club">
             Club
           </NavLink>
@@ -37,7 +40,11 @@ export default class Navbar extends React.Component {
           <NavLink className="nav-link" activeClassName="active" to="/events">
             Events
           </NavLink>
-          <NavLink className="nav-link" activeClassName="active" to="/dashboards">
+          <NavLink
+            className="nav-link"
+            activeClassName="active"
+            to="/dashboards"
+          >
             Dashboards
           </NavLink>
         </div>

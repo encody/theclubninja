@@ -1,18 +1,13 @@
-import { CreditType, CreditTypeId } from './CreditType';
+import { CreditTypeId, ICreditType } from './CreditType';
 import { Member } from './Member';
-import { MemberType, MemberTypeId } from './MemberType';
-import { Term } from './Term';
-import { getFirebase } from '../firebase';
+import { ITerm } from './Term';
 
 export class Model {
   creditTypes: {
-    [key in CreditTypeId]?: CreditType;
-  } = {};
-  memberTypes: {
-    [key in MemberTypeId]?: MemberType;
+    [key in CreditTypeId]?: ICreditType;
   } = {};
   members: {
     [accountId: string]: Member;
   } = {};
-  terms: Term[] = [];
+  terms: ITerm[] = [];
 }

@@ -1,12 +1,8 @@
-import { Attendance } from './Attendance';
-import { Bill } from './Bill';
-import { Payment } from './Payment';
+import { IAttendance } from './Attendance';
+import { ILedgerEntry } from './LedgerEntry';
+import { IPayment } from './Payment';
 
-export interface MemberTerm {
-  hasPaidTeamDues: boolean;
-  hasPaidClubDues: boolean;
-  teamAttendance: Attendance[];
-  clubAttendance: Attendance[];
-  bills: Bill[];
-  payments: Payment[];
+export interface IMemberTerm {
+  attendance: IAttendance[];
+  ledger: ILedgerEntry[];
 }

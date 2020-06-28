@@ -1,5 +1,5 @@
 import firebase from 'firebase';
 
-export interface Waiver {
+export interface IWaiver {
   timestamp: firebase.firestore.Timestamp;
 }

@@ -1,12 +1,16 @@
 import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
-import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import {
+  AttendanceEvent,
+  AttendanceType,
+  IAttendance,
+} from '../../model/Attendance';
 import { Member } from '../../model/Member';
 import styles from './TeamCheckInRow.module.css';
-import { Attendance } from '../../model/Attendance';
 
 interface TeamCheckInRowProps {
   member: Member;
@@ -16,16 +20,18 @@ interface TeamCheckInRowProps {
 export default class TeamCheckInRow extends React.Component<
   TeamCheckInRowProps
 > {
-  getAttendanceRecord(): Attendance | undefined {
+  getAttendanceRecord(): IAttendance | undefined {
     const now = Date.now();
     const today = new Date().getDate();
-    const memberTerm = this.props.member.memberTerms[this.props.term];
+    const memberTerm = this.props.member.data.terms[this.props.term];
     return memberTerm
-      ? memberTerm.teamAttendance.find(
-          a =>
-            now - a.timestamp.toDate().getTime() < 24 * 60 * 60 * 1000 &&
-            a.timestamp.toDate().getDate() === today,
-        )
+      ? memberTerm.attendance
+          .filter(a => a.event === AttendanceEvent.Team)
+          .find(
+            a =>
+              now - a.timestamp.toDate().getTime() < 24 * 60 * 60 * 1000 &&
+              a.timestamp.toDate().getDate() === today,
+          )
       : undefined;
   }
 
@@ -35,32 +41,42 @@ export default class TeamCheckInRow extends React.Component<
     return (
       <Container className={'list-group-item ' + styles.row}>
         <Row>
-          <Col xs={4}>{this.props.member.name}</Col>
-          <Col xs={2}>{this.props.member.accountId}</Col>
+          <Col xs={4}>{this.props.member.data.name}</Col>
+          <Col xs={2}>{this.props.member.data.accountId}</Col>
           <Col xs={6}>
             <ButtonGroup>
               <Button
                 variant="outline-success"
-                active={attendanceRecord && attendanceRecord.type === 'present'}
+                active={
+                  attendanceRecord &&
+                  attendanceRecord.type === AttendanceType.Present
+                }
               >
                 Present
               </Button>
               <Button
                 variant="outline-warning"
-                active={attendanceRecord && attendanceRecord.type === 'late'}
+                active={
+                  attendanceRecord &&
+                  attendanceRecord.type === AttendanceType.Late
+                }
               >
                 Late
               </Button>
               <Button
                 variant="outline-info"
-                active={attendanceRecord && attendanceRecord.type === 'excused'}
+                active={
+                  attendanceRecord &&
+                  attendanceRecord.type === AttendanceType.Excused
+                }
               >
                 Excused
               </Button>
               <Button
                 variant="outline-danger"
                 active={
-                  attendanceRecord && attendanceRecord.type === 'unexcused'
+                  attendanceRecord &&
+                  attendanceRecord.type === AttendanceType.Unexcused
                 }
               >
                 Unexcused

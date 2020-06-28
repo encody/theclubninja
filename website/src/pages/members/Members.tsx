@@ -7,7 +7,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
-import { Member } from '../../model/Member';
+import { IMember, Member } from '../../model/Member';
 import MemberDetails from './MemberDetails';
 import MemberRow from './MemberRow';
 import NewMemberModal from '../../shared/NewMemberModal';
@@ -58,9 +58,9 @@ export default class Members extends React.Component<
       filter,
       filteredMembers: this.state.memberList.filter(
         member =>
-          member.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.accountId.toLowerCase().includes(filter.toLowerCase()),
+          member.data.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.data.studentId.toLowerCase().includes(filter.toLowerCase()) ||
+          member.data.accountId.toLowerCase().includes(filter.toLowerCase()),
       ),
     });
   }
@@ -98,7 +98,7 @@ export default class Members extends React.Component<
             </Row>
           </ListGroup.Item>
           {this.state.filteredMembers.map(member => (
-            <MemberRow key={member.accountId} member={member} />
+            <MemberRow key={member.data.accountId} member={member} />
           ))}
         </ListGroup>
 
@@ -113,7 +113,6 @@ export default class Members extends React.Component<
         </Route>
 
         <NewMemberModal
-          memberTypes={this.props.model.memberTypes}
           show={this.state.showNewMemberModal}
           onClose={() => this.closeNewMemberModal()}
         />
@@ -140,7 +139,7 @@ class MemberDetailsModal extends React.Component<
 
   render() {
     const member = this.props.members.find(
-      m => m.accountId === this.props.match.params.id,
+      m => m.data.accountId === this.props.match.params.id,
     );
     return (
       <Modal

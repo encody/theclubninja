@@ -4,18 +4,17 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import { Member } from '../model/Member';
-import { MemberTypeId, MemberType } from '../model/MemberType';
+import { IMember } from '../model/Member';
+import { MemberType, memberTypes } from '../model/MemberType';
 
 interface NewMemberModalProps {
-  memberTypes: { [key in MemberTypeId]?: MemberType };
   show: boolean;
   onClose: () => void;
 }
 
 export default class NewMemberModal extends React.Component<
   NewMemberModalProps,
-  { show: boolean; member: Member }
+  { show: boolean; member: IMember }
 > {
   constructor(props: NewMemberModalProps) {
     super(props);
@@ -25,7 +24,7 @@ export default class NewMemberModal extends React.Component<
       member: {
         name: '',
         graduationYear: moment().year() + 2,
-        memberType: 'student',
+        memberType: MemberType.Student,
         isTeamMember: false,
         isActiveMember: true,
         referralMember: '',
@@ -33,12 +32,12 @@ export default class NewMemberModal extends React.Component<
         studentId: '',
         accountId: '',
         waivers: [],
-        memberTerms: {},
+        terms: {},
       },
     };
   }
 
-  updateMember<K extends keyof Member>(prop: K, value: Member[K]) {
+  updateMember<K extends keyof IMember>(prop: K, value: IMember[K]) {
     const { member } = this.state;
     member[prop] = value;
     this.setState({ member });
@@ -99,17 +98,19 @@ export default class NewMemberModal extends React.Component<
                   onChange={e =>
                     this.updateMember(
                       'memberType',
-                      e.target.value as MemberTypeId,
+                      e.target.value in MemberType
+                        ? (e.target.value as MemberType)
+                        : MemberType.Student,
                     )
                   }
                 >
-                  {Object.keys(this.props.memberTypes).map(k => (
+                  {(Object.keys(MemberType) as (keyof typeof MemberType)[]).map(k => (
                     <option
                       key={k}
                       value={k}
-                      selected={k === this.state.member.memberType}
+                      selected={MemberType[k] === this.state.member.memberType}
                     >
-                      {this.props.memberTypes[k as MemberTypeId]!.name}
+                      {memberTypes[MemberType[k]].name}
                     </option>
                   ))}
                 </Form.Control>

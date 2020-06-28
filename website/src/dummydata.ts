@@ -1,64 +1,62 @@
 import firebase from 'firebase';
 import moment from 'moment';
+import { Member } from './model/Member';
+import { MemberType } from './model/MemberType';
 import { Model } from './model/Model';
+import { AttendanceType, AttendanceEvent } from './model/Attendance';
 
 const model: Model = {
   members: {
-    'doe500': {
+    doe500: new Member({
       name: 'John Doe on team',
       accountId: 'doe500',
-      memberType: 'student',
+      memberType: MemberType.Student,
       studentId: '123456789',
       isTeamMember: true,
       isActiveMember: true,
       graduationYear: 2020,
       referralMember: '',
       source: 'Advertisement',
-      memberTerms: {
+      terms: {
         '2020_summer': {
-          hasPaidClubDues: false,
-          hasPaidTeamDues: false,
-          bills: [],
-          payments: [],
-          teamAttendance: [],
-          clubAttendance: [
+          ledger: [],
+          attendance: [
             {
               credit: null,
               timestamp: new firebase.firestore.Timestamp(
                 moment().subtract(17, 'hours').unix(),
                 0,
               ),
-              type: 'present',
+              event: AttendanceEvent.Club,
+              type: AttendanceType.Present,
             },
           ],
         },
       },
       waivers: [],
-    },
-    'doe501': {
+    }),
+    doe501: new Member({
       name: 'Jane Doe on team',
       accountId: 'doe501',
-      memberType: 'student',
+      memberType: MemberType.Student,
       studentId: '123456780',
       isTeamMember: true,
       isActiveMember: true,
       graduationYear: 2020,
       referralMember: 'doe500',
       source: 'Advertisement',
-      memberTerms: {
+      terms: {
         '2020_summer': {
-          hasPaidClubDues: false,
-          hasPaidTeamDues: false,
-          bills: [],
-          payments: [],
-          teamAttendance: [
+          ledger: [],
+          attendance: [
             {
               credit: null,
               timestamp: new firebase.firestore.Timestamp(
                 moment().subtract(17, 'days').unix(),
                 0,
               ),
-              type: 'present',
+              event: AttendanceEvent.Team,
+              type: AttendanceType.Present,
             },
             {
               credit: null,
@@ -66,7 +64,8 @@ const model: Model = {
                 moment().subtract(9, 'days').unix(),
                 0,
               ),
-              type: 'late',
+              event: AttendanceEvent.Team,
+              type: AttendanceType.Late,
             },
             {
               credit: null,
@@ -74,7 +73,8 @@ const model: Model = {
                 moment().subtract(7, 'days').unix(),
                 0,
               ),
-              type: 'unexcused',
+              event: AttendanceEvent.Team,
+              type: AttendanceType.Unexcused,
             },
             {
               credit: null,
@@ -82,7 +82,8 @@ const model: Model = {
                 moment().subtract(2, 'days').unix(),
                 0,
               ),
-              type: 'excused',
+              event: AttendanceEvent.Team,
+              type: AttendanceType.Excused,
             },
             {
               credit: null,
@@ -90,10 +91,10 @@ const model: Model = {
                 moment().subtract(17, 'hours').unix(),
                 0,
               ),
-              type: 'present',
+              event: AttendanceEvent.Team,
+              type: AttendanceType.Present,
             },
           ],
-          clubAttendance: [],
         },
       },
       waivers: [
@@ -104,43 +105,25 @@ const model: Model = {
           ),
         },
       ],
-    },
-    'shmo500': {
+    }),
+    shmo500: new Member({
       name: 'Joe Shmo not team',
       accountId: 'shmo500',
-      memberType: 'other',
+      memberType: MemberType.Other,
       studentId: '123456781',
       isTeamMember: false,
       isActiveMember: true,
       graduationYear: 2020,
       referralMember: '',
       source: 'Advertisement',
-      memberTerms: {
+      terms: {
         '2020_summer': {
-          bills: [],
-          clubAttendance: [],
-          teamAttendance: [],
-          hasPaidClubDues: false,
-          hasPaidTeamDues: false,
-          payments: [],
+          ledger: [],
+          attendance: [],
         },
       },
       waivers: [],
-    },
-  },
-  memberTypes: {
-    student: {
-      name: 'Student',
-    },
-    alumni: {
-      name: 'Alumni',
-    },
-    faculty_staff: {
-      name: 'Faculty/Staff',
-    },
-    other: {
-      name: 'Other',
-    },
+    }),
   },
   terms: [
     {

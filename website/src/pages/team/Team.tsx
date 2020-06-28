@@ -8,7 +8,7 @@ import Tab from 'react-bootstrap/Tab';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import styles from './Club.module.css';
-import { Member } from '../../model/Member';
+import { IMember, Member } from '../../model/Member';
 import TeamCheckInRow from './TeamCheckInRow';
 import TeamAttendanceHistoryRow from './TeamAttendanceHistoryRow';
 import { Model } from '../../model/Model';
@@ -41,9 +41,11 @@ export default class Team extends React.Component<TeamProps, TeamState> {
       filter,
       filteredMembers: this.state.memberList.filter(
         member =>
-          member.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.accountId.toLowerCase().includes(filter.toLowerCase()),
+          member.data.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.data.studentId
+            .toLowerCase()
+            .includes(filter.toLowerCase()) ||
+          member.data.accountId.toLowerCase().includes(filter.toLowerCase()),
       ),
     });
   }
@@ -82,7 +84,7 @@ export default class Team extends React.Component<TeamProps, TeamState> {
               </ListGroup.Item>
               {this.state.filteredMembers.map(member => (
                 <TeamCheckInRow
-                  key={member.accountId}
+                  key={member.data.accountId}
                   member={member}
                   term={currentTerm.id}
                 />
@@ -100,7 +102,7 @@ export default class Team extends React.Component<TeamProps, TeamState> {
               </ListGroup.Item>
               {this.state.filteredMembers.map(member => (
                 <TeamAttendanceHistoryRow
-                  key={member.accountId}
+                  key={member.data.accountId}
                   member={member}
                   term={currentTerm.id}
                 />
