@@ -14,7 +14,7 @@ import styles from './TeamCheckInRow.module.css';
 
 interface TeamCheckInRowProps {
   member: Member;
-  term: string;
+  termId: string;
 }
 
 export default class TeamCheckInRow extends React.Component<
@@ -23,7 +23,7 @@ export default class TeamCheckInRow extends React.Component<
   getAttendanceRecord(): IAttendance | undefined {
     const now = Date.now();
     const today = new Date().getDate();
-    const memberTerm = this.props.member.data.terms[this.props.term];
+    const memberTerm = this.props.member.data.terms[this.props.termId];
     return memberTerm
       ? memberTerm.attendance
           .filter(a => a.event === AttendanceEvent.Team)

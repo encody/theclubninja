@@ -5,11 +5,10 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
-import styles from './Club.module.css';
 import { Member } from '../../model/Member';
-import ClubRow from './ClubRow';
-import NewMemberModal from '../../shared/NewMemberModal';
 import { Model } from '../../model/Model';
+import NewMemberModal from '../../shared/NewMemberModal';
+import ClubRow from './ClubRow';
 
 interface ClubProps {
   model: Model;
@@ -26,7 +25,7 @@ export default class Club extends React.Component<ClubProps, ClubState> {
   public constructor(props: ClubProps) {
     super(props);
 
-    const members = Object.values(props.model.members);
+    const members = Object.values(props.model.data.members);
 
     this.state = {
       filter: '',
@@ -61,8 +60,8 @@ export default class Club extends React.Component<ClubProps, ClubState> {
   }
 
   render() {
-    const currentTerm = this.props.model.terms[
-      this.props.model.terms.length - 1
+    const currentTerm = this.props.model.data.terms[
+      this.props.model.data.terms.length - 1
     ];
 
     return (

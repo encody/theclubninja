@@ -1,5 +1,5 @@
 import { IWaiver } from './Waiver';
-import { IMemberTerm } from './MemberTerm';
+import { IMemberTerm, Membership } from './MemberTerm';
 import { MemberType } from './MemberType';
 import { AttendanceEvent } from './Attendance';
 import { LedgerEntryReason } from './LedgerEntry';
@@ -9,8 +9,6 @@ export interface IMember {
   studentId: string;
   memberType: MemberType;
   accountId: string;
-  isTeamMember: boolean;
-  isActiveMember: boolean;
   graduationYear: number;
   source: string;
   referralMember: string;
@@ -19,7 +17,7 @@ export interface IMember {
 }
 
 export class Member {
-  public constructor (public readonly data: IMember) {}
+  public constructor(public readonly data: IMember) {}
 
   public hasPaidForTerm(termId: string, reason: LedgerEntryReason): boolean {
     const term = this.data.terms[termId];
@@ -29,6 +27,23 @@ export class Member {
 
     const entries = term.ledger.filter(entry => entry.reason === reason);
 
-    return entries.length > 0 && entries.every(entry => entry.payments.reduce((total, p) => total + p.value, 0) === entry.value);
+    return (
+      entries.length > 0 &&
+      entries.every(
+        entry =>
+          entry.payments.reduce((total, p) => total + p.value, 0) ===
+          entry.value,
+      )
+    );
+  }
+
+  public isActiveMember(termId: string): boolean {
+    return !!this.data.terms[termId];
+  }
+
+  public hasMembership(membership: Membership, termId: string): boolean {
+    const term = this.data.terms[termId];
+
+    return !!term && term.memberships.includes(membership);
   }
 }

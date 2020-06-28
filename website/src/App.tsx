@@ -7,43 +7,58 @@ import Members from './pages/members/Members';
 import Payments from './pages/payments/Payments';
 import model from './dummydata';
 
-export default function App() {
-  return (
-    <Router>
-      <div>
-        <Navbar />
+export default class App extends React.Component<
+  {},
+  {
+    termId: string;
+  }
+> {
+  constructor(props: {}) {
+    super(props);
 
-        <div className="mx-auto my-3 w-75">
-          <Switch>
-            <Route exact path="/">
-              <Home />
-            </Route>
-            <Route path="/club">
-              <Club model={model} />
-            </Route>
-            <Route path="/team">
-              <Team model={model} />
-            </Route>
-            <Route path="/members">
-              <Members model={model} />
-            </Route>
-            <Route path="/payments">
-              <Payments />
-            </Route>
-            <Route path="/events">
-              <NotYet />
-            </Route>
-            <Route path="/dashboards">
-              <NotYet />
-            </Route>
-            <Route path="*">
-              <NotFound />
-            </Route>
-          </Switch>
+    this.state = {
+      termId: model.mostRecentTerm.id,
+    };
+  }
+
+  render() {
+    return (
+      <Router>
+        <div>
+          <Navbar />
+
+          <div className="mx-auto my-3 w-75">
+            <Switch>
+              <Route exact path="/">
+                <Home />
+              </Route>
+              <Route path="/club">
+                <Club model={model} />
+              </Route>
+              <Route path="/team">
+                <Team termId={this.state.termId} model={model} />
+              </Route>
+              <Route path="/members">
+                <Members termId={this.state.termId} model={model} />
+              </Route>
+              <Route path="/payments">
+                <Payments termId={this.state.termId} model={model} />
+              </Route>
+              <Route path="/events">
+                <NotYet />
+              </Route>
+              <Route path="/dashboards">
+                <NotYet />
+              </Route>
+              <Route path="*">
+                <NotFound />
+              </Route>
+            </Switch>
+          </div>
         </div>
-      </div>
-    </Router>
-  );
+      </Router>
+    );
+  }
 }
 
 function NotYet() {

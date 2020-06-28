@@ -7,14 +7,15 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
-import { IMember, Member } from '../../model/Member';
+import { Member } from '../../model/Member';
+import { Model } from '../../model/Model';
+import NewMemberModal from '../../shared/NewMemberModal';
 import MemberDetails from './MemberDetails';
 import MemberRow from './MemberRow';
-import NewMemberModal from '../../shared/NewMemberModal';
-import { Model } from '../../model/Model';
 
 interface MembersProps {
   model: Model;
+  termId: string;
 }
 
 interface MembersState {
@@ -31,7 +32,9 @@ export default class Members extends React.Component<
   constructor(props: MembersProps) {
     super(props);
 
-    const members = Object.values(this.props.model.members);
+    const members = Object.values(this.props.model.data.members).filter(m =>
+      m.isActiveMember(this.props.termId),
+    );
 
     this.state = {
       filter: '',
@@ -98,7 +101,11 @@ export default class Members extends React.Component<
             </Row>
           </ListGroup.Item>
           {this.state.filteredMembers.map(member => (
-            <MemberRow key={member.data.accountId} member={member} />
+            <MemberRow
+              key={member.data.accountId}
+              member={member}
+              termId={this.props.termId}
+            />
           ))}
         </ListGroup>
 

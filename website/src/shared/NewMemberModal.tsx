@@ -25,8 +25,6 @@ export default class NewMemberModal extends React.Component<
         name: '',
         graduationYear: moment().year() + 2,
         memberType: MemberType.Student,
-        isTeamMember: false,
-        isActiveMember: true,
         referralMember: '',
         source: '',
         studentId: '',
@@ -130,24 +128,6 @@ export default class NewMemberModal extends React.Component<
                       this.updateMember('graduationYear', p);
                     }
                   }}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>Team Member:</td>
-              <td>
-                <Form.Check
-                  required
-                  custom
-                  label
-                  id="isTeamMemberCheckBox"
-                  type="checkbox"
-                  checked={this.state.member.isTeamMember}
-                  onClick={(
-                    e: React.MouseEvent<HTMLInputElement, MouseEvent>,
-                  ) =>
-                    this.updateMember('isTeamMember', (e.target as any).checked)
-                  }
                 />
               </td>
             </tr>

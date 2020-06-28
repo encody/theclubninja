@@ -4,21 +4,21 @@ import { Member } from './model/Member';
 import { MemberType } from './model/MemberType';
 import { Model } from './model/Model';
 import { AttendanceType, AttendanceEvent } from './model/Attendance';
+import { Membership } from './model/MemberTerm';
 
-const model: Model = {
+const model: Model = new Model({
   members: {
     doe500: new Member({
       name: 'John Doe on team',
       accountId: 'doe500',
       memberType: MemberType.Student,
       studentId: '123456789',
-      isTeamMember: true,
-      isActiveMember: true,
       graduationYear: 2020,
       referralMember: '',
       source: 'Advertisement',
       terms: {
         '2020_summer': {
+          memberships: [Membership.Club, Membership.Team],
           ledger: [],
           attendance: [
             {
@@ -40,13 +40,12 @@ const model: Model = {
       accountId: 'doe501',
       memberType: MemberType.Student,
       studentId: '123456780',
-      isTeamMember: true,
-      isActiveMember: true,
       graduationYear: 2020,
       referralMember: 'doe500',
       source: 'Advertisement',
       terms: {
         '2020_summer': {
+          memberships: [Membership.Club, Membership.Team],
           ledger: [],
           attendance: [
             {
@@ -88,7 +87,7 @@ const model: Model = {
             {
               credit: null,
               timestamp: new firebase.firestore.Timestamp(
-                moment().subtract(17, 'hours').unix(),
+                moment().subtract(1, 'minutes').unix(),
                 0,
               ),
               event: AttendanceEvent.Team,
@@ -111,13 +110,12 @@ const model: Model = {
       accountId: 'shmo500',
       memberType: MemberType.Other,
       studentId: '123456781',
-      isTeamMember: false,
-      isActiveMember: true,
       graduationYear: 2020,
       referralMember: '',
       source: 'Advertisement',
       terms: {
         '2020_summer': {
+          memberships: [Membership.Club],
           ledger: [],
           attendance: [],
         },
@@ -146,6 +144,6 @@ const model: Model = {
       order: 0,
     },
   },
-};
+});
 
 export default model;
