@@ -18,3 +18,18 @@ export interface ILedgerEntry {
   start: firebase.firestore.Timestamp;
   end: firebase.firestore.Timestamp;
 }
+
+export function isPaid(entry: ILedgerEntry) {
+  return (
+    entry.payments.reduce((total, payment) => total + payment.value, 0) ===
+    entry.value
+  );
+}
+
+export function isOverdue(entry: ILedgerEntry) {
+  return Date.now() > entry.end.toDate().getTime() && !isPaid(entry);
+}
+
+export function hasPayment(entry: ILedgerEntry) {
+  return entry.payments.length > 0;
+}

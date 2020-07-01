@@ -6,31 +6,31 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { Member } from '../../model/Member';
+import { IMember, isActiveMember, hasMembership } from '../../model/Member';
 import { Membership } from '../../model/MemberTerm';
-import { Model } from '../../model/Model';
+import { IModel } from '../../model/Model';
 import TeamAttendanceHistoryRow from './TeamAttendanceHistoryRow';
 import TeamCheckInRow from './TeamCheckInRow';
 
 interface TeamProps {
-  model: Model;
+  model: IModel;
   termId: string;
 }
 
 interface TeamState {
   filter: string;
-  memberList: Member[];
-  filteredMembers: Member[];
+  memberList: IMember[];
+  filteredMembers: IMember[];
 }
 
 export default class Team extends React.Component<TeamProps, TeamState> {
   public constructor(props: TeamProps) {
     super(props);
 
-    const members = Object.values(props.model.data.members).filter(
+    const members = Object.values(props.model.members).filter(
       m =>
-        m.isActiveMember(this.props.termId) &&
-        m.hasMembership(Membership.Team, this.props.termId),
+        isActiveMember(m, this.props.termId) &&
+        hasMembership(m, Membership.Team, this.props.termId),
     );
 
     this.state = {
@@ -45,16 +45,16 @@ export default class Team extends React.Component<TeamProps, TeamState> {
       filter,
       filteredMembers: this.state.memberList.filter(
         member =>
-          member.data.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.data.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.data.accountId.toLowerCase().includes(filter.toLowerCase()),
+          member.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
+          member.accountId.toLowerCase().includes(filter.toLowerCase()),
       ),
     });
   }
 
   render() {
-    const currentTerm = this.props.model.data.terms[
-      this.props.model.data.terms.length - 1
+    const currentTerm = this.props.model.terms[
+      this.props.model.terms.length - 1
     ];
 
     return (
@@ -86,7 +86,7 @@ export default class Team extends React.Component<TeamProps, TeamState> {
               </ListGroup.Item>
               {this.state.filteredMembers.map(member => (
                 <TeamCheckInRow
-                  key={member.data.accountId}
+                  key={member.accountId}
                   member={member}
                   termId={currentTerm.id}
                 />
@@ -104,7 +104,7 @@ export default class Team extends React.Component<TeamProps, TeamState> {
               </ListGroup.Item>
               {this.state.filteredMembers.map(member => (
                 <TeamAttendanceHistoryRow
-                  key={member.data.accountId}
+                  key={member.accountId}
                   member={member}
                   term={currentTerm.id}
                 />

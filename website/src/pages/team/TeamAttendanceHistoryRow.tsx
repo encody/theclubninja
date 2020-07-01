@@ -5,12 +5,12 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ProgressBar from 'react-bootstrap/ProgressBar';
-import { IMember, Member } from '../../model/Member';
+import { IMember } from '../../model/Member';
 import styles from './TeamAttendanceHistoryRow.module.css';
 import { IAttendance, AttendanceEvent } from '../../model/Attendance';
 
 interface TeamAttendanceHistoryRowProps {
-  member: Member;
+  member: IMember;
   term: string;
 }
 
@@ -18,7 +18,7 @@ export default class TeamAttendanceHistoryRow extends React.Component<
   TeamAttendanceHistoryRowProps
 > {
   private getAttendanceHistory() {
-    const currentTerm = this.props.member.data.terms[this.props.term];
+    const currentTerm = this.props.member.terms[this.props.term];
     const teamAttendance = currentTerm
       ? currentTerm.attendance.filter(a => a.event === AttendanceEvent.Team)
       : [];
@@ -45,8 +45,8 @@ export default class TeamAttendanceHistoryRow extends React.Component<
     return (
       <Container className={'list-group-item ' + styles.row}>
         <Row>
-          <Col xs={4}>{this.props.member.data.name}</Col>
-          <Col xs={2}>{this.props.member.data.accountId}</Col>
+          <Col xs={4}>{this.props.member.name}</Col>
+          <Col xs={2}>{this.props.member.accountId}</Col>
           <Col xs={6}>
             <ProgressBar>
               {!!attendanceHistory.present && (

@@ -1,8 +1,7 @@
-import { IWaiver } from './Waiver';
+import { isPaid, LedgerEntryReason } from './LedgerEntry';
 import { IMemberTerm, Membership } from './MemberTerm';
 import { MemberType } from './MemberType';
-import { AttendanceEvent } from './Attendance';
-import { LedgerEntryReason } from './LedgerEntry';
+import { IWaiver } from './Waiver';
 
 export interface IMember {
   name: string;
@@ -16,34 +15,31 @@ export interface IMember {
   waivers: IWaiver[];
 }
 
-export class Member {
-  public constructor(public readonly data: IMember) {}
-
-  public hasPaidForTerm(termId: string, reason: LedgerEntryReason): boolean {
-    const term = this.data.terms[termId];
-    if (!term) {
-      return false;
-    }
-
-    const entries = term.ledger.filter(entry => entry.reason === reason);
-
-    return (
-      entries.length > 0 &&
-      entries.every(
-        entry =>
-          entry.payments.reduce((total, p) => total + p.value, 0) ===
-          entry.value,
-      )
-    );
+export function hasPaidForTerm(
+  member: IMember,
+  termId: string,
+  reason: LedgerEntryReason,
+): boolean {
+  const term = member.terms[termId];
+  if (!term) {
+    return false;
   }
 
-  public isActiveMember(termId: string): boolean {
-    return !!this.data.terms[termId];
-  }
+  const entries = term.ledger.filter(entry => entry.reason === reason);
 
-  public hasMembership(membership: Membership, termId: string): boolean {
-    const term = this.data.terms[termId];
+  return entries.length > 0 && entries.every(isPaid);
+}
 
-    return !!term && term.memberships.includes(membership);
-  }
+export function isActiveMember(member: IMember, termId: string): boolean {
+  return !!member.terms[termId];
+}
+
+export function hasMembership(
+  member: IMember,
+  membership: Membership,
+  termId: string,
+): boolean {
+  const term = member.terms[termId];
+
+  return !!term && term.memberships.includes(membership);
 }

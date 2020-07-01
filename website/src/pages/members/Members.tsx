@@ -7,21 +7,21 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
-import { Member } from '../../model/Member';
-import { Model } from '../../model/Model';
+import { IMember, isActiveMember } from '../../model/Member';
+import { IModel } from '../../model/Model';
 import NewMemberModal from '../../shared/NewMemberModal';
 import MemberDetails from './MemberDetails';
 import MemberRow from './MemberRow';
 
 interface MembersProps {
-  model: Model;
+  model: IModel;
   termId: string;
 }
 
 interface MembersState {
   filter: string;
-  memberList: Member[];
-  filteredMembers: Member[];
+  memberList: IMember[];
+  filteredMembers: IMember[];
   showNewMemberModal: boolean;
 }
 
@@ -32,8 +32,8 @@ export default class Members extends React.Component<
   constructor(props: MembersProps) {
     super(props);
 
-    const members = Object.values(this.props.model.data.members).filter(m =>
-      m.isActiveMember(this.props.termId),
+    const members = Object.values(this.props.model.members).filter(m =>
+      isActiveMember(m, this.props.termId),
     );
 
     this.state = {
@@ -61,9 +61,9 @@ export default class Members extends React.Component<
       filter,
       filteredMembers: this.state.memberList.filter(
         member =>
-          member.data.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.data.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.data.accountId.toLowerCase().includes(filter.toLowerCase()),
+          member.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
+          member.accountId.toLowerCase().includes(filter.toLowerCase()),
       ),
     });
   }
@@ -102,7 +102,7 @@ export default class Members extends React.Component<
           </ListGroup.Item>
           {this.state.filteredMembers.map(member => (
             <MemberRow
-              key={member.data.accountId}
+              key={member.accountId}
               member={member}
               termId={this.props.termId}
             />
@@ -129,7 +129,7 @@ export default class Members extends React.Component<
 }
 
 type MemberDetailsModalProps = RouteComponentProps<{ id: string }> & {
-  members: Member[];
+  members: IMember[];
 };
 
 class MemberDetailsModal extends React.Component<
@@ -146,7 +146,7 @@ class MemberDetailsModal extends React.Component<
 
   render() {
     const member = this.props.members.find(
-      m => m.data.accountId === this.props.match.params.id,
+      m => m.accountId === this.props.match.params.id,
     );
     return (
       <Modal

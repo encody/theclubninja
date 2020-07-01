@@ -6,6 +6,7 @@ import Team from './pages/team/Team';
 import Members from './pages/members/Members';
 import Payments from './pages/payments/Payments';
 import model from './dummydata';
+import { mostRecentTerm } from './model/Model';
 
 export default class App extends React.Component<
   {},
@@ -17,7 +18,7 @@ export default class App extends React.Component<
     super(props);
 
     this.state = {
-      termId: model.mostRecentTerm.id,
+      termId: mostRecentTerm(model).id,
     };
   }
 

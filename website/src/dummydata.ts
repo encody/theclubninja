@@ -1,14 +1,16 @@
 import firebase from 'firebase';
 import moment from 'moment';
-import { Member } from './model/Member';
+import { IMember } from './model/Member';
 import { MemberType } from './model/MemberType';
-import { Model } from './model/Model';
+import { IModel } from './model/Model';
 import { AttendanceType, AttendanceEvent } from './model/Attendance';
 import { Membership } from './model/MemberTerm';
+import { LedgerEntryReason } from './model/LedgerEntry';
+import { PaymentType } from './model/Payment';
 
-const model: Model = new Model({
+const model: IModel = {
   members: {
-    doe500: new Member({
+    doe500: {
       name: 'John Doe on team',
       accountId: 'doe500',
       memberType: MemberType.Student,
@@ -34,8 +36,8 @@ const model: Model = new Model({
         },
       },
       waivers: [],
-    }),
-    doe501: new Member({
+    },
+    doe501: {
       name: 'Jane Doe on team',
       accountId: 'doe501',
       memberType: MemberType.Student,
@@ -46,7 +48,94 @@ const model: Model = new Model({
       terms: {
         '2020_summer': {
           memberships: [Membership.Club, Membership.Team],
-          ledger: [],
+          ledger: [
+            {
+              reason: LedgerEntryReason.TeamDues,
+              term: '2020_summer',
+              value: 210,
+              note: '',
+              payments: [],
+              start: new firebase.firestore.Timestamp(
+                moment().subtract(14, 'days').unix(),
+                0,
+              ),
+              end: new firebase.firestore.Timestamp(
+                moment().subtract(7, 'days').unix(),
+                0,
+              ),
+            },
+            {
+              reason: LedgerEntryReason.TeamDues,
+              term: '2020_summer',
+              value: 210,
+              note: '',
+              payments: [],
+              start: new firebase.firestore.Timestamp(
+                moment().subtract(7, 'days').unix(),
+                0,
+              ),
+              end: new firebase.firestore.Timestamp(
+                moment().add(7, 'days').unix(),
+                0,
+              ),
+            },
+            {
+              reason: LedgerEntryReason.TeamDues,
+              term: '2020_summer',
+              value: 210,
+              note: '',
+              payments: [
+                {
+                  timestamp: new firebase.firestore.Timestamp(
+                    moment().subtract(1, 'days').unix(),
+                    0,
+                  ),
+                  type: PaymentType.Manual,
+                  value: 210,
+                },
+              ],
+              start: new firebase.firestore.Timestamp(
+                moment().subtract(7, 'days').unix(),
+                0,
+              ),
+              end: new firebase.firestore.Timestamp(
+                moment().add(7, 'days').unix(),
+                0,
+              ),
+            },
+            {
+              reason: LedgerEntryReason.TeamDues,
+              term: '2020_summer',
+              value: 210,
+              note: '',
+              payments: [
+                {
+                  timestamp: new firebase.firestore.Timestamp(
+                    moment().subtract(1, 'days').unix(),
+                    0,
+                  ),
+                  type: PaymentType.Manual,
+                  value: 90,
+                },
+                {
+                  timestamp: new firebase.firestore.Timestamp(
+                    moment().subtract(1, 'days').unix(),
+                    0,
+                  ),
+                  type: PaymentType.Manual,
+                  value: 80,
+                },
+              ],
+              start: new firebase.firestore.Timestamp(
+                moment().subtract(7, 'days').unix(),
+                0,
+              ),
+              end: new firebase.firestore.Timestamp(
+                moment().add(7, 'days').unix(),
+                0,
+              ),
+            },
+          ],
           attendance: [
             {
               credit: null,
@@ -104,8 +193,8 @@ const model: Model = new Model({
           ),
         },
       ],
-    }),
-    shmo500: new Member({
+    },
+    shmo500: {
       name: 'Joe Shmo not team',
       accountId: 'shmo500',
       memberType: MemberType.Other,
@@ -121,7 +210,7 @@ const model: Model = new Model({
         },
       },
       waivers: [],
-    }),
+    },
   },
   terms: [
     {
@@ -144,6 +233,6 @@ const model: Model = new Model({
       order: 0,
     },
   },
-});
+};
 
 export default model;

@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './Club.module.css';
-import { Member } from '../../model/Member';
-import { Model } from '../../model/Model';
+import { IMember, isActiveMember } from '../../model/Member';
+import { IModel } from '../../model/Model';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Accordion from 'react-bootstrap/Accordion';
@@ -9,16 +9,20 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import MemberRow from '../members/MemberRow';
 import PaymentMemberOverview from './PaymentMemberOverview';
+import { withRouter, RouteComponentProps } from 'react-router-dom';
+import Modal from 'react-bootstrap/Modal';
+import { LedgerEntryDetails } from './LedgerEntryDetails';
+import { ILedgerEntry } from '../../model/LedgerEntry';
 
 interface PaymentsProps {
-  model: Model;
+  model: IModel;
   termId: string;
 }
 
 interface PaymentsState {
   filter: string;
-  memberList: Member[];
-  filteredMembers: Member[];
+  memberList: IMember[];
+  filteredMembers: IMember[];
 }
 
 export default class Payments extends React.Component<
@@ -28,8 +32,8 @@ export default class Payments extends React.Component<
   constructor(props: PaymentsProps) {
     super(props);
 
-    const members = Object.values(this.props.model.data.members).filter(m =>
-      m.isActiveMember(this.props.termId),
+    const members = Object.values(this.props.model.members).filter(m =>
+      isActiveMember(m, this.props.termId),
     );
 
     this.state = {
@@ -44,9 +48,9 @@ export default class Payments extends React.Component<
       filter,
       filteredMembers: this.state.memberList.filter(
         member =>
-          member.data.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.data.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.data.accountId.toLowerCase().includes(filter.toLowerCase()),
+          member.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
+          member.accountId.toLowerCase().includes(filter.toLowerCase()),
       ),
     });
   }
@@ -55,7 +59,7 @@ export default class Payments extends React.Component<
     return (
       <Container>
         <Row as="header">
-          <h2 className="mb-3">Members</h2>
+          <h2 className="mb-3">Payments</h2>
         </Row>
 
         <div className="d-flex mb-3">
@@ -72,7 +76,7 @@ export default class Payments extends React.Component<
         <Accordion>
           {this.state.filteredMembers.map(member => (
             <PaymentMemberOverview
-              key={member.data.accountId}
+              key={member.accountId}
               member={member}
               termId={this.props.termId}
             />

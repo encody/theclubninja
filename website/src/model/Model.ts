@@ -1,5 +1,5 @@
 import { CreditTypeId, ICreditType } from './CreditType';
-import { Member } from './Member';
+import { IMember } from './Member';
 import { ITerm } from './Term';
 
 export interface IModel {
@@ -7,15 +7,11 @@ export interface IModel {
     [key in CreditTypeId]?: ICreditType;
   };
   members: {
-    [accountId: string]: Member;
+    [accountId: string]: IMember;
   };
   terms: ITerm[];
 }
 
-export class Model {
-  public constructor(public readonly data: IModel) {}
-
-  public get mostRecentTerm(): ITerm {
-    return this.data.terms[this.data.terms.length - 1];
-  }
+export function mostRecentTerm(model: IModel) {
+  return model.terms[model.terms.length - 1];
 }

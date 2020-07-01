@@ -5,19 +5,19 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
-import { Member } from '../../model/Member';
-import { Model } from '../../model/Model';
+import { IMember } from '../../model/Member';
+import { IModel } from '../../model/Model';
 import NewMemberModal from '../../shared/NewMemberModal';
 import ClubRow from './ClubRow';
 
 interface ClubProps {
-  model: Model;
+  model: IModel;
 }
 
 interface ClubState {
   filter: string;
-  memberList: Member[];
-  filteredMembers: Member[];
+  memberList: IMember[];
+  filteredMembers: IMember[];
   showNewMemberModal: boolean;
 }
 
@@ -25,7 +25,7 @@ export default class Club extends React.Component<ClubProps, ClubState> {
   public constructor(props: ClubProps) {
     super(props);
 
-    const members = Object.values(props.model.data.members);
+    const members = Object.values(props.model.members);
 
     this.state = {
       filter: '',
@@ -52,16 +52,16 @@ export default class Club extends React.Component<ClubProps, ClubState> {
       filter,
       filteredMembers: this.state.memberList.filter(
         member =>
-          member.data.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.data.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.data.accountId.toLowerCase().includes(filter.toLowerCase()),
+          member.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
+          member.accountId.toLowerCase().includes(filter.toLowerCase()),
       ),
     });
   }
 
   render() {
-    const currentTerm = this.props.model.data.terms[
-      this.props.model.data.terms.length - 1
+    const currentTerm = this.props.model.terms[
+      this.props.model.terms.length - 1
     ];
 
     return (
@@ -96,7 +96,7 @@ export default class Club extends React.Component<ClubProps, ClubState> {
           </ListGroup.Item>
           {this.state.filteredMembers.map(member => (
             <ClubRow
-              key={member.data.accountId}
+              key={member.accountId}
               member={member}
               term={currentTerm.id}
             />

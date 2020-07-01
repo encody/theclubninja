@@ -9,11 +9,11 @@ import {
   AttendanceType,
   IAttendance,
 } from '../../model/Attendance';
-import { Member } from '../../model/Member';
+import { IMember } from '../../model/Member';
 import styles from './TeamCheckInRow.module.css';
 
 interface TeamCheckInRowProps {
-  member: Member;
+  member: IMember;
   termId: string;
 }
 
@@ -23,7 +23,7 @@ export default class TeamCheckInRow extends React.Component<
   getAttendanceRecord(): IAttendance | undefined {
     const now = Date.now();
     const today = new Date().getDate();
-    const memberTerm = this.props.member.data.terms[this.props.termId];
+    const memberTerm = this.props.member.terms[this.props.termId];
     return memberTerm
       ? memberTerm.attendance
           .filter(a => a.event === AttendanceEvent.Team)
@@ -41,8 +41,8 @@ export default class TeamCheckInRow extends React.Component<
     return (
       <Container className={'list-group-item ' + styles.row}>
         <Row>
-          <Col xs={4}>{this.props.member.data.name}</Col>
-          <Col xs={2}>{this.props.member.data.accountId}</Col>
+          <Col xs={4}>{this.props.member.name}</Col>
+          <Col xs={2}>{this.props.member.accountId}</Col>
           <Col xs={6}>
             <ButtonGroup>
               <Button

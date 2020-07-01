@@ -1,10 +1,14 @@
 import React from 'react';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
-import { Member } from '../../model/Member';
+import { IMember } from '../../model/Member';
+import ListGroup from 'react-bootstrap/ListGroup';
+import PaymentRow from './PaymentRow';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 
 export default class PaymentMemberOverview extends React.Component<{
-  member: Member;
+  member: IMember;
   termId: string;
 }> {
   render() {
@@ -13,17 +17,32 @@ export default class PaymentMemberOverview extends React.Component<{
         <Accordion.Toggle
           className="cursor-pointer"
           as={Card.Header}
-          eventKey={this.props.member.data.accountId}
+          eventKey={this.props.member.accountId}
         >
-          {this.props.member.data.name}
+          {this.props.member.name}
         </Accordion.Toggle>
-        <Accordion.Collapse eventKey={this.props.member.data.accountId}>
+        <Accordion.Collapse eventKey={this.props.member.accountId}>
           <Card.Body>
-            {this.props.member.data.terms[this.props.termId]?.ledger.map(
-              entry => (
-                <p>{entry.note}</p>
-              ),
-            )}
+            <ListGroup variant="flush">
+              <ListGroup.Item>
+                <Row className="font-weight-bold">
+                  <Col sm={3}>Reason</Col>
+                  <Col sm={2}>Created</Col>
+                  <Col sm={2}>Due</Col>
+                  <Col sm={1}>Value</Col>
+                  <Col sm={1}>Status</Col>
+                  <Col sm={3}>Actions</Col>
+                </Row>
+              </ListGroup.Item>
+              {this.props.member.terms[this.props.termId]?.ledger.map(
+                (entry, i) => (
+                  <PaymentRow key={i} entry={entry} />
+                ),
+              )}
+              {!this.props.member.terms[this.props.termId]?.ledger.length && (
+                <ListGroup.Item>No entries found.</ListGroup.Item>
+              )}
+            </ListGroup>
           </Card.Body>
         </Accordion.Collapse>
       </Card>
