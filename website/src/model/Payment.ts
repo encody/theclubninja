@@ -5,6 +5,7 @@ export enum PaymentType {
 export interface IPayment {
   timestamp: firebase.firestore.Timestamp;
   type: PaymentType;
+  enteredByUserId?: string;
   reference?: string;
   value: number;
 }

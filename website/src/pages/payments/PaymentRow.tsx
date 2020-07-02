@@ -13,6 +13,7 @@ import Row from 'react-bootstrap/Row';
 import moment from 'moment';
 import Modal from 'react-bootstrap/Modal';
 import { LedgerEntryDetails } from './LedgerEntryDetails';
+import { PaymentStatusBadge } from './PaymentStatusBadge';
 
 interface PaymentRowProps {
   entry: ILedgerEntry;
@@ -84,18 +85,6 @@ export default class PaymentRow extends React.Component<
       </>
     );
   }
-}
-
-function PaymentStatusBadge(props: { entry: ILedgerEntry }) {
-  if (isPaid(props.entry)) {
-    return <Badge variant="light">Paid</Badge>;
-  } else if (isOverdue(props.entry)) {
-    return <Badge variant="danger">Overdue</Badge>;
-  } else if (hasPayment(props.entry)) {
-    return <Badge variant="success">Partial</Badge>;
-  }
-
-  return <Badge variant="info">Pending</Badge>;
 }
 
 interface LedgerEntryDetailsModalProps {

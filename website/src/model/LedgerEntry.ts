@@ -9,6 +9,14 @@ export enum LedgerEntryReason {
   Other = 'other',
 }
 
+export const ledgerEntryReasonString: { [key in LedgerEntryReason]: string } = {
+  club_dues: 'Club Dues',
+  other: 'Other',
+  shoes: 'Shoes',
+  single_lesson: 'Single Lesson',
+  team_dues: 'Team Dues',
+};
+
 export interface ILedgerEntry {
   term: string;
   value: number;

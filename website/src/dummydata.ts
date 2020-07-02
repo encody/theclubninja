@@ -115,6 +115,7 @@ const model: IModel = {
                     0,
                   ),
                   type: PaymentType.Manual,
+                  enteredByUserId: 'admin_id_here',
                   value: 90,
                 },
                 {
@@ -122,7 +123,8 @@ const model: IModel = {
                     moment().subtract(1, 'days').unix(),
                     0,
                   ),
-                  type: PaymentType.Manual,
+                  type: PaymentType.Online,
+                  reference: '1234567890',
                   value: 80,
                 },
               ],
