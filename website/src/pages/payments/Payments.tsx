@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './Club.module.css';
+import styles from './Payment.module.css';
 import { IMember, isActiveMember } from '../../model/Member';
 import { IModel } from '../../model/Model';
 import Container from 'react-bootstrap/Container';
