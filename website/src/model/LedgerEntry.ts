@@ -28,10 +28,7 @@ export interface ILedgerEntry {
 }
 
 export function isPaid(entry: ILedgerEntry) {
-  return (
-    entry.payments.reduce((total, payment) => total + payment.value, 0) ===
-    entry.value
-  );
+  return amountPaid(entry) === entry.value;
 }
 
 export function isOverdue(entry: ILedgerEntry) {
@@ -40,4 +37,8 @@ export function isOverdue(entry: ILedgerEntry) {
 
 export function hasPayment(entry: ILedgerEntry) {
   return entry.payments.length > 0;
+}
+
+export function amountPaid(entry: ILedgerEntry) {
+  return entry.payments.reduce((total, payment) => total + payment.value, 0);
 }
