@@ -26,12 +26,11 @@ export default class PaymentMemberOverview extends React.Component<{
             <ListGroup variant="flush">
               <ListGroup.Item>
                 <Row className="font-weight-bold">
-                  <Col sm={3}>Reason</Col>
+                  <Col sm={4}>Reason</Col>
                   <Col sm={2}>Created</Col>
                   <Col sm={2}>Due</Col>
-                  <Col sm={1}>Value</Col>
-                  <Col sm={1}>Status</Col>
-                  <Col sm={3}>Actions</Col>
+                  <Col sm={2}>Value</Col>
+                  <Col sm={2}>Status</Col>
                 </Row>
               </ListGroup.Item>
               {this.props.member.terms[this.props.termId]?.ledger.map(

@@ -8,9 +8,11 @@ import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 import {
-  amountPaid, hasPayment, ILedgerEntry,
-
-  isPaid, ledgerEntryReasonString
+  amountPaid,
+  hasPayment,
+  ILedgerEntry,
+  isPaid,
+  ledgerEntryReasonString,
 } from '../../model/LedgerEntry';
 import { PaymentType } from '../../model/Payment';
 import { bound } from '../../shared/util';

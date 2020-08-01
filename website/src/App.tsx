@@ -7,6 +7,7 @@ import Members from './pages/members/Members';
 import Payments from './pages/payments/Payments';
 import model from './dummydata';
 import { mostRecentTerm } from './model/Model';
+import Container from 'react-bootstrap/Container';
 
 export default class App extends React.Component<
   {},
@@ -28,7 +29,7 @@ export default class App extends React.Component<
         <div>
           <Navbar />
 
-          <div className="mx-auto my-3 w-75">
+          <Container>
             <Switch>
               <Route exact path="/">
                 <Home />
@@ -55,7 +56,7 @@ export default class App extends React.Component<
                 <NotFound />
               </Route>
             </Switch>
-          </div>
+          </Container>
         </div>
       </Router>
     );

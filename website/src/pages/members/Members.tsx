@@ -70,7 +70,7 @@ export default class Members extends React.Component<
 
   render() {
     return (
-      <Container>
+      <>
         <Row as="header">
           <h2 className="mb-3">Members</h2>
         </Row>
@@ -123,7 +123,7 @@ export default class Members extends React.Component<
           show={this.state.showNewMemberModal}
           onClose={() => this.closeNewMemberModal()}
         />
-      </Container>
+      </>
     );
   }
 }

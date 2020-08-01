@@ -60,21 +60,20 @@ export default class PaymentRow extends React.Component<
       <>
         <ListGroup.Item action onClick={() => this.showModal()}>
           <Row>
-            <Col xs={3}>{reasonString[this.props.entry.reason]}</Col>
+            <Col xs={4}>{reasonString[this.props.entry.reason]}</Col>
             <Col xs={2}>
               {moment(this.props.entry.start.toDate()).calendar()}
             </Col>
             <Col xs={2}>{moment(this.props.entry.end.toDate()).calendar()}</Col>
-            <Col xs={1}>
+            <Col xs={2}>
               {this.props.entry.value.toLocaleString('en-US', {
                 style: 'currency',
                 currency: 'USD',
               })}
             </Col>
-            <Col xs={1}>
+            <Col xs={2}>
               <PaymentStatusBadge entry={this.props.entry} />
             </Col>
-            <Col xs={3}></Col>
           </Row>
         </ListGroup.Item>
         <LedgerEntryDetailsModal

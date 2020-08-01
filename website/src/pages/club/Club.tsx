@@ -65,7 +65,7 @@ export default class Club extends React.Component<ClubProps, ClubState> {
     ];
 
     return (
-      <Container>
+      <>
         <Row as="header">
           <h2 className="mb-3">Club Check-In</h2>
         </Row>
@@ -113,7 +113,7 @@ export default class Club extends React.Component<ClubProps, ClubState> {
           show={this.state.showNewMemberModal}
           onClose={() => this.closeNewMemberModal()}
         />
-      </Container>
+      </>
     );
   }
 }

@@ -58,7 +58,7 @@ export default class Team extends React.Component<TeamProps, TeamState> {
     ];
 
     return (
-      <Container>
+      <>
         <Row as="header">
           <h2 className="mb-3">Team Check-In</h2>
         </Row>
@@ -118,7 +118,7 @@ export default class Team extends React.Component<TeamProps, TeamState> {
             <p>No members.</p>
           </div>
         )}
-      </Container>
+      </>
     );
   }
 }
