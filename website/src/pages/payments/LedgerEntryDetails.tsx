@@ -224,13 +224,12 @@ export class LedgerEntryDetails extends React.Component<
             </tbody>
             <tfoot>
               {/* Add payment button */}
-              {!this.state.isAddingPayment && (
+              {!this.state.isAddingPayment && !isPaid(this.props.entry) && (
                 <tr>
                   <td colSpan={5}>
                     <div className="d-flex justify-content-end">
                       <Button
                         variant="success"
-                        disabled={isPaid(this.props.entry)}
                         onClick={() => this.showAddPaymentForm()}
                       >
                         Add Payment

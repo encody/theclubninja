@@ -222,9 +222,15 @@ export default class Payments extends React.Component<
               </ListGroup>
               {/* payment date filters */}
               <ListGroup variant="flush">
-                <ListGroup.Item>Payments between:</ListGroup.Item>
                 <ListGroup.Item>
+                  <Form.Label
+                    htmlFor="payments-date-after"
+                    className="text-muted"
+                  >
+                    <small>After</small>
+                  </Form.Label>
                   <Form.Control
+                    id="payments-date-after"
                     type="date"
                     value={
                       !!this.state.filter.after
@@ -240,7 +246,14 @@ export default class Payments extends React.Component<
                   />
                 </ListGroup.Item>
                 <ListGroup.Item>
+                  <Form.Label
+                    htmlFor="payments-date-before"
+                    className="text-muted"
+                  >
+                    <small>Before</small>
+                  </Form.Label>
                   <Form.Control
+                    id="payments-date-before"
                     type="date"
                     value={
                       !!this.state.filter.before

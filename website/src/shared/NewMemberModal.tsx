@@ -47,7 +47,7 @@ export default class NewMemberModal extends React.Component<
         <Modal.Header closeButton>
           <Modal.Title>
             {this.state.member.name.trim().length
-              ? this.state.member.name
+              ? 'New Member: ' + this.state.member.name
               : 'New Member'}
           </Modal.Title>
         </Modal.Header>
@@ -102,15 +102,19 @@ export default class NewMemberModal extends React.Component<
                     )
                   }
                 >
-                  {(Object.keys(MemberType) as (keyof typeof MemberType)[]).map(k => (
-                    <option
-                      key={k}
-                      value={k}
-                      selected={MemberType[k] === this.state.member.memberType}
-                    >
-                      {memberTypes[MemberType[k]].name}
-                    </option>
-                  ))}
+                  {(Object.keys(MemberType) as (keyof typeof MemberType)[]).map(
+                    k => (
+                      <option
+                        key={k}
+                        value={k}
+                        selected={
+                          MemberType[k] === this.state.member.memberType
+                        }
+                      >
+                        {memberTypes[MemberType[k]].name}
+                      </option>
+                    ),
+                  )}
                 </Form.Control>
               </td>
             </tr>
@@ -143,7 +147,7 @@ export default class NewMemberModal extends React.Component<
               </td>
             </tr>
             <tr>
-              <td>Did anyone refer you?</td>
+              <td>Referring member account ID:</td>
               <td>
                 <Form.Control
                   required

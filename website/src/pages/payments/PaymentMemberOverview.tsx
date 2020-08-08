@@ -18,6 +18,7 @@ export default class PaymentMemberOverview extends React.Component<{
           className="cursor-pointer"
           as={Card.Header}
           eventKey={this.props.member.accountId}
+          style={{ cursor: 'pointer' }}
         >
           {this.props.member.name}
         </Accordion.Toggle>
