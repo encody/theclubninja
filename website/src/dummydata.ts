@@ -213,6 +213,40 @@ const model: IModel = {
       },
       waivers: [],
     },
+    shmo501: {
+      name: 'This is another test',
+      accountId: 'shmo501',
+      memberType: MemberType.Student,
+      studentId: '84295488',
+      graduationYear: 2020,
+      referralMember: '',
+      source: 'Advertisement',
+      terms: {
+        '2020_summer': {
+          memberships: [Membership.Club],
+          ledger: [],
+          attendance: [],
+        },
+      },
+      waivers: [],
+    },
+    shmo502: {
+      name: 'fabulous man',
+      accountId: 'shmo502',
+      memberType: MemberType.Student,
+      studentId: '2345789',
+      graduationYear: 2020,
+      referralMember: '',
+      source: 'Advertisement',
+      terms: {
+        '2020_summer': {
+          memberships: [Membership.Club],
+          ledger: [],
+          attendance: [],
+        },
+      },
+      waivers: [],
+    },
   },
   terms: [
     {

@@ -11,6 +11,9 @@ import { Membership } from '../../model/MemberTerm';
 import { IModel } from '../../model/Model';
 import TeamAttendanceHistoryRow from './TeamAttendanceHistoryRow';
 import TeamCheckInRow from './TeamCheckInRow';
+import TeamRosterRow from './TeamRosterRow';
+import Button from 'react-bootstrap/Button';
+import AddMemberModal from './AddMemberModal';
 
 interface TeamProps {
   model: IModel;
@@ -21,6 +24,7 @@ interface TeamState {
   filter: string;
   memberList: IMember[];
   filteredMembers: IMember[];
+  showAddMemberModal: boolean;
 }
 
 export default class Team extends React.Component<TeamProps, TeamState> {
@@ -37,18 +41,33 @@ export default class Team extends React.Component<TeamProps, TeamState> {
       filter: '',
       memberList: members,
       filteredMembers: members.slice(),
+      showAddMemberModal: false,
     };
   }
 
   updateFilter(filter: string) {
+    const lcFilter = filter.toLowerCase();
+
     this.setState({
       filter,
       filteredMembers: this.state.memberList.filter(
         member =>
-          member.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.accountId.toLowerCase().includes(filter.toLowerCase()),
+          member.name.toLowerCase().includes(lcFilter) ||
+          member.studentId.toLowerCase().includes(lcFilter) ||
+          member.accountId.toLowerCase().includes(lcFilter),
       ),
+    });
+  }
+
+  openAddMemberModal() {
+    this.setState({
+      showAddMemberModal: true,
+    });
+  }
+
+  closeAddMemberModal() {
+    this.setState({
+      showAddMemberModal: false,
     });
   }
 
@@ -71,6 +90,11 @@ export default class Team extends React.Component<TeamProps, TeamState> {
               value={this.state.filter}
               onChange={e => this.updateFilter(e.target.value)}
             />
+          </div>
+          <div className="ml-3 flex-shrink-1">
+            <Button onClick={() => this.openAddMemberModal()}>
+              Add Member
+            </Button>
           </div>
         </div>
 
@@ -111,6 +135,24 @@ export default class Team extends React.Component<TeamProps, TeamState> {
               ))}
             </ListGroup>
           </Tab>
+          <Tab eventKey="roster" title="Roster">
+            <ListGroup>
+              <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
+                <Row className="font-weight-bold">
+                  <Col xs={4}>Name</Col>
+                  <Col xs={2}>Account ID</Col>
+                  <Col xs={6}>Actions</Col>
+                </Row>
+              </ListGroup.Item>
+              {this.state.filteredMembers.map(member => (
+                <TeamRosterRow
+                  key={member.accountId}
+                  member={member}
+                  term={currentTerm.id}
+                />
+              ))}
+            </ListGroup>
+          </Tab>
         </Tabs>
 
         {this.state.filteredMembers.length ? null : (
@@ -118,6 +160,13 @@ export default class Team extends React.Component<TeamProps, TeamState> {
             <p>No members.</p>
           </div>
         )}
+
+        <AddMemberModal
+          model={this.props.model}
+          termId={this.props.termId}
+          onClose={() => this.closeAddMemberModal()}
+          show={this.state.showAddMemberModal}
+        />
       </>
     );
   }

@@ -1,13 +1,10 @@
 import React from 'react';
 import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
 import Container from 'react-bootstrap/Container';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import Row from 'react-bootstrap/Row';
+import { AttendanceEvent } from '../../model/Attendance';
 import { IMember } from '../../model/Member';
-import styles from './TeamAttendanceHistoryRow.module.css';
-import { IAttendance, AttendanceEvent } from '../../model/Attendance';
 
 interface TeamAttendanceHistoryRowProps {
   member: IMember;
@@ -43,7 +40,7 @@ export default class TeamAttendanceHistoryRow extends React.Component<
     const attendanceHistory = this.getAttendanceHistory();
 
     return (
-      <Container className={'list-group-item ' + styles.row}>
+      <Container className={'list-group-item'}>
         <Row>
           <Col xs={4}>{this.props.member.name}</Col>
           <Col xs={2}>{this.props.member.accountId}</Col>

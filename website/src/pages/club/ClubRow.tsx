@@ -41,15 +41,15 @@ export default class ClubRow extends React.Component<ClubRowProps> {
           <Col xs={3}>{this.props.member.accountId}</Col>
           <Col xs={4}>
             {attendanceRecord ? (
-              <Button variant="success" disabled>
+              <Button variant="success" size="sm" disabled>
                 Already checked in
               </Button>
             ) : (
               <>
-                <Button className="mr-2" variant="primary">
+                <Button className="mr-2" size="sm" variant="primary">
                   Pay Now
                 </Button>
-                <Button variant="success">Check In</Button>
+                <Button variant="success" size="sm">Check In</Button>
               </>
             )}
           </Col>

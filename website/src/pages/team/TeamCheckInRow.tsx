@@ -10,7 +10,6 @@ import {
   IAttendance,
 } from '../../model/Attendance';
 import { IMember } from '../../model/Member';
-import styles from './TeamCheckInRow.module.css';
 
 interface TeamCheckInRowProps {
   member: IMember;
@@ -39,7 +38,7 @@ export default class TeamCheckInRow extends React.Component<
     const attendanceRecord = this.getAttendanceRecord();
 
     return (
-      <Container className={'list-group-item ' + styles.row}>
+      <Container className={'list-group-item'}>
         <Row>
           <Col xs={4}>{this.props.member.name}</Col>
           <Col xs={2}>{this.props.member.accountId}</Col>
@@ -47,6 +46,7 @@ export default class TeamCheckInRow extends React.Component<
             <ButtonGroup>
               <Button
                 variant="outline-success"
+                size="sm"
                 active={
                   attendanceRecord &&
                   attendanceRecord.type === AttendanceType.Present
@@ -56,6 +56,7 @@ export default class TeamCheckInRow extends React.Component<
               </Button>
               <Button
                 variant="outline-warning"
+                size="sm"
                 active={
                   attendanceRecord &&
                   attendanceRecord.type === AttendanceType.Late
@@ -65,6 +66,7 @@ export default class TeamCheckInRow extends React.Component<
               </Button>
               <Button
                 variant="outline-info"
+                size="sm"
                 active={
                   attendanceRecord &&
                   attendanceRecord.type === AttendanceType.Excused
@@ -74,6 +76,7 @@ export default class TeamCheckInRow extends React.Component<
               </Button>
               <Button
                 variant="outline-danger"
+                size="sm"
                 active={
                   attendanceRecord &&
                   attendanceRecord.type === AttendanceType.Unexcused
