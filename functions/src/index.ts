@@ -1,8 +1,15 @@
 import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
+admin.initializeApp();
+
+const firestore = admin.firestore();
+
+export const getTerms = functions.https.onRequest(async (request, response) => {
+  response.send(
+    (await firestore.collection('terms').get()).docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id,
+    })),
+  );
+});
