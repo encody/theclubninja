@@ -1,4 +1,7 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
-// cool server talky-talk stuff here
+export async function testFunction() {
+  const result = await axios.get('/api/terms');
+  console.log(result);
+}

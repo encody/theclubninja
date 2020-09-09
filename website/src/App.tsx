@@ -8,6 +8,7 @@ import Payments from './pages/payments/Payments';
 import model from './dummydata';
 import { mostRecentTerm } from './model/Model';
 import Container from 'react-bootstrap/Container';
+import { testFunction } from './server';
 
 export default class App extends React.Component<
   {},
@@ -92,6 +93,7 @@ function Home() {
         Please enjoy your stay and try <em>really hard</em> not to break
         anything.
       </p>
+      <button onClick={() => testFunction()}>test</button>
     </div>
   );
 }

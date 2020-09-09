@@ -8,6 +8,4 @@ import firebaseConfig from './firebase-config.json';
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
-export function getFirebase() {
-  return firebase;
-}
+export default firebase;
