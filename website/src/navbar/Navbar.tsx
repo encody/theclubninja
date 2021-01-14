@@ -1,30 +1,22 @@
 import React from 'react';
 import styles from './Navbar.module.css';
 import { NavLink } from 'react-router-dom';
+import BootstrapNavbar from 'react-bootstrap/Navbar';
+import Nav from 'react-bootstrap/Nav';
+import { useAuth } from '../auth';
 
-export default class Navbar extends React.Component {
-  render() {
-    return (
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <NavLink className="navbar-brand" to="/">
-          UMNBDC Check-In
-        </NavLink>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+export default function Navbar() {
+  const auth = useAuth();
 
-        <div
-          className="navbar-nav collapse navbar-collapse"
-          id="navbarSupportedContent"
-        >
+  return (
+    <BootstrapNavbar bg="light" expand="lg">
+      <NavLink className="navbar-brand" to="/">
+        UMNBDC Check-In
+      </NavLink>
+      <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
+
+      <BootstrapNavbar.Collapse>
+        <Nav className="mr-auto">
           <NavLink className="nav-link" activeClassName="active" to="/club">
             Club
           </NavLink>
@@ -47,8 +39,22 @@ export default class Navbar extends React.Component {
           >
             Dashboards
           </NavLink>
-        </div>
-      </nav>
-    );
-  }
+        </Nav>
+        {(auth.user && (
+          <Nav>
+            <BootstrapNavbar.Text className="text-dark">
+              Welcome, {auth.user.displayName}
+            </BootstrapNavbar.Text>
+            <Nav.Link onClick={() => auth.signOut()}>Sign Out</Nav.Link>
+          </Nav>
+        )) || (
+          <Nav>
+            <NavLink className="nav-link" activeClassName="active" to="/signin">
+              Sign In
+            </NavLink>
+          </Nav>
+        )}
+      </BootstrapNavbar.Collapse>
+    </BootstrapNavbar>
+  );
 }

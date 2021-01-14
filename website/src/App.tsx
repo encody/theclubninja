@@ -1,5 +1,10 @@
-import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import React, { useState } from 'react';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from 'react-router-dom';
 import Navbar from './navbar/Navbar';
 import Club from './pages/club/Club';
 import Team from './pages/team/Team';
@@ -8,24 +13,18 @@ import Payments from './pages/payments/Payments';
 import model from './dummydata';
 import { mostRecentTerm } from './model/Model';
 import Container from 'react-bootstrap/Container';
-import { testFunction } from './server';
+import { getTerms, getModel } from './server';
+import { useQuery } from 'react-query';
+import SignIn from './pages/SignIn';
+import firebase from './firebase';
+import { PrivateRoute, ProvideAuth, useAuth } from './auth';
 
-export default class App extends React.Component<
-  {},
-  {
-    termId: string;
-  }
-> {
-  constructor(props: {}) {
-    super(props);
+export default function App() {
+  const [termId, setTermId] = useState(mostRecentTerm(model).id);
+  const auth = useAuth();
 
-    this.state = {
-      termId: mostRecentTerm(model).id,
-    };
-  }
-
-  render() {
-    return (
+  return (
+    <ProvideAuth>
       <Router>
         <div>
           <Navbar />
@@ -35,24 +34,27 @@ export default class App extends React.Component<
               <Route exact path="/">
                 <Home />
               </Route>
-              <Route path="/club">
+              <Route path="/signin">
+                <SignIn />
+              </Route>
+              <PrivateRoute path="/club">
                 <Club model={model} />
-              </Route>
-              <Route path="/team">
-                <Team termId={this.state.termId} model={model} />
-              </Route>
-              <Route path="/members">
-                <Members termId={this.state.termId} model={model} />
-              </Route>
-              <Route path="/payments">
-                <Payments termId={this.state.termId} model={model} />
-              </Route>
-              <Route path="/events">
+              </PrivateRoute>
+              <PrivateRoute path="/team">
+                <Team termId={termId} model={model} />
+              </PrivateRoute>
+              <PrivateRoute path="/members">
+                <Members termId={termId} model={model} />
+              </PrivateRoute>
+              <PrivateRoute path="/payments">
+                <Payments termId={termId} model={model} />
+              </PrivateRoute>
+              <PrivateRoute path="/events">
                 <NotYet />
-              </Route>
-              <Route path="/dashboards">
+              </PrivateRoute>
+              <PrivateRoute path="/dashboards">
                 <NotYet />
-              </Route>
+              </PrivateRoute>
               <Route path="*">
                 <NotFound />
               </Route>
@@ -60,8 +62,8 @@ export default class App extends React.Component<
           </Container>
         </div>
       </Router>
-    );
-  }
+    </ProvideAuth>
+  );
 }
 
 function NotYet() {
@@ -82,6 +84,10 @@ function NotFound() {
   );
 }
 
+getModel().then(m => {
+  console.log(m);
+});
+
 function Home() {
   return (
     <div>
@@ -93,7 +99,6 @@ function Home() {
         Please enjoy your stay and try <em>really hard</em> not to break
         anything.
       </p>
-      <button onClick={() => testFunction()}>test</button>
     </div>
   );
 }

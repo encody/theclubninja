@@ -178,7 +178,7 @@ export default class Payments extends React.Component<
                     label={<PaymentStatusBadge variant="overdue" />}
                     id="overdue-checkbox"
                     checked={this.state.filter.overdue}
-                    onClick={() =>
+                    onChange={() =>
                       this.updateFilter('overdue', !this.state.filter.overdue)
                     }
                   />
@@ -190,7 +190,7 @@ export default class Payments extends React.Component<
                     label={<PaymentStatusBadge variant="pending" />}
                     id="pending-checkbox"
                     checked={this.state.filter.pending}
-                    onClick={() =>
+                    onChange={() =>
                       this.updateFilter('pending', !this.state.filter.pending)
                     }
                   />
@@ -202,7 +202,7 @@ export default class Payments extends React.Component<
                     label={<PaymentStatusBadge variant="partial" />}
                     id="partial-checkbox"
                     checked={this.state.filter.partial}
-                    onClick={() =>
+                    onChange={() =>
                       this.updateFilter('partial', !this.state.filter.partial)
                     }
                   />
@@ -214,7 +214,7 @@ export default class Payments extends React.Component<
                     label={<PaymentStatusBadge variant="paid" />}
                     id="paid-checkbox"
                     checked={this.state.filter.paid}
-                    onClick={() =>
+                    onChange={() =>
                       this.updateFilter('paid', !this.state.filter.paid)
                     }
                   />

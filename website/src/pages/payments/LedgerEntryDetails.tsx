@@ -139,8 +139,8 @@ export class LedgerEntryDetails extends React.Component<
                   </td>
                 </tr>
               )}
-              {this.props.entry.payments.map(payment => (
-                <tr>
+              {this.props.entry.payments.map((payment, i) => (
+                <tr key={i}>
                   <td>{moment(payment.timestamp.toDate()).format('L LT')}</td>
                   <td>
                     {(payment.type === PaymentType.Online && 'Online') ||

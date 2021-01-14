@@ -13,7 +13,7 @@ const router = new Router({
 });
 
 app.use(async (ctx, next) => {
-  console.log(ctx.request.originalUrl);
+  console.log(ctx.request.originalUrl, ctx.origin);
   if (/https?:\/\/localhost(:\d+)?/.test(ctx.origin)) {
     ctx.set('Access-Control-Allow-Origin', ctx.origin);
     ctx.set('Vary', 'Origin');
@@ -32,6 +32,12 @@ router
   .get('/members', async (ctx, next) => {
     ctx.response.body = (
       await firestore.collection('members').get()
+    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
+    await next();
+  })
+  .get('/creditTypes', async (ctx, next) => {
+    ctx.response.body = (
+      await firestore.collection('creditTypes').get()
     ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
     await next();
   });
