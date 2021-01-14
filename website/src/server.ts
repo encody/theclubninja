@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useQuery } from 'react-query';
 import { IModel } from './model/Model';
 
 export function getTerms() {
@@ -12,6 +11,14 @@ export function getMembers() {
 
 export function getCreditTypes() {
   return axios.get('/api/creditTypes');
+}
+
+export function getProfile() {
+  return axios.get('/api/profile');
+}
+
+export function setMembers(members: IModel['members']) {
+  return axios.post('/api/members', members);
 }
 
 export async function getModel(): Promise<IModel> {

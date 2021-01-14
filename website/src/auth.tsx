@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useContext, createContext } from 'react';
+import axios from 'axios';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import firebase from './firebase';
+import { getProfile } from './server';
 
 const authContext = createContext({} as IAuth);
 
@@ -16,12 +18,16 @@ export const useAuth = () => {
 
 export interface IAuth {
   user: firebase.User | null;
+  profile: {
+    admin: boolean;
+  } | null;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 function useProvideAuth(): IAuth {
-  const [user, setUser] = useState(null as firebase.User | null);
+  const [user, setUser] = useState(null as IAuth['user']);
+  const [profile, setProfile] = useState(null as IAuth['profile']);
 
   const signIn = async () => {
     const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
@@ -38,12 +44,23 @@ function useProvideAuth(): IAuth {
       .signOut()
       .then(() => {
         setUser(null);
+        setProfile(null);
       });
   };
 
   useEffect(
     () =>
-      firebase.auth().onAuthStateChanged(user => {
+      firebase.auth().onAuthStateChanged(async user => {
+        if (user) {
+          axios.defaults.headers = {
+            Authorization: 'Bearer ' + (await user.getIdToken()),
+          };
+
+          setProfile((await getProfile()).data);
+        } else {
+          setProfile(null);
+        }
+
         setUser(user);
       }),
     [],
@@ -51,6 +68,7 @@ function useProvideAuth(): IAuth {
 
   return {
     user,
+    profile,
     signIn,
     signOut,
   };
@@ -62,7 +80,7 @@ export function PrivateRoute({ children, ...rest }: any) {
     <Route
       {...rest}
       render={({ location }) =>
-        auth.user ? (
+        auth.profile && auth.profile.admin ? (
           children
         ) : (
           <Redirect

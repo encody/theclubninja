@@ -1,27 +1,18 @@
 import React, { useState } from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-} from 'react-router-dom';
-import Navbar from './navbar/Navbar';
-import Club from './pages/club/Club';
-import Team from './pages/team/Team';
-import Members from './pages/members/Members';
-import Payments from './pages/payments/Payments';
+import Container from 'react-bootstrap/Container';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { PrivateRoute, ProvideAuth } from './auth';
 import model from './dummydata';
 import { mostRecentTerm } from './model/Model';
-import Container from 'react-bootstrap/Container';
-import { getTerms, getModel } from './server';
-import { useQuery } from 'react-query';
+import Navbar from './navbar/Navbar';
+import Club from './pages/club/Club';
+import Members from './pages/members/Members';
+import Payments from './pages/payments/Payments';
 import SignIn from './pages/SignIn';
-import firebase from './firebase';
-import { PrivateRoute, ProvideAuth, useAuth } from './auth';
+import Team from './pages/team/Team';
 
 export default function App() {
   const [termId, setTermId] = useState(mostRecentTerm(model).id);
-  const auth = useAuth();
 
   return (
     <ProvideAuth>
@@ -83,10 +74,6 @@ function NotFound() {
     </div>
   );
 }
-
-getModel().then(m => {
-  console.log(m);
-});
 
 function Home() {
   return (
