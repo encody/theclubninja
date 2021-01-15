@@ -16,16 +16,16 @@
   "main": "lib/index.js",
   "dependencies": {
     "@koa/router": "^9.4.0",
-    "firebase-admin": "^8.10.0",
-    "firebase-functions": "^3.6.1",
-    "koa": "^2.13.0"
+    "firebase-admin": "^9.4.2",
+    "firebase-functions": "^3.13.0",
+    "koa": "^2.13.1"
   },
   "devDependencies": {
-    "@types/koa": "^2.11.4",
-    "@types/koa__router": "^8.0.2",
-    "firebase-functions-test": "^0.2.0",
+    "@types/koa": "^2.11.6",
+    "@types/koa__router": "^8.0.3",
+    "firebase-functions-test": "^0.2.3",
     "tslint": "^5.12.0",
-    "typescript": "^3.8.0"
+    "typescript": "^3.9.7"
   },
   "private": true
 }
