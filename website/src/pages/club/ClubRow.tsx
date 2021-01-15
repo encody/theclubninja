@@ -25,7 +25,8 @@ export default function ClubRow(props: ClubRowProps) {
           .filter(a => a.event === AttendanceEvent.Club)
           .find(
             a =>
-              now - a.timestamp < 24 * 60 * 60 * 1000 && a.timestamp === today,
+              now - a.timestamp < 24 * 60 * 60 * 1000 &&
+              new Date(a.timestamp).getDate() === today,
           )
       : undefined;
   };
