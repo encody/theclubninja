@@ -3,7 +3,7 @@ export enum PaymentType {
   Online = 'online',
 }
 export interface IPayment {
-  timestamp: firebase.firestore.Timestamp;
+  timestamp: number;
   type: PaymentType;
   enteredByUserId?: string;
   reference?: string;

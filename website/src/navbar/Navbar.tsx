@@ -2,26 +2,24 @@ import React from 'react';
 import Nav from 'react-bootstrap/Nav';
 import BootstrapNavbar from 'react-bootstrap/Navbar';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../auth';
-import { getModel } from '../server';
+import { useServer } from '../server';
 
 export default function Navbar() {
-  const auth = useAuth();
-
-  if (auth.user) {
-    getModel().then(d => console.log(d));
-  }
+  const server = useServer();
 
   return (
     <BootstrapNavbar bg="light" expand="lg">
-      <NavLink className="navbar-brand" to="/">
+      <NavLink
+        className="navbar-brand"
+        to="/"
+      >
         UMNBDC Check-In
       </NavLink>
       <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
 
       <BootstrapNavbar.Collapse>
         <Nav className="mr-auto">
-          {auth.profile && auth.profile.admin && (
+          {server.profile && server.profile.admin && (
             <>
               <NavLink className="nav-link" activeClassName="active" to="/club">
                 Club
@@ -61,12 +59,12 @@ export default function Navbar() {
           )}
         </Nav>
         <Nav>
-          {(auth.user && (
+          {(server.user && (
             <>
               <BootstrapNavbar.Text className="text-dark">
-                Welcome, {auth.user.displayName}
+                Welcome, {server.user.displayName}
               </BootstrapNavbar.Text>
-              <Nav.Link onClick={() => auth.signOut()}>Sign Out</Nav.Link>
+              <Nav.Link onClick={() => server.signOut()}>Sign Out</Nav.Link>
             </>
           )) || (
             <NavLink className="nav-link" activeClassName="active" to="/signin">

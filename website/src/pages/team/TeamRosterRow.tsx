@@ -7,23 +7,20 @@ import { IMember } from '../../model/Member';
 
 interface TeamRosterRowProps {
   member: IMember;
-  term: string;
 }
 
-export default class TeamRosterRow extends React.Component<TeamRosterRowProps> {
-  render() {
-    return (
-      <Container className={'list-group-item'}>
-        <Row>
-          <Col xs={4}>{this.props.member.name}</Col>
-          <Col xs={2}>{this.props.member.accountId}</Col>
-          <Col xs={6}>
-            <Button size="sm" variant="danger">
-              Remove
-            </Button>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
+export default function TeamRosterRow(props: TeamRosterRowProps) {
+  return (
+    <Container className={'list-group-item'}>
+      <Row>
+        <Col xs={4}>{props.member.name}</Col>
+        <Col xs={2}>{props.member.accountId}</Col>
+        <Col xs={6}>
+          <Button size="sm" variant="danger">
+            Remove
+          </Button>
+        </Col>
+      </Row>
+    </Container>
+  );
 }

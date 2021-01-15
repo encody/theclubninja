@@ -2,85 +2,91 @@ import axios from 'axios';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import firebase from './firebase';
-import { getProfile } from './server';
+import { useServer } from './server';
 
 const authContext = createContext({} as IAuth);
 
-export function ProvideAuth({ children }: { children: React.ReactNode }) {
+function ProvideAuth({ children }: { children: React.ReactNode }) {
   const auth = useProvideAuth();
 
   return <authContext.Provider value={auth}>{children}</authContext.Provider>;
 }
 
-export const useAuth = () => {
+const useAuth = () => {
   return useContext(authContext);
 };
 
-export interface IAuth {
+interface IAuth {
   user: firebase.User | null;
-  profile: {
-    admin: boolean;
-  } | null;
+  processing: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 function useProvideAuth(): IAuth {
   const [user, setUser] = useState(null as IAuth['user']);
-  const [profile, setProfile] = useState(null as IAuth['profile']);
+  const [processing, setProcessing] = useState(false as IAuth['processing']);
+  const server = useServer();
 
   const signIn = async () => {
+    setProcessing(true);
     const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
     const authPersistence = firebase.auth.Auth.Persistence.LOCAL;
 
     await firebase.auth().setPersistence(authPersistence);
+    console.log('Signing in...');
 
     return firebase.auth().signInWithRedirect(googleAuthProvider);
   };
 
   const signOut = () => {
+    setProcessing(true);
     return firebase
       .auth()
       .signOut()
       .then(() => {
         setUser(null);
-        setProfile(null);
+        setProcessing(false);
       });
   };
 
   useEffect(
     () =>
-      firebase.auth().onAuthStateChanged(async user => {
-        if (user) {
-          axios.defaults.headers = {
-            Authorization: 'Bearer ' + (await user.getIdToken()),
-          };
+      firebase.auth().onAuthStateChanged(async newUser => {
+        setProcessing(true);
 
-          setProfile((await getProfile()).data);
-        } else {
-          setProfile(null);
+        console.log('Auth State Changed');
+
+        if (newUser) {
+          axios.defaults.headers = {
+            Authorization: 'Bearer ' + (await newUser.getIdToken()),
+          };
+          
+          if (!server.model) {}
         }
 
-        setUser(user);
+        setUser(newUser);
+        setProcessing(false);
       }),
     [],
   );
 
   return {
     user,
-    profile,
+    processing,
     signIn,
     signOut,
   };
 }
 
-export function PrivateRoute({ children, ...rest }: any) {
+function PrivateRoute({ children, ...rest }: any) {
+  let server = useServer();
   let auth = useAuth();
   return (
     <Route
       {...rest}
       render={({ location }) =>
-        auth.profile && auth.profile.admin ? (
+        server.profile && server.profile.admin ? (
           children
         ) : (
           <Redirect

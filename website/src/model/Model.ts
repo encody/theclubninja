@@ -9,9 +9,25 @@ export interface IModel {
   members: {
     [accountId: string]: IMember;
   };
-  terms: ITerm[];
+  terms: {
+    [termId: string]: ITerm;
+  };
 }
 
 export function mostRecentTerm(model: IModel) {
-  return model.terms[model.terms.length - 1];
+  const keys = Object.keys(model.terms);
+  const result =
+    model.terms[
+      keys[
+        keys
+          .map(key => model.terms[key].start)
+          .reduce(
+            (bestIndex, currentStartTime, currentIndex, a) =>
+              currentStartTime > a[bestIndex] ? currentIndex : bestIndex,
+            0,
+          )
+      ]
+    ];
+
+  return result;
 }

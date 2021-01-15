@@ -21,14 +21,27 @@ const model: IModel = {
       terms: {
         '2020_summer': {
           memberships: [Membership.Club, Membership.Team],
-          ledger: [],
+          ledger: [
+            {
+              reason: LedgerEntryReason.ClubDues,
+              term: '2020_summer',
+              value: 40,
+              note: '',
+              payments: [
+                {
+                  timestamp: moment().subtract(1, 'days').unix(),
+                  type: PaymentType.Manual,
+                  value: 40,
+                },
+              ],
+              start: moment().subtract(7, 'days').unix(),
+              end: moment().add(7, 'days').unix(),
+            },
+          ],
           attendance: [
             {
               credit: null,
-              timestamp: new firebase.firestore.Timestamp(
-                moment().subtract(17, 'hours').unix(),
-                0,
-              ),
+              timestamp: moment().subtract(17, 'hours').unix(),
               event: AttendanceEvent.Club,
               type: AttendanceType.Present,
             },
@@ -55,14 +68,8 @@ const model: IModel = {
               value: 210,
               note: '',
               payments: [],
-              start: new firebase.firestore.Timestamp(
-                moment().subtract(14, 'days').unix(),
-                0,
-              ),
-              end: new firebase.firestore.Timestamp(
-                moment().subtract(7, 'days').unix(),
-                0,
-              ),
+              start: moment().subtract(14, 'days').unix(),
+              end: moment().subtract(7, 'days').unix(),
             },
             {
               reason: LedgerEntryReason.TeamDues,
@@ -70,14 +77,8 @@ const model: IModel = {
               value: 210,
               note: '',
               payments: [],
-              start: new firebase.firestore.Timestamp(
-                moment().subtract(7, 'days').unix(),
-                0,
-              ),
-              end: new firebase.firestore.Timestamp(
-                moment().add(7, 'days').unix(),
-                0,
-              ),
+              start: moment().subtract(7, 'days').unix(),
+              end: moment().add(7, 'days').unix(),
             },
             {
               reason: LedgerEntryReason.TeamDues,
@@ -86,22 +87,13 @@ const model: IModel = {
               note: '',
               payments: [
                 {
-                  timestamp: new firebase.firestore.Timestamp(
-                    moment().subtract(1, 'days').unix(),
-                    0,
-                  ),
+                  timestamp: moment().subtract(1, 'days').unix(),
                   type: PaymentType.Manual,
                   value: 210,
                 },
               ],
-              start: new firebase.firestore.Timestamp(
-                moment().subtract(7, 'days').unix(),
-                0,
-              ),
-              end: new firebase.firestore.Timestamp(
-                moment().add(7, 'days').unix(),
-                0,
-              ),
+              start: moment().subtract(7, 'days').unix(),
+              end: moment().add(7, 'days').unix(),
             },
             {
               reason: LedgerEntryReason.TeamDues,
@@ -110,77 +102,50 @@ const model: IModel = {
               note: '',
               payments: [
                 {
-                  timestamp: new firebase.firestore.Timestamp(
-                    moment().subtract(1, 'days').unix(),
-                    0,
-                  ),
+                  timestamp: moment().subtract(1, 'days').unix(),
                   type: PaymentType.Manual,
                   enteredByUserId: 'admin_id_here',
                   value: 90,
                 },
                 {
-                  timestamp: new firebase.firestore.Timestamp(
-                    moment().subtract(1, 'days').unix(),
-                    0,
-                  ),
+                  timestamp: moment().subtract(1, 'days').unix(),
                   type: PaymentType.Online,
                   reference: '1234567890',
                   value: 80,
                 },
               ],
-              start: new firebase.firestore.Timestamp(
-                moment().subtract(7, 'days').unix(),
-                0,
-              ),
-              end: new firebase.firestore.Timestamp(
-                moment().add(7, 'days').unix(),
-                0,
-              ),
+              start: moment().subtract(7, 'days').unix(),
+              end: moment().add(7, 'days').unix(),
             },
           ],
           attendance: [
             {
               credit: null,
-              timestamp: new firebase.firestore.Timestamp(
-                moment().subtract(17, 'days').unix(),
-                0,
-              ),
+              timestamp: moment().subtract(17, 'days').unix(),
               event: AttendanceEvent.Team,
               type: AttendanceType.Present,
             },
             {
               credit: null,
-              timestamp: new firebase.firestore.Timestamp(
-                moment().subtract(9, 'days').unix(),
-                0,
-              ),
+              timestamp: moment().subtract(9, 'days').unix(),
               event: AttendanceEvent.Team,
               type: AttendanceType.Late,
             },
             {
               credit: null,
-              timestamp: new firebase.firestore.Timestamp(
-                moment().subtract(7, 'days').unix(),
-                0,
-              ),
+              timestamp: moment().subtract(7, 'days').unix(),
               event: AttendanceEvent.Team,
               type: AttendanceType.Unexcused,
             },
             {
               credit: null,
-              timestamp: new firebase.firestore.Timestamp(
-                moment().subtract(2, 'days').unix(),
-                0,
-              ),
+              timestamp: moment().subtract(2, 'days').unix(),
               event: AttendanceEvent.Team,
               type: AttendanceType.Excused,
             },
             {
               credit: null,
-              timestamp: new firebase.firestore.Timestamp(
-                moment().subtract(1, 'minutes').unix(),
-                0,
-              ),
+              timestamp: moment().subtract(1, 'minutes').unix(),
               event: AttendanceEvent.Team,
               type: AttendanceType.Present,
             },
@@ -189,10 +154,7 @@ const model: IModel = {
       },
       waivers: [
         {
-          timestamp: new firebase.firestore.Timestamp(
-            moment().subtract(5, 'days').unix(),
-            0,
-          ),
+          timestamp: moment().subtract(5, 'days').unix(),
         },
       ],
     },
@@ -248,20 +210,20 @@ const model: IModel = {
       waivers: [],
     },
   },
-  terms: [
-    {
+  terms: {
+    '2020_spring': {
       id: '2020_spring',
-      start: new firebase.firestore.Timestamp(moment('2020-06-01').unix(), 0),
-      end: new firebase.firestore.Timestamp(moment('2020-01-01').unix(), 0),
+      start: moment('2020-06-01').unix(),
+      end: moment('2020-01-01').unix(),
       name: 'Spring 2020',
     },
-    {
+    '2020_summer': {
       id: '2020_summer',
-      start: new firebase.firestore.Timestamp(moment('2020-06-01').unix(), 0),
-      end: new firebase.firestore.Timestamp(moment('2020-09-01').unix(), 0),
+      start: moment('2020-06-01').unix(),
+      end: moment('2020-09-01').unix(),
       name: 'Summer 2020',
     },
-  ],
+  },
   creditTypes: {
     free: {
       name: 'Free Lesson',

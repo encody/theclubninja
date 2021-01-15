@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { PrivateRoute, ProvideAuth } from './auth';
-import model from './dummydata';
 import { mostRecentTerm } from './model/Model';
 import Navbar from './navbar/Navbar';
 import Club from './pages/club/Club';
@@ -10,12 +8,13 @@ import Members from './pages/members/Members';
 import Payments from './pages/payments/Payments';
 import SignIn from './pages/SignIn';
 import Team from './pages/team/Team';
+import { PrivateRoute, ProvideServer } from './server';
+import AuthenticationOverlay from './shared/AuthenticationOverlay';
 
 export default function App() {
-  const [termId, setTermId] = useState(mostRecentTerm(model).id);
-
   return (
-    <ProvideAuth>
+    <ProvideServer>
+      <AuthenticationOverlay />
       <Router>
         <div>
           <Navbar />
@@ -29,16 +28,16 @@ export default function App() {
                 <SignIn />
               </Route>
               <PrivateRoute path="/club">
-                <Club model={model} />
+                <Club />
               </PrivateRoute>
               <PrivateRoute path="/team">
-                <Team termId={termId} model={model} />
+                <Team />
               </PrivateRoute>
               <PrivateRoute path="/members">
-                <Members termId={termId} model={model} />
+                <Members />
               </PrivateRoute>
               <PrivateRoute path="/payments">
-                <Payments termId={termId} model={model} />
+                <Payments />
               </PrivateRoute>
               <PrivateRoute path="/events">
                 <NotYet />
@@ -53,7 +52,7 @@ export default function App() {
           </Container>
         </div>
       </Router>
-    </ProvideAuth>
+    </ProvideServer>
   );
 }
 

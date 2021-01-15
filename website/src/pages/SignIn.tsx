@@ -1,18 +1,18 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import { Redirect } from 'react-router-dom';
-import { useAuth } from '../auth';
+import { useServer } from '../server';
 
 export default function SignIn() {
-  const auth = useAuth();
+  const server = useServer();
 
-  return auth.user ? (
+  return server.user ? (
     <Redirect to="/" />
   ) : (
     <div>
       <h2>Sign In</h2>
       <p className="lead">Please sign in to access the check-in system.</p>
-      <Button variant="primary" onClick={() => auth.signIn()}>
+      <Button variant="primary" onClick={() => server.signIn()}>
         Sign In
       </Button>
     </div>

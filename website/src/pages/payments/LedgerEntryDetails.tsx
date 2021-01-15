@@ -101,12 +101,12 @@ export class LedgerEntryDetails extends React.Component<
               <tr>
                 <td>Created:</td>
                 <td>
-                  {moment(this.props.entry.start.toDate()).format('L LT')}
+                  {moment(this.props.entry.start).format('L LT')}
                 </td>
               </tr>
               <tr>
                 <td>Due:</td>
-                <td>{moment(this.props.entry.end.toDate()).format('L LT')}</td>
+                <td>{moment(this.props.entry.end).format('L LT')}</td>
               </tr>
               <tr>
                 <td>Amount:</td>
@@ -141,7 +141,7 @@ export class LedgerEntryDetails extends React.Component<
               )}
               {this.props.entry.payments.map((payment, i) => (
                 <tr key={i}>
-                  <td>{moment(payment.timestamp.toDate()).format('L LT')}</td>
+                  <td>{moment(payment.timestamp).format('L LT')}</td>
                   <td>
                     {(payment.type === PaymentType.Online && 'Online') ||
                       'Manual'}

@@ -17,5 +17,5 @@ export interface IAttendance {
   credit: CreditTypeId | null;
   type: AttendanceType;
   event: AttendanceEvent;
-  timestamp: firebase.firestore.Timestamp;
+  timestamp: number;
 }

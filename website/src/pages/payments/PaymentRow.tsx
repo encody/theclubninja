@@ -61,10 +61,8 @@ export default class PaymentRow extends React.Component<
         <ListGroup.Item action onClick={() => this.showModal()}>
           <Row>
             <Col xs={4}>{reasonString[this.props.entry.reason]}</Col>
-            <Col xs={2}>
-              {moment(this.props.entry.start.toDate()).calendar()}
-            </Col>
-            <Col xs={2}>{moment(this.props.entry.end.toDate()).calendar()}</Col>
+            <Col xs={2}>{moment(this.props.entry.start).calendar()}</Col>
+            <Col xs={2}>{moment(this.props.entry.end).calendar()}</Col>
             <Col xs={2}>
               {this.props.entry.value.toLocaleString('en-US', {
                 style: 'currency',
@@ -91,9 +89,7 @@ interface LedgerEntryDetailsModalProps {
   show: boolean;
   onHide: () => void;
 }
-class LedgerEntryDetailsModal extends React.Component<
-  LedgerEntryDetailsModalProps
-> {
+class LedgerEntryDetailsModal extends React.Component<LedgerEntryDetailsModalProps> {
   render() {
     return (
       <Modal

@@ -23,8 +23,8 @@ export interface ILedgerEntry {
   note: string;
   reason: LedgerEntryReason;
   payments: IPayment[];
-  start: firebase.firestore.Timestamp;
-  end: firebase.firestore.Timestamp;
+  start: number;
+  end: number;
 }
 
 export function isPaid(entry: ILedgerEntry) {
@@ -32,7 +32,7 @@ export function isPaid(entry: ILedgerEntry) {
 }
 
 export function isOverdue(entry: ILedgerEntry) {
-  return Date.now() > entry.end.toDate().getTime() && !isPaid(entry);
+  return Date.now() > entry.end && !isPaid(entry);
 }
 
 export function hasPayment(entry: ILedgerEntry) {
