@@ -31,6 +31,7 @@ export interface IServer {
   getTerms: () => Promise<AxiosResponse<IModel['terms']>>;
   getMembers: () => Promise<AxiosResponse<IModel['members']>>;
   getCreditTypes: () => Promise<AxiosResponse<IModel['creditTypes']>>;
+  getChargeTypes: () => Promise<AxiosResponse<IModel['chargeTypes']>>;
   updateProfile: (
     newProfileId: string,
   ) => Promise<AxiosResponse<IServer['profile']>>;
@@ -76,6 +77,13 @@ function useProvideServer(): IServer {
     return result;
   };
 
+  const getChargeTypes: IServer['getChargeTypes'] = async () => {
+    setNonBlocking(true);
+    const result = await axios.get('/api/chargeTypes');
+    setNonBlocking(false);
+    return result;
+  };
+
   const updateProfile: IServer['updateProfile'] = async (
     newProfileId: string,
   ) => {
@@ -113,6 +121,7 @@ function useProvideServer(): IServer {
       members: (await getMembers()).data,
       terms: (await getTerms()).data,
       creditTypes: (await getCreditTypes()).data,
+      chargeTypes: (await getChargeTypes()).data,
     };
     setModel(model);
     const t = mostRecentTerm(model).id;
@@ -168,27 +177,6 @@ function useProvideServer(): IServer {
     [],
   );
 
-  // useEffect(
-  //   () =>
-  //     firebase.auth().onAuthStateChanged(async user => {
-  //       setProcessing(true);
-
-  //       if (user) {
-  //         axios.defaults.headers = {
-  //           Authorization: 'Bearer ' + (await user.getIdToken()),
-  //         };
-
-  //         setProfile((await getProfile()).data);
-  //       } else {
-  //         setProfile(null);
-  //       }
-
-  //       setUser(user);
-  //       setProcessing(false);
-  //     }),
-  //   [],
-  // );
-
   return {
     model,
     profile,
@@ -200,6 +188,7 @@ function useProvideServer(): IServer {
     getTerms,
     getMembers,
     getCreditTypes,
+    getChargeTypes,
     updateProfile,
     setMembers,
     updateModel,

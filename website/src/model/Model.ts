@@ -1,8 +1,12 @@
+import { IChargeType } from './ChargeType';
 import { ICreditType } from './CreditType';
 import { IMember } from './Member';
 import { ITerm } from './Term';
 
 export interface IModel {
+  chargeTypes: {
+    [id: string]: IChargeType;
+  };
   creditTypes: {
     [id: string]: ICreditType;
   };

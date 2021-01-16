@@ -110,6 +110,7 @@ export default function ClubCheckInModal(props: ClubCheckInModalProps) {
                 [props.member.accountId]: props.member,
               })
             ) {
+              reset();
               // TODO: Alert success
             } else {
               // TODO: Alert failure

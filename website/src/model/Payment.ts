@@ -3,6 +3,8 @@ export enum PaymentType {
   Online = 'online',
 }
 export interface IPayment {
+  id: string;
+  chargeId: string;
   timestamp: number;
   type: PaymentType;
   enteredByUserId?: string;

@@ -87,6 +87,12 @@ router
     ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
     await next();
   })
+  .get('/chargeTypes', async (ctx, next) => {
+    ctx.response.body = (
+      await firestore.collection('chargeTypes').get()
+    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
+    await next();
+  })
   .get('/profile', async (ctx, next) => {
     ctx.response.body = (
       await firestore

@@ -3,17 +3,14 @@ import React, { useState } from 'react';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/esm/Button';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
-import {
-  hasPayment,
-  ILedgerEntry,
-  isOverdue,
-  isPaid
-} from '../../model/LedgerEntry';
+import { hasPayment, ICharge, isOverdue, isPaid } from '../../model/Charge';
 import { isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
+import NewChargeModal from './NewChargeModal';
 import PaymentMemberOverview from './PaymentMemberOverview';
 import { PaymentStatusBadge } from './PaymentStatusBadge';
 
@@ -43,25 +40,25 @@ export default function Payments() {
             .toLowerCase()
             .includes(filter.string.toLowerCase())) &&
         // payment status filters
-        member.terms[server.term]?.ledger.some((entry: ILedgerEntry) => {
-          const entryIsPaid = isPaid(entry),
-            entryIsOverdue = isOverdue(entry),
-            entryHasPayment = hasPayment(entry);
+        member.terms[server.term]?.ledger.some((charge: ICharge) => {
+          const chargeIsPaid = isPaid(charge),
+            chargeIsOverdue = isOverdue(charge),
+            chargeHasPayment = hasPayment(charge);
           return (
-            ((entryIsPaid && filter.paid) ||
-              (entryIsOverdue && filter.overdue) ||
-              (entryHasPayment && !entryIsPaid && filter.partial) ||
-              (!entryIsPaid &&
-                !entryIsOverdue &&
-                !entryHasPayment &&
+            ((chargeIsPaid && filter.paid) ||
+              (chargeIsOverdue && filter.overdue) ||
+              (chargeHasPayment && !chargeIsPaid && filter.partial) ||
+              (!chargeIsPaid &&
+                !chargeIsOverdue &&
+                !chargeHasPayment &&
                 filter.pending)) &&
             (!!filter.after
-              ? entry.payments.some(
+              ? charge.payments.some(
                   payment => filter.after! < payment.timestamp,
                 )
               : true) &&
             (!!filter.before
-              ? entry.payments.some(
+              ? charge.payments.some(
                   payment => filter.before! > payment.timestamp,
                 )
               : true)
@@ -78,6 +75,7 @@ export default function Payments() {
     after: null,
     before: null,
   } as PaymentsFilter);
+  const [showNewChargeModal, setShowNewChargeModal] = useState(false);
   let filteredMembers = getFilteredMembers();
 
   const updateFilterString = (filterString: string) => {
@@ -116,6 +114,11 @@ export default function Payments() {
             value={filter.string}
             onChange={e => updateFilterString(e.target.value)}
           />
+        </div>
+        <div className="ml-3 flex-shrink-1">
+          <Button onClick={() => setShowNewChargeModal(true)}>
+            New Charge
+          </Button>
         </div>
       </div>
 
@@ -232,6 +235,10 @@ export default function Payments() {
           )}
         </Col>
       </Row>
+      <NewChargeModal
+        onClose={() => setShowNewChargeModal(false)}
+        show={showNewChargeModal}
+      />
     </>
   );
 }

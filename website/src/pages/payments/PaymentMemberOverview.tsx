@@ -38,8 +38,8 @@ export default function PaymentMemberOverview(
                 <Col sm={2}>Status</Col>
               </Row>
             </ListGroup.Item>
-            {props.member.terms[server.term]?.ledger.map((entry, i) => (
-              <PaymentRow key={i} entry={entry} />
+            {props.member.terms[server.term]?.ledger.map((charge, i) => (
+              <PaymentRow key={i} charge={charge} member={props.member} />
             ))}
             {!props.member.terms[server.term]?.ledger.length && (
               <ListGroup.Item>No entries found.</ListGroup.Item>

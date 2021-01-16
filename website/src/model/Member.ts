@@ -1,6 +1,6 @@
-import { isPaid, LedgerEntryReason } from './LedgerEntry';
+import { isPaid } from './Charge';
 import { IMemberTerm } from './MemberTerm';
-import { Membership } from "./Membership";
+import { Membership } from './Membership';
 import { MemberType } from './MemberType';
 import { IWaiver } from './Waiver';
 
@@ -19,16 +19,16 @@ export interface IMember {
 export function hasPaidForTerm(
   member: IMember,
   termId: string,
-  reason: LedgerEntryReason,
+  chargeType: string,
 ): boolean {
   const term = member.terms[termId];
   if (!term) {
     return false;
   }
 
-  const entries = term.ledger.filter(entry => entry.reason === reason);
+  const charges = term.ledger.filter(charge => charge.chargeType === chargeType);
 
-  return entries.length > 0 && entries.every(isPaid);
+  return charges.length > 0 && charges.every(isPaid);
 }
 
 export function isActiveMember(member: IMember, termId: string): boolean {

@@ -8,7 +8,6 @@ import {
   IAttendance,
   AttendanceType,
 } from '../../model/Attendance';
-import { LedgerEntryReason } from '../../model/LedgerEntry';
 import { hasPaidForTerm, IMember } from '../../model/Member';
 import { useServer } from '../../server';
 import ClubCheckInModal from './ClubCheckInModal';
@@ -54,7 +53,7 @@ export default function ClubRow(props: ClubRowProps) {
             {hasPaidForTerm(
               props.member,
               server.term,
-              LedgerEntryReason.ClubDues,
+              'club_dues', // TODO: Read from DB
             ) ? (
               <Button className="mr-2" size="sm" variant="primary" disabled>
                 Paid
