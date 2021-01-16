@@ -1,17 +1,10 @@
+import { DateTime } from 'luxon';
 import React from 'react';
-import {
-  ILedgerEntry,
-  LedgerEntryReason,
-  isPaid,
-  isOverdue,
-  hasPayment,
-} from '../../model/LedgerEntry';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Badge from 'react-bootstrap/Badge';
 import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
-import moment from 'moment';
+import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
+import Row from 'react-bootstrap/Row';
+import { ILedgerEntry, LedgerEntryReason } from '../../model/LedgerEntry';
 import { LedgerEntryDetails } from './LedgerEntryDetails';
 import { PaymentStatusBadge } from './PaymentStatusBadge';
 
@@ -61,8 +54,16 @@ export default class PaymentRow extends React.Component<
         <ListGroup.Item action onClick={() => this.showModal()}>
           <Row>
             <Col xs={4}>{reasonString[this.props.entry.reason]}</Col>
-            <Col xs={2}>{moment(this.props.entry.start).calendar()}</Col>
-            <Col xs={2}>{moment(this.props.entry.end).calendar()}</Col>
+            <Col xs={2}>
+              {DateTime.fromMillis(this.props.entry.start).toLocaleString(
+                DateTime.DATE_SHORT,
+              )}
+            </Col>
+            <Col xs={2}>
+              {DateTime.fromMillis(this.props.entry.end).toLocaleString(
+                DateTime.DATE_SHORT,
+              )}
+            </Col>
             <Col xs={2}>
               {this.props.entry.value.toLocaleString('en-US', {
                 style: 'currency',

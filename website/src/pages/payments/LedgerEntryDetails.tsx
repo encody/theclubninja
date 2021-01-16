@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -12,7 +12,7 @@ import {
   hasPayment,
   ILedgerEntry,
   isPaid,
-  ledgerEntryReasonString,
+  ledgerEntryReasonString
 } from '../../model/LedgerEntry';
 import { PaymentType } from '../../model/Payment';
 import { bound } from '../../shared/util';
@@ -101,12 +101,18 @@ export class LedgerEntryDetails extends React.Component<
               <tr>
                 <td>Created:</td>
                 <td>
-                  {moment(this.props.entry.start).format('L LT')}
+                  {DateTime.fromMillis(this.props.entry.start).toLocaleString(
+                    DateTime.DATETIME_SHORT,
+                  )}
                 </td>
               </tr>
               <tr>
                 <td>Due:</td>
-                <td>{moment(this.props.entry.end).format('L LT')}</td>
+                <td>
+                  {DateTime.fromMillis(this.props.entry.end).toLocaleString(
+                    DateTime.DATETIME_SHORT,
+                  )}
+                </td>
               </tr>
               <tr>
                 <td>Amount:</td>
@@ -141,7 +147,11 @@ export class LedgerEntryDetails extends React.Component<
               )}
               {this.props.entry.payments.map((payment, i) => (
                 <tr key={i}>
-                  <td>{moment(payment.timestamp).format('L LT')}</td>
+                  <td>
+                    {DateTime.fromMillis(payment.timestamp).toLocaleString(
+                      DateTime.DATETIME_SHORT,
+                    )}
+                  </td>
                   <td>
                     {(payment.type === PaymentType.Online && 'Online') ||
                       'Manual'}

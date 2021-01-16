@@ -1,5 +1,5 @@
-import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import { DateTime } from 'luxon';
+import React, { useState } from 'react';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
@@ -10,7 +10,7 @@ import {
   hasPayment,
   ILedgerEntry,
   isOverdue,
-  isPaid,
+  isPaid
 } from '../../model/LedgerEntry';
 import { isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
@@ -23,16 +23,51 @@ interface PaymentsFilter {
   overdue: boolean;
   partial: boolean;
   pending: boolean;
-  after: Date | null;
-  before: Date | null;
+  after: number | null;
+  before: number | null;
 }
 
 export default function Payments() {
   const server = useServer();
 
-  const members = Object.values(server.model!.members).filter(m =>
-    isActiveMember(m, server.term),
-  );
+  const getFilteredMembers = () =>
+    Object.values(server.model!.members).filter(
+      member =>
+        isActiveMember(member, server.term) &&
+        // string filter
+        (member.name.toLowerCase().includes(filter.string.toLowerCase()) ||
+          member.institutionId
+            .toLowerCase()
+            .includes(filter.string.toLowerCase()) ||
+          member.accountId
+            .toLowerCase()
+            .includes(filter.string.toLowerCase())) &&
+        // payment status filters
+        member.terms[server.term]?.ledger.some((entry: ILedgerEntry) => {
+          const entryIsPaid = isPaid(entry),
+            entryIsOverdue = isOverdue(entry),
+            entryHasPayment = hasPayment(entry);
+          return (
+            ((entryIsPaid && filter.paid) ||
+              (entryIsOverdue && filter.overdue) ||
+              (entryHasPayment && !entryIsPaid && filter.partial) ||
+              (!entryIsPaid &&
+                !entryIsOverdue &&
+                !entryHasPayment &&
+                filter.pending)) &&
+            (!!filter.after
+              ? entry.payments.some(
+                  payment => filter.after! < payment.timestamp,
+                )
+              : true) &&
+            (!!filter.before
+              ? entry.payments.some(
+                  payment => filter.before! > payment.timestamp,
+                )
+              : true)
+          );
+        }),
+    );
 
   const [filter, setFilter] = useState({
     string: '',
@@ -43,60 +78,14 @@ export default function Payments() {
     after: null,
     before: null,
   } as PaymentsFilter);
-  const [filteredMembers, setFilteredMembers] = useState(members.slice());
-
-  const runFilter = (filter: PaymentsFilter) => {
-    setFilteredMembers(
-      members.filter(
-        member =>
-          // string filter
-          (member.name.toLowerCase().includes(filter.string.toLowerCase()) ||
-            member.studentId
-              .toLowerCase()
-              .includes(filter.string.toLowerCase()) ||
-            member.accountId
-              .toLowerCase()
-              .includes(filter.string.toLowerCase())) &&
-          // payment status filters
-          member.terms[server.term]?.ledger.some((entry: ILedgerEntry) => {
-            const entryIsPaid = isPaid(entry),
-              entryIsOverdue = isOverdue(entry),
-              entryHasPayment = hasPayment(entry);
-            return (
-              ((entryIsPaid && filter.paid) ||
-                (entryIsOverdue && filter.overdue) ||
-                (entryHasPayment && !entryIsPaid && filter.partial) ||
-                (!entryIsPaid &&
-                  !entryIsOverdue &&
-                  !entryHasPayment &&
-                  filter.pending)) &&
-              (!!filter.after
-                ? entry.payments.some(
-                    payment => filter.after!.getTime() < payment.timestamp,
-                  )
-                : true) &&
-              (!!filter.before
-                ? entry.payments.some(
-                    payment => filter.before!.getTime() > payment.timestamp,
-                  )
-                : true)
-            );
-          }),
-      ),
-    );
-  };
-
-  useEffect(() => {
-    runFilter(filter);
-  }, []);
+  let filteredMembers = getFilteredMembers();
 
   const updateFilterString = (filterString: string) => {
-    setFilter(
-      Object.assign(filter, {
-        string: filterString,
-      }),
-    );
-    runFilter(filter);
+    setFilter({
+      ...filter,
+      string: filterString,
+    });
+    filteredMembers = getFilteredMembers();
   };
 
   const updateFilter: <
@@ -106,12 +95,11 @@ export default function Payments() {
     which: T,
     value: K,
   ) => void = (which, value) => {
-    setFilter(
-      Object.assign(filter, {
-        [which]: value,
-      }),
-    );
-    runFilter(filter);
+    setFilter({
+      ...filter,
+      [which]: value,
+    });
+    filteredMembers = getFilteredMembers();
   };
 
   return (
@@ -192,13 +180,13 @@ export default function Payments() {
                   type="date"
                   value={
                     !!filter.after
-                      ? moment(filter.after).format('YYYY-MM-DD')
+                      ? DateTime.fromMillis(filter.after).toISODate()
                       : ''
                   }
                   onChange={e =>
                     updateFilter(
                       'after',
-                      (e.target as HTMLInputElement).valueAsDate,
+                      DateTime.fromISO(e.target.value).toMillis(),
                     )
                   }
                 />
@@ -215,13 +203,13 @@ export default function Payments() {
                   type="date"
                   value={
                     !!filter.before
-                      ? moment(filter.before).format('YYYY-MM-DD')
+                      ? DateTime.fromMillis(filter.before).toISODate()
                       : ''
                   }
                   onChange={e =>
                     updateFilter(
                       'before',
-                      (e.target as HTMLInputElement).valueAsDate,
+                      DateTime.fromISO(e.target.value).toMillis(),
                     )
                   }
                 />

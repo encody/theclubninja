@@ -1,5 +1,3 @@
-import firebase from 'firebase';
-import moment from 'moment';
 
 export interface ITerm {
   id: string;

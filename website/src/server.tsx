@@ -26,7 +26,8 @@ export interface IServer {
   } | null;
   profileId: string;
   user: firebase.User | null;
-  processing: boolean;
+  blocking: boolean;
+  nonBlocking: boolean;
   getTerms: () => Promise<AxiosResponse<IModel['terms']>>;
   getMembers: () => Promise<AxiosResponse<IModel['members']>>;
   getCreditTypes: () => Promise<AxiosResponse<IModel['creditTypes']>>;
@@ -46,7 +47,8 @@ export interface IServerResponse {
 }
 
 function useProvideServer(): IServer {
-  const [processing, setProcessing] = useState(true as IServer['processing']);
+  const [blocking, setBlocking] = useState(true as IServer['blocking']);
+  const [nonBlocking, setNonBlocking] = useState(true as IServer['blocking']);
   const [model, setModel] = useState(null as IServer['model']);
   const [profile, setProfile] = useState(null as IServer['profile']);
   const [profileId, setProfileId] = useState('' as IServer['profileId']);
@@ -54,34 +56,34 @@ function useProvideServer(): IServer {
   const [user, setUser] = useState(null as IServer['user']);
 
   const getTerms: IServer['getTerms'] = async () => {
-    setProcessing(true);
+    setNonBlocking(true);
     const result = await axios.get('/api/terms');
-    setProcessing(false);
+    setNonBlocking(false);
     return result;
   };
 
   const getMembers: IServer['getMembers'] = async () => {
-    setProcessing(true);
+    setNonBlocking(true);
     const result = await axios.get('/api/members');
-    setProcessing(false);
+    setNonBlocking(false);
     return result;
   };
 
   const getCreditTypes: IServer['getCreditTypes'] = async () => {
-    setProcessing(true);
+    setNonBlocking(true);
     const result = await axios.get('/api/creditTypes');
-    setProcessing(false);
+    setNonBlocking(false);
     return result;
   };
 
   const updateProfile: IServer['updateProfile'] = async (
     newProfileId: string,
   ) => {
-    setProcessing(true);
+    setBlocking(true);
     const result = await axios.get('/api/profile');
     setProfile(result.data);
     setProfileId(newProfileId);
-    setProcessing(false);
+    setBlocking(false);
     return result;
   };
 
@@ -93,15 +95,16 @@ function useProvideServer(): IServer {
   const setMembers: IServer['setMembers'] = async (
     members: IModel['members'],
   ) => {
-    setProcessing(true);
+    setNonBlocking(true);
     const result: IServerResponse = (await axios.post('/api/members', members))
       .data;
     if (result.success) {
-      const newModel = Object.assign({}, model);
-      Object.assign(newModel.members, members);
-      setModel(newModel);
+      // const newModel = Object.assign({}, model);
+      // Object.assign(newModel.members, members);
+      // setModel(newModel);
+      updateModel();
     }
-    setProcessing(false);
+    setNonBlocking(false);
     return result.success;
   };
 
@@ -120,7 +123,7 @@ function useProvideServer(): IServer {
   const clearModel = () => setModel({} as IServer['model']);
 
   const signIn = async () => {
-    setProcessing(true);
+    setBlocking(true);
     const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
     const authPersistence = firebase.auth.Auth.Persistence.LOCAL;
 
@@ -130,21 +133,20 @@ function useProvideServer(): IServer {
   };
 
   const signOut = () => {
-    setProcessing(true);
+    setBlocking(true);
     return firebase
       .auth()
       .signOut()
       .then(() => {
         setUser(null);
-        setProcessing(false);
+        setBlocking(false);
       });
   };
 
   useEffect(
     () =>
       firebase.auth().onAuthStateChanged(async newUser => {
-        setProcessing(true);
-
+        setBlocking(true);
 
         if (newUser) {
           axios.defaults.headers = {
@@ -161,7 +163,7 @@ function useProvideServer(): IServer {
         }
 
         setUser(newUser);
-        setProcessing(false);
+        setBlocking(false);
       }),
     [],
   );
@@ -191,9 +193,10 @@ function useProvideServer(): IServer {
     model,
     profile,
     profileId,
-    processing,
     term,
     user,
+    blocking,
+    nonBlocking,
     getTerms,
     getMembers,
     getCreditTypes,

@@ -3,7 +3,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { Link } from 'react-router-dom';
 import { hasMembership, IMember } from '../../model/Member';
-import { Membership } from '../../model/MemberTerm';
+import { Membership } from "../../model/Membership";
 import { useServer } from '../../server';
 import styles from './MemberRow.module.css';
 

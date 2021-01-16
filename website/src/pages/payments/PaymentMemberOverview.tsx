@@ -27,7 +27,7 @@ export default function PaymentMemberOverview(
         {props.member.name}
       </Accordion.Toggle>
       <Accordion.Collapse eventKey={props.member.accountId}>
-        <Card.Body>
+        <Card.Body className="p-0 pt-1">
           <ListGroup variant="flush">
             <ListGroup.Item>
               <Row className="font-weight-bold">

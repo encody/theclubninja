@@ -6,7 +6,7 @@ import styles from './AuthenticationOverlay.module.css';
 export default function AuthenticationOverlay() {
   const server = useServer();
 
-  return server.processing ? (
+  return server.blocking ? (
     <div className={styles.overlay}>
       <Spinner role="status" animation="grow" variant="primary">
         <span className="sr-only">Loading...</span>

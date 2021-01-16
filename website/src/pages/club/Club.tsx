@@ -4,16 +4,27 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
-import { mostRecentTerm } from '../../model/Model';
+import { hasMembership, isActiveMember } from '../../model/Member';
+import { Membership } from '../../model/Membership';
 import { useServer } from '../../server';
 import NewMemberModal from '../../shared/NewMemberModal';
 import ClubRow from './ClubRow';
 
 export default function Club() {
   const server = useServer();
-  const members = Object.values(server.model!.members);
   const [filter, setFilter] = useState('');
-  const [filteredMembers, setFilteredMembers] = useState(members.slice());
+
+  const getFilteredMembers = () =>
+    Object.values(server.model!.members).filter(
+      member =>
+        isActiveMember(member, server.term) &&
+        hasMembership(member, Membership.Club, server.term) &&
+        (member.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.institutionId.toLowerCase().includes(filter.toLowerCase()) ||
+          member.accountId.toLowerCase().includes(filter.toLowerCase())),
+    );
+
+  let filteredMembers = getFilteredMembers();
   const [showNewMemberModal, setShowNewMemberModal] = useState(false);
 
   const openNewMemberModal = () => {
@@ -26,17 +37,8 @@ export default function Club() {
 
   const updateFilter = (filter: string) => {
     setFilter(filter);
-    setFilteredMembers(
-      members.filter(
-        member =>
-          member.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.accountId.toLowerCase().includes(filter.toLowerCase()),
-      ),
-    );
+    filteredMembers = getFilteredMembers();
   };
-
-  const currentTerm = mostRecentTerm(server.model!);
 
   return (
     <>
@@ -67,10 +69,7 @@ export default function Club() {
           </Row>
         </ListGroup.Item>
         {filteredMembers.map(member => (
-          <ClubRow
-            key={member.accountId}
-            member={member}
-          />
+          <ClubRow key={member.accountId} member={member} />
         ))}
       </ListGroup>
 

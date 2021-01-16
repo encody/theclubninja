@@ -1,46 +1,39 @@
 import React, { useState } from 'react';
+import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { IMember, isActiveMember, hasMembership } from '../../model/Member';
-import { Membership } from '../../model/MemberTerm';
-import { IModel, mostRecentTerm } from '../../model/Model';
+import { hasMembership, isActiveMember } from '../../model/Member';
+import { Membership } from '../../model/Membership';
+import { useServer } from '../../server';
+import AddMemberModal from './AddMemberModal';
 import TeamAttendanceHistoryRow from './TeamAttendanceHistoryRow';
 import TeamCheckInRow from './TeamCheckInRow';
 import TeamRosterRow from './TeamRosterRow';
-import Button from 'react-bootstrap/Button';
-import AddMemberModal from './AddMemberModal';
-import { useServer } from '../../server';
 
 export default function Team() {
   const server = useServer();
 
-  const members = Object.values(server.model!.members).filter(
-    m =>
-      isActiveMember(m, server.term) &&
-      hasMembership(m, Membership.Team, server.term),
-  );
+  const getFilteredMembers = () =>
+    Object.values(server.model!.members).filter(
+      member =>
+        isActiveMember(member, server.term) &&
+        hasMembership(member, Membership.Team, server.term) &&
+        (member.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.institutionId.toLowerCase().includes(filter.toLowerCase()) ||
+          member.accountId.toLowerCase().includes(filter.toLowerCase())),
+    );
 
   const [filter, setFilter] = useState('');
-  const [filteredMembers, setFilteredMembers] = useState(members.slice());
+  let filteredMembers = getFilteredMembers();
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
 
   const updateFilter = (filterString: string) => {
-    const lcFilter = filterString.toLowerCase();
-
     setFilter(filterString);
-    setFilteredMembers(
-      members.filter(
-        member =>
-          member.name.toLowerCase().includes(lcFilter) ||
-          member.studentId.toLowerCase().includes(lcFilter) ||
-          member.accountId.toLowerCase().includes(lcFilter),
-      ),
-    );
+    filteredMembers = getFilteredMembers();
   };
 
   const openAddMemberModal = () => {

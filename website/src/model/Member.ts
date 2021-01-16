@@ -1,11 +1,12 @@
 import { isPaid, LedgerEntryReason } from './LedgerEntry';
-import { IMemberTerm, Membership } from './MemberTerm';
+import { IMemberTerm } from './MemberTerm';
+import { Membership } from "./Membership";
 import { MemberType } from './MemberType';
 import { IWaiver } from './Waiver';
 
 export interface IMember {
   name: string;
-  studentId: string;
+  institutionId: string;
   memberType: MemberType;
   accountId: string;
   graduationYear: number;

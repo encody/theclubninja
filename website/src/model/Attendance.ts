@@ -1,5 +1,4 @@
 import firebase from 'firebase';
-import { CreditTypeId } from './CreditType';
 
 export enum AttendanceType {
   Present = 'present',
@@ -14,8 +13,9 @@ export enum AttendanceEvent {
 }
 
 export interface IAttendance {
-  credit: CreditTypeId | null;
+  credit: string | null;
   type: AttendanceType;
   event: AttendanceEvent;
   timestamp: number;
+  note: string;
 }

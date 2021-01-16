@@ -1,3 +1,17 @@
 .nav {
   display: flex;
 }
+
+.synchronized-check {
+  animation: check-fade-out 2s forwards;
+}
+
+@keyframes check-fade-out {
+  0%, 80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}

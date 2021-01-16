@@ -1,10 +1,10 @@
-import { CreditTypeId, ICreditType } from './CreditType';
+import { ICreditType } from './CreditType';
 import { IMember } from './Member';
 import { ITerm } from './Term';
 
 export interface IModel {
   creditTypes: {
-    [key in CreditTypeId]?: ICreditType;
+    [id: string]: ICreditType;
   };
   members: {
     [accountId: string]: IMember;

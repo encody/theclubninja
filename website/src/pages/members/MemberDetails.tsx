@@ -1,7 +1,7 @@
+import { DateTime } from 'luxon';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
-import moment from 'moment';
 import { IMember } from '../../model/Member';
 
 interface MemberDetailsProps {
@@ -23,7 +23,7 @@ export default class MemberDetails extends React.Component<
             this.props.member.waivers.length - 1
           ];
           return lastWaiver
-            ? moment(lastWaiver.timestamp).calendar()
+            ? DateTime.fromMillis(lastWaiver.timestamp).toRelative()
             : 'N/A';
         })()
       : '';
@@ -40,8 +40,8 @@ export default class MemberDetails extends React.Component<
               <td>{this.props.member.accountId}</td>
             </tr>
             <tr>
-              <td>Student ID:</td>
-              <td>{this.props.member.studentId}</td>
+              <td>Institution ID:</td>
+              <td>{this.props.member.institutionId}</td>
             </tr>
             <tr>
               <td>Waiver:</td>

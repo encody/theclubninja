@@ -12,20 +12,20 @@ import NewMemberModal from '../../shared/NewMemberModal';
 import MemberDetails from './MemberDetails';
 import MemberRow from './MemberRow';
 
-interface MembersState {
-  filter: string;
-  filteredMembers: IMember[];
-  showNewMemberModal: boolean;
-}
-
 export default function Members() {
   const server = useServer();
-  const members = Object.values(server.model!.members).filter(m =>
-    isActiveMember(m, server.term),
-  );
+
+  const getFilteredMembers = () =>
+    Object.values(server.model!.members).filter(
+      member =>
+        isActiveMember(member, server.term) &&
+        (member.name.toLowerCase().includes(filter.toLowerCase()) ||
+          member.institutionId.toLowerCase().includes(filter.toLowerCase()) ||
+          member.accountId.toLowerCase().includes(filter.toLowerCase())),
+    );
 
   const [filter, setFilter] = useState('');
-  const [filteredMembers, setFilteredMembers] = useState(members.slice());
+  let filteredMembers = getFilteredMembers();
   const [showNewMemberModal, setShowNewMemberModal] = useState(false);
 
   const openNewMemberModal = () => {
@@ -38,14 +38,7 @@ export default function Members() {
 
   const updateFilter = (filter: string) => {
     setFilter(filter);
-    setFilteredMembers(
-      members.filter(
-        member =>
-          member.name.toLowerCase().includes(filter.toLowerCase()) ||
-          member.studentId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.accountId.toLowerCase().includes(filter.toLowerCase()),
-      ),
-    );
+    filteredMembers = getFilteredMembers();
   };
 
   return (
@@ -89,7 +82,7 @@ export default function Members() {
       )}
 
       <Route path="/members/:id?">
-        <MemberDetailsModalWithRouter members={members} />
+        <MemberDetailsModalWithRouter />
       </Route>
 
       <NewMemberModal
@@ -100,36 +93,23 @@ export default function Members() {
   );
 }
 
-type MemberDetailsModalProps = RouteComponentProps<{ id: string }> & {
-  members: IMember[];
-};
+type MemberDetailsModalProps = RouteComponentProps<{ id: string }>;
 
-class MemberDetailsModal extends React.Component<
-  MemberDetailsModalProps,
-  { show: boolean }
-> {
-  constructor(props: MemberDetailsModalProps) {
-    super(props);
-  }
+function MemberDetailsModal(props: MemberDetailsModalProps) {
+  const server = useServer();
 
-  close() {
-    this.props.history.push('/members');
-  }
+  const close = () => {
+    props.history.push('/members');
+  };
 
-  render() {
-    const member = this.props.members.find(
-      m => m.accountId === this.props.match.params.id,
-    );
-    return (
-      <Modal
-        size="lg"
-        show={!!this.props.match.params.id}
-        onHide={() => this.close()}
-      >
-        <MemberDetails member={member} />
-      </Modal>
-    );
-  }
+  const member = Object.values(server.model!.members).find(
+    m => m.accountId === props.match.params.id,
+  );
+  return (
+    <Modal size="lg" show={!!props.match.params.id} onHide={() => close()}>
+      <MemberDetails member={member} />
+    </Modal>
+  );
 }
 
 const MemberDetailsModalWithRouter = withRouter(MemberDetailsModal);

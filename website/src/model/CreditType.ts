@@ -1,8 +1,5 @@
-import firebase from 'firebase';
-
-export type CreditTypeId = 'free';
-
 export interface ICreditType {
+  id: string;
   name: string;
   limit: number;
   order: number;
