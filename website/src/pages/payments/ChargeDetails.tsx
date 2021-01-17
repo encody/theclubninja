@@ -3,17 +3,20 @@ import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import * as Icon from 'react-feather';
+import Spinner from 'react-bootstrap/esm/Spinner';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
+import * as Icon from 'react-feather';
+import * as uuid from 'uuid';
 import { amountPaid, hasPayment, ICharge, isPaid } from '../../model/Charge';
 import { IMember } from '../../model/Member';
 import { PaymentType } from '../../model/Payment';
 import { useServer } from '../../server';
+import { CurrencyInput } from '../../shared/CurrencyInput';
 import { bound } from '../../shared/util';
 import { PaymentStatusAlert } from './PaymentStatusAlert';
 import { PaymentStatusBadge } from './PaymentStatusBadge';
@@ -26,39 +29,19 @@ interface ChargeDetailsProps {
 
 export function ChargeDetails(props: ChargeDetailsProps) {
   const server = useServer();
-  const newPaymentValueRef: React.RefObject<HTMLInputElement> = React.createRef();
 
   const [isAddingPayment, setIsAddingPayment] = useState(false);
-  const [newPaymentValueCents, setNewPaymentValueCents] = useState(
+  const [isAwaitingAddingPayment, setIsAwaitingAddingPayment] = useState(false);
+  const [newPaymentValue, setNewPaymentValue] = useState(
     props.charge.value - amountPaid(props.charge),
   );
   const [newPaymentReference, setNewPaymentReference] = useState('');
-
-  const showAddPaymentForm = () => {
-    setIsAddingPayment(true);
-    newPaymentValueRef.current?.focus();
-  };
-
-  const hideAddPaymentForm = () => {
-    setIsAddingPayment(false);
-  };
-
-  const updateNewPaymentValue = (value: string) => {
-    const v = parseFloat(value);
-    setNewPaymentValueCents(
-      isNaN(v)
-        ? 1
-        : Math.floor(
-            bound(1, v, props.charge.value - amountPaid(props.charge)),
-          ),
-    );
-  };
 
   return (
     <>
       <Modal.Header closeButton>
         <Modal.Title>
-          Charge: {server.model!.chargeTypes[props.charge.chargeType].name}
+          Charge: {server.model.chargeTypes[props.charge.chargeType].name}
           {' on '}
           {DateTime.fromMillis(props.charge.start).toLocaleString(
             DateTime.DATE_SHORT,
@@ -74,7 +57,7 @@ export function ChargeDetails(props: ChargeDetailsProps) {
           <tbody>
             <tr>
               <td>Reason:</td>
-              <td>{server.model!.chargeTypes[props.charge.chargeType].name}</td>
+              <td>{server.model.chargeTypes[props.charge.chargeType].name}</td>
             </tr>
             <tr>
               <td>Created:</td>
@@ -189,17 +172,19 @@ export function ChargeDetails(props: ChargeDetailsProps) {
                     <Form inline>
                       <Row>
                         <Col sm className="m-1">
-                          <Form.Control
-                            ref={newPaymentValueRef}
-                            required
+                          <CurrencyInput
+                            className="form-control"
                             placeholder="Amount"
-                            type="number"
-                            min={0.01}
-                            step={0.01}
-                            max={props.charge.value - amountPaid(props.charge)}
-                            value={newPaymentValueCents / 100}
-                            onChange={e =>
-                              updateNewPaymentValue(e.target.value)
+                            autoFocus
+                            value={newPaymentValue}
+                            onValueChange={v =>
+                              setNewPaymentValue(
+                                bound(
+                                  0,
+                                  v,
+                                  props.charge.value - amountPaid(props.charge),
+                                ),
+                              )
                             }
                           />
                         </Col>
@@ -214,11 +199,38 @@ export function ChargeDetails(props: ChargeDetailsProps) {
                           />
                         </Col>
                         <Col sm className="m-1">
-                          <Button className="mx-1">Add</Button>
+                          <Button
+                            className="mx-1"
+                            onClick={async () => {
+                              setIsAddingPayment(false);
+                              setIsAwaitingAddingPayment(true);
+                              props.charge.payments.push({
+                                id: uuid.v4(),
+                                chargeId: props.charge.id,
+                                timestamp: Date.now(),
+                                type: PaymentType.Manual,
+                                value: newPaymentValue,
+                                enteredByUserId: server.user!.email!,
+                                reference: newPaymentReference,
+                              });
+                              if (
+                                await server.setMembers({
+                                  [props.member.accountId]: props.member,
+                                })
+                              ) {
+                                // TODO: Success
+                              } else {
+                                // TODO: Alert error
+                              }
+                              setIsAwaitingAddingPayment(false);
+                            }}
+                          >
+                            Add
+                          </Button>
                           <Button
                             className="mx-1"
                             variant="secondary"
-                            onClick={() => hideAddPaymentForm()}
+                            onClick={() => setIsAddingPayment(false)}
                           >
                             Cancel
                           </Button>
@@ -235,10 +247,18 @@ export function ChargeDetails(props: ChargeDetailsProps) {
             {!isAddingPayment && !isPaid(props.charge) && (
               <tr>
                 <td colSpan={5}>
-                  <div className="d-flex justify-content-end">
+                  <div className="d-flex justify-content-end align-items-center">
+                    {isAwaitingAddingPayment && (
+                      <Spinner
+                        className="mr-3"
+                        animation="border"
+                        size="sm"
+                        variant="success"
+                      />
+                    )}
                     <Button
                       variant="success"
-                      onClick={() => showAddPaymentForm()}
+                      onClick={() => setIsAddingPayment(true)}
                     >
                       Add Payment
                     </Button>

@@ -18,7 +18,7 @@ export default function Team() {
   const server = useServer();
 
   const getFilteredMembers = () =>
-    Object.values(server.model!.members).filter(
+    Object.values(server.model.members).filter(
       member =>
         isActiveMember(member, server.term) &&
         hasMembership(member, Membership.Team, server.term) &&

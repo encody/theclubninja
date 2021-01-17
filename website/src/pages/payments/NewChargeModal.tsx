@@ -5,7 +5,11 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
 import * as uuid from 'uuid';
+import { IMember, isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
+import { CurrencyInput } from '../../shared/CurrencyInput';
+import MemberSelector from '../../shared/MemberSelector';
+import { bound } from '../../shared/util';
 
 interface NewChargeModalProps {
   show: boolean;
@@ -16,22 +20,21 @@ export default function NewChargeModal(props: NewChargeModalProps) {
   const server = useServer();
 
   const chargeTypesOrder = () =>
-    Object.values(server.model!.chargeTypes).sort((a, b) => a.order - b.order);
+    Object.values(server.model.chargeTypes).sort((a, b) => a.order - b.order);
 
-  const [accountId, setAccountId] = useState('');
+  const [member, setMember] = useState(null as IMember | null);
   const [note, setNote] = useState('');
   const [due, setDue] = useState(
     DateTime.fromISO(
       DateTime.local().plus({ days: 30 }).toISODate(),
     ).toMillis(),
   );
-  const [amountCents, setAmountCents] = useState(0);
-  const [chargeType, setChargeType] = useState(chargeTypesOrder()[0].id);
+  const [amount, setAmount] = useState(0);
+  const [chargeType, setChargeType] = useState(chargeTypesOrder()[0]?.id || '');
 
   const reset = () => {
-    setAccountId('');
-    setAmountCents(0);
-    setChargeType(chargeTypesOrder()[0].id);
+    setAmount(0);
+    setChargeType(chargeTypesOrder()[0]?.id || '');
     setNote('');
     setDue(
       DateTime.fromISO(
@@ -50,13 +53,11 @@ export default function NewChargeModal(props: NewChargeModalProps) {
           <tr>
             <td>Account ID:</td>
             <td>
-              <Form.Control
-                required
-                type="text"
-                placeholder="Account ID of the account to charge"
-                value={accountId}
-                onChange={e => setAccountId(e.target.value)}
-                // TODO: Autofill ID's
+              <MemberSelector
+                id="NewChargeModal_MemberSelector"
+                member={member}
+                filter={m => isActiveMember(m, server.term)}
+                onSelect={m => setMember(m)}
               />
             </td>
           </tr>
@@ -69,7 +70,7 @@ export default function NewChargeModal(props: NewChargeModalProps) {
                 as="select"
                 onChange={e =>
                   setChargeType(
-                    server.model!.chargeTypes[e.target.value]
+                    server.model.chargeTypes[e.target.value]
                       ? e.target.value
                       : chargeTypesOrder()[0].id,
                   )
@@ -90,14 +91,11 @@ export default function NewChargeModal(props: NewChargeModalProps) {
           <tr>
             <td>Amount:</td>
             <td>
-              <Form.Control
+              <CurrencyInput
                 required
-                type="number"
-                value={amountCents / 100}
-                step={0.01}
-                max={1500}
-                min={0.0}
-                onChange={e => setAmountCents(parseFloat(e.target.value) * 100)}
+                className="form-control"
+                onValueChange={v => setAmount(bound(0, v, 150000))}
+                value={amount}
               />
             </td>
           </tr>
@@ -132,30 +130,25 @@ export default function NewChargeModal(props: NewChargeModalProps) {
       <Modal.Footer>
         <Button
           variant="primary"
-          disabled={
-            !server.model!.members[accountId] ||
-            !server.model!.members[accountId].terms[server.term] ||
-            amountCents <= 0
-          }
+          disabled={!member || !member.terms[server.term] || amount < 0}
           onClick={async () => {
             props.onClose();
 
-            const member = server.model!.members[accountId];
-            const term = member.terms[server.term]!;
+            const term = member!.terms[server.term]!;
             term.ledger.push({
               id: uuid.v4(), // TODO: Generate server-side
-              accountId: member.accountId,
+              accountId: member!.accountId,
               term: server.term,
               end: due,
               start: Date.now(),
               note,
               payments: [],
               chargeType,
-              value: amountCents,
+              value: amount,
             });
             if (
               await server.setMembers({
-                [member.accountId]: member,
+                [member!.accountId]: member!,
               })
             ) {
               reset();

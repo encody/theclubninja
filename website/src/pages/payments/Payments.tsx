@@ -28,7 +28,7 @@ export default function Payments() {
   const server = useServer();
 
   const getFilteredMembers = () =>
-    Object.values(server.model!.members).filter(
+    Object.values(server.model.members).filter(
       member =>
         isActiveMember(member, server.term) &&
         // string filter

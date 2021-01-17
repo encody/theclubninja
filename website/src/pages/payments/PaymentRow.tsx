@@ -25,7 +25,7 @@ export default function PaymentRow(props: PaymentRowProps) {
       <ListGroup.Item action onClick={() => setShowModal(true)}>
         <Row>
           <Col xs={4}>
-            {server.model!.chargeTypes[props.charge.chargeType].name}
+            {server.model.chargeTypes[props.charge.chargeType].name}
           </Col>
           <Col xs={2}>
             {DateTime.fromMillis(props.charge.start).toLocaleString(

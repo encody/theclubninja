@@ -19,7 +19,7 @@ export const useServer = () => {
 };
 
 export interface IServer {
-  model: IModel | null;
+  model: IModel;
   term: string;
   profile: {
     admin: boolean;
@@ -50,7 +50,12 @@ export interface IServerResponse {
 function useProvideServer(): IServer {
   const [blocking, setBlocking] = useState(true as IServer['blocking']);
   const [nonBlocking, setNonBlocking] = useState(true as IServer['blocking']);
-  const [model, setModel] = useState(null as IServer['model']);
+  const [model, setModel] = useState({
+    chargeTypes: {},
+    creditTypes: {},
+    members: {},
+    terms: {},
+  } as IServer['model']);
   const [profile, setProfile] = useState(null as IServer['profile']);
   const [profileId, setProfileId] = useState('' as IServer['profileId']);
   const [term, setTerm] = useState('' as IServer['term']);
@@ -107,9 +112,6 @@ function useProvideServer(): IServer {
     const result: IServerResponse = (await axios.post('/api/members', members))
       .data;
     if (result.success) {
-      // const newModel = Object.assign({}, model);
-      // Object.assign(newModel.members, members);
-      // setModel(newModel);
       updateModel();
     }
     setNonBlocking(false);
@@ -129,7 +131,12 @@ function useProvideServer(): IServer {
     return model;
   };
 
-  const clearModel = () => setModel({} as IServer['model']);
+  const clearModel = () => setModel({
+    chargeTypes: {},
+    creditTypes: {},
+    members: {},
+    terms: {},
+  });
 
   const signIn = async () => {
     setBlocking(true);

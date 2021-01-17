@@ -18,7 +18,7 @@ export default function ClubCheckInModal(props: ClubCheckInModalProps) {
   const server = useServer();
 
   const creditTypeOrdering = () =>
-    Object.values(server.model!.creditTypes).sort((a, b) => a.order - b.order);
+    Object.values(server.model.creditTypes).sort((a, b) => a.order - b.order);
 
   const [creditType, setCreditType] = useState(creditTypeOrdering()[0].id);
   const [useCredit, setUseCredit] = useState(null as boolean | null);
@@ -52,7 +52,7 @@ export default function ClubCheckInModal(props: ClubCheckInModalProps) {
               active={useCredit === true}
               onClick={() => setUseCredit(true)}
             >
-              {server.model!.creditTypes[creditType].name}
+              {server.model.creditTypes[creditType].name}
             </Button>
 
             <Dropdown.Toggle

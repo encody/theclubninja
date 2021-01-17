@@ -16,7 +16,7 @@ export default function Members() {
   const server = useServer();
 
   const getFilteredMembers = () =>
-    Object.values(server.model!.members).filter(
+    Object.values(server.model.members).filter(
       member =>
         isActiveMember(member, server.term) &&
         (member.name.toLowerCase().includes(filter.toLowerCase()) ||
@@ -102,7 +102,7 @@ function MemberDetailsModal(props: MemberDetailsModalProps) {
     props.history.push('/members');
   };
 
-  const member = Object.values(server.model!.members).find(
+  const member = Object.values(server.model.members).find(
     m => m.accountId === props.match.params.id,
   );
   return (

@@ -18,7 +18,7 @@ interface AddMemberModalProps {
 export default function AddMemberModal(props: AddMemberModalProps) {
   const server = useServer();
 
-  const members = Object.values(server.model!.members).filter(
+  const members = Object.values(server.model.members).filter(
     m =>
       isActiveMember(m, server.term) &&
       !hasMembership(m, Membership.Team, server.term),

@@ -3,9 +3,11 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
+import { IMember } from '../model/Member';
 import { Membership } from '../model/Membership';
 import { MemberType, memberTypes } from '../model/MemberType';
 import { useServer } from '../server';
+import MemberSelector from './MemberSelector';
 
 interface NewMemberModalProps {
   show: boolean;
@@ -20,7 +22,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
     new Date().getFullYear() + 2,
   );
   const [memberType, setMemberType] = useState(MemberType.Student);
-  const [referralMember, setReferralMember] = useState('');
+  const [referralMember, setReferralMember] = useState(null as IMember | null);
   const [source, setSource] = useState('');
   const [institutionId, setInstitutionId] = useState('');
   const [accountId, setAccountId] = useState('');
@@ -29,14 +31,19 @@ export default function NewMemberModal(props: NewMemberModalProps) {
     setName('');
     setGraduationYear(new Date().getFullYear() + 2);
     setMemberType(MemberType.Student);
-    setReferralMember('');
+    setReferralMember(null);
     setSource('');
     setInstitutionId('');
     setAccountId('');
   };
 
   return (
-    <Modal size="lg" show={props.show} onHide={props.onClose}>
+    <Modal
+      size="lg"
+      show={props.show}
+      onHide={props.onClose}
+      scrollable={false}
+    >
       <Modal.Header closeButton>
         <Modal.Title>
           {name.trim().length ? 'New Member: ' + name : 'New Member'}
@@ -61,11 +68,19 @@ export default function NewMemberModal(props: NewMemberModalProps) {
             <td>
               <Form.Control
                 required
+                className={
+                  server.model.members[accountId]
+                    ? 'is-invalid'
+                    : accountId.trim().length
+                    ? 'is-valid'
+                    : ''
+                }
                 type="text"
                 placeholder="An unambiguous, human-readable identifier"
                 value={accountId}
                 onChange={e => setAccountId(e.target.value)}
               />
+              <div className="invalid-feedback">Account ID already exists</div>
             </td>
           </tr>
           <tr>
@@ -138,13 +153,13 @@ export default function NewMemberModal(props: NewMemberModalProps) {
             </td>
           </tr>
           <tr>
-            <td>Referring member account ID:</td>
+            <td>Referring member:</td>
             <td>
-              <Form.Control
-                required
-                type="text"
-                value={referralMember}
-                onChange={e => setReferralMember(e.target.value)}
+              <MemberSelector
+                id="NewMemberModal_MemberSelector"
+                filter={() => true}
+                member={referralMember}
+                onSelect={m => setReferralMember(m)}
               />
             </td>
           </tr>
@@ -153,6 +168,14 @@ export default function NewMemberModal(props: NewMemberModalProps) {
       <Modal.Footer>
         <Button
           variant="primary"
+          disabled={
+            name.trim().length === 0 || // No name
+            accountId.trim().length === 0 || // No account ID
+            !!server.model.members[accountId] || // Account ID already exists
+            graduationYear < 1900 || // Unlikely graduation year
+            graduationYear > 2100 || // ...
+            institutionId.trim().length === 0 // No institution ID
+          }
           onClick={async () => {
             props.onClose();
             if (
@@ -163,7 +186,9 @@ export default function NewMemberModal(props: NewMemberModalProps) {
                   graduationYear,
                   institutionId,
                   memberType,
-                  referralMember,
+                  referralMember: referralMember
+                    ? referralMember.accountId
+                    : '',
                   source,
                   terms: {
                     [server.term]: {

@@ -15,7 +15,7 @@ export default function Club() {
   const [filter, setFilter] = useState('');
 
   const getFilteredMembers = () =>
-    Object.values(server.model!.members).filter(
+    Object.values(server.model.members).filter(
       member =>
         isActiveMember(member, server.term) &&
         hasMembership(member, Membership.Club, server.term) &&
