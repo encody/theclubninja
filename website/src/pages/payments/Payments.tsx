@@ -4,12 +4,15 @@ import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/esm/Button';
+import Modal from 'react-bootstrap/esm/Modal';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
+import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
 import { hasPayment, ICharge, isOverdue, isPaid } from '../../model/Charge';
-import { isActiveMember } from '../../model/Member';
+import { IMember, isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
+import { ChargeDetails } from './ChargeDetails';
 import NewChargeModal from './NewChargeModal';
 import PaymentMemberOverview from './PaymentMemberOverview';
 import { PaymentStatusBadge } from './PaymentStatusBadge';
@@ -235,6 +238,11 @@ export default function Payments() {
           )}
         </Col>
       </Row>
+
+      <Route path="/payments/:accountId?/:chargeId?">
+        <ChargeDetailsModal />
+      </Route>
+
       <NewChargeModal
         onClose={() => setShowNewChargeModal(false)}
         show={showNewChargeModal}
@@ -242,3 +250,22 @@ export default function Payments() {
     </>
   );
 }
+
+interface ChargeDetailsModalProps
+  extends RouteComponentProps<{ accountId: string; chargeId?: string }> {}
+
+const ChargeDetailsModal = withRouter(
+    (props: ChargeDetailsModalProps) => {
+      const server = useServer();
+      const close = () => props.history.push('/payments');
+      const member = server.model.members[props.match.params.accountId];
+      const [charge] = Object.values(member?.terms ?? {}).flatMap(term =>
+        term!.ledger.filter(c => c.id === props.match.params.chargeId),
+      );
+      return (
+        <Modal size="lg" show={!!props.match.params.chargeId} onHide={close}>
+          <ChargeDetails member={member} charge={charge} onHide={close} />
+        </Modal>
+      );
+    },
+);

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
+import { AttendanceEvent, AttendanceType } from '../../model/Attendance';
+import { ICreditType } from '../../model/CreditType';
 import { IMember } from '../../model/Member';
 import { useServer } from '../../server';
-import { AttendanceEvent, AttendanceType } from '../../model/Attendance';
 
 interface ClubCheckInModalProps {
   member: IMember;
@@ -17,15 +18,23 @@ interface ClubCheckInModalProps {
 export default function ClubCheckInModal(props: ClubCheckInModalProps) {
   const server = useServer();
 
+  const available = (creditType: ICreditType) =>
+    creditType.limit -
+    props.member.terms[server.term]!.attendance.filter(
+      a => a.credit === creditType.id,
+    ).length;
+
   const creditTypeOrdering = () =>
     Object.values(server.model.creditTypes).sort((a, b) => a.order - b.order);
 
-  const [creditType, setCreditType] = useState(creditTypeOrdering()[0].id);
+  const [creditType, setCreditType] = useState(
+    creditTypeOrdering().find(t => available(t) !== 0),
+  );
   const [useCredit, setUseCredit] = useState(null as boolean | null);
   const [note, setNote] = useState('');
 
   const reset = () => {
-    setCreditType(creditTypeOrdering()[0].id);
+    setCreditType(creditTypeOrdering().find(t => available(t) !== 0));
     setUseCredit(null);
     setNote('');
   };
@@ -52,7 +61,7 @@ export default function ClubCheckInModal(props: ClubCheckInModalProps) {
               active={useCredit === true}
               onClick={() => setUseCredit(true)}
             >
-              {server.model.creditTypes[creditType].name}
+              {creditType ? creditType.name : 'Select credit...'}
             </Button>
 
             <Dropdown.Toggle
@@ -64,18 +73,22 @@ export default function ClubCheckInModal(props: ClubCheckInModalProps) {
             />
 
             <Dropdown.Menu>
-              {creditTypeOrdering().map(t => (
-                <Dropdown.Item
-                  key={t.id}
-                  active={creditType === t.id}
-                  onClick={() => {
-                    setCreditType(t.id);
-                    setUseCredit(true);
-                  }}
-                >
-                  {t.name}
-                </Dropdown.Item>
-              ))}
+              {creditTypeOrdering().map(t => {
+                const a = available(t);
+                return (
+                  <Dropdown.Item
+                    key={t.id}
+                    active={creditType === t}
+                    disabled={a === 0}
+                    onClick={() => {
+                      setCreditType(t);
+                      setUseCredit(true);
+                    }}
+                  >
+                    {t.name} ({a === -1 ? <>&infin;</> : <>{a}</>})
+                  </Dropdown.Item>
+                );
+              })}
             </Dropdown.Menu>
           </Dropdown>
           <hr />
@@ -99,7 +112,7 @@ export default function ClubCheckInModal(props: ClubCheckInModalProps) {
           onClick={async () => {
             props.onClose();
             props.member.terms[server.term]!.attendance.push({
-              credit: useCredit ? creditType : null,
+              credit: useCredit && creditType ? creditType.id : null,
               event: AttendanceEvent.Club,
               timestamp: Date.now(),
               type: AttendanceType.Present,

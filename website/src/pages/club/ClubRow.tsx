@@ -2,13 +2,23 @@ import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
+import Badge from 'react-bootstrap/esm/Badge';
+import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
+import Tooltip from 'react-bootstrap/esm/Tooltip';
 import Row from 'react-bootstrap/Row';
+import * as Icon from 'react-feather';
+import { Link } from 'react-router-dom';
 import {
   AttendanceEvent,
   IAttendance,
   AttendanceType,
 } from '../../model/Attendance';
-import { hasPaidForTerm, IMember } from '../../model/Member';
+import {
+  getUnpaid,
+  hasPaidForTerm,
+  hasUnpaid,
+  IMember,
+} from '../../model/Member';
 import { useServer } from '../../server';
 import ClubCheckInModal from './ClubCheckInModal';
 import styles from './ClubRow.module.css';
@@ -50,22 +60,9 @@ export default function ClubRow(props: ClubRowProps) {
           <Col xs={5}>{props.member.name}</Col>
           <Col xs={3}>{props.member.accountId}</Col>
           <Col xs={4}>
-            {hasPaidForTerm(
-              props.member,
-              server.term,
-              'club_dues', // TODO: Read from DB
-            ) ? (
-              <Button className="mr-2" size="sm" variant="primary" disabled>
-                Paid
-              </Button>
-            ) : (
-              <Button className="mr-2" size="sm" variant="primary">
-                Pay Now
-              </Button>
-            )}
             {attendanceRecord ? (
               <Button variant="success" size="sm" disabled>
-                Checked in
+                <Icon.UserCheck size={18} className="mr-1" /> Check In
               </Button>
             ) : (
               <Button
@@ -75,8 +72,47 @@ export default function ClubRow(props: ClubRowProps) {
                   setShowCheckInModal(true);
                 }}
               >
-                Check In
+                <Icon.User size={18} className="mr-1" /> Check In
               </Button>
+            )}{' '}
+            {hasPaidForTerm(
+              props.member,
+              server.term,
+              'club_dues', // TODO: Read from DB
+            ) ? (
+              <OverlayTrigger
+                overlay={
+                  <Tooltip id={`tooltip-chargespaid-${props.member.accountId}`}>
+                    Dues paid.
+                  </Tooltip>
+                }
+              >
+                <Icon.DollarSign size={18} className="text-success" />
+              </OverlayTrigger>
+            ) : hasUnpaid(props.member, 'club_dues', server.term) ? (
+              <>
+                <Link
+                  className="btn btn-primary btn-sm"
+                  to={
+                    '/payments/' +
+                    props.member.accountId +
+                    '/' +
+                    getUnpaid(props.member, 'club_dues', server.term)[0].id
+                  }
+                >
+                  Pay Now
+                </Link>
+              </>
+            ) : (
+              <OverlayTrigger
+                overlay={
+                  <Tooltip id={`tooltip-nocharges-${props.member.accountId}`}>
+                    No charges found.
+                  </Tooltip>
+                }
+              >
+                <Icon.FileMinus size={18} className="text-danger" />
+              </OverlayTrigger>
             )}
           </Col>
         </Row>

@@ -1,6 +1,6 @@
-import { isPaid } from './Charge';
-import { IMemberTerm } from './MemberTerm';
+import { ICharge, isPaid } from './Charge';
 import { Membership } from './Membership';
+import { IMemberTerm } from './MemberTerm';
 import { MemberType } from './MemberType';
 import { IWaiver } from './Waiver';
 
@@ -26,9 +26,44 @@ export function hasPaidForTerm(
     return false;
   }
 
-  const charges = term.ledger.filter(charge => charge.chargeType === chargeType);
+  const charges = term.ledger.filter(
+    charge => charge.chargeType === chargeType,
+  );
 
   return charges.length > 0 && charges.every(isPaid);
+}
+export function getUnpaid(
+  member: IMember,
+  chargeType: string,
+  termId: string,
+): ICharge[] {
+  const term = member.terms[termId];
+  if (!term) {
+    return [];
+  }
+
+  const charges = term.ledger.filter(
+    charge => charge.chargeType === chargeType && !isPaid(charge),
+  );
+
+  return charges;
+}
+
+export function hasUnpaid(
+  member: IMember,
+  chargeType: string,
+  termId: string,
+): boolean {
+  const term = member.terms[termId];
+  if (!term) {
+    return false;
+  }
+
+  const charges = term.ledger.filter(
+    charge => charge.chargeType === chargeType,
+  );
+
+  return charges.length > 0 && charges.some(c => !isPaid(c));
 }
 
 export function isActiveMember(member: IMember, termId: string): boolean {

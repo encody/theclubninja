@@ -62,7 +62,7 @@ export default function Navbar() {
         </Nav>
         <Nav>
           <BootstrapNavbar.Text className="mr-2 d-none d-lg-block">
-            {server.nonBlocking ? (
+            {server.nonBlocking.size > 0 ? (
               <OverlayTrigger
                 placement="bottom"
                 overlay={
@@ -73,9 +73,8 @@ export default function Navbar() {
               </OverlayTrigger>
             ) : (
               <Icon.Check
-                color="green"
                 size={18}
-                className={styles['synchronized-check']}
+                className={styles['synchronized-check'] + ' text-success'}
               />
             )}
           </BootstrapNavbar.Text>
