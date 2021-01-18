@@ -4,10 +4,10 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
-import { hasMembership, isActiveMember } from '../../model/Member';
+import { hasMembership, IMember, isActiveMember } from '../../model/Member';
 import { Membership } from '../../model/Membership';
 import { useServer } from '../../server';
-import NewMemberModal from '../../shared/NewMemberModal';
+import AddMemberModal from '../../shared/AddMemberModal';
 import ClubRow from './ClubRow';
 
 export default function Club() {
@@ -25,15 +25,7 @@ export default function Club() {
     );
 
   let filteredMembers = getFilteredMembers();
-  const [showNewMemberModal, setShowNewMemberModal] = useState(false);
-
-  const openNewMemberModal = () => {
-    setShowNewMemberModal(true);
-  };
-
-  const closeNewMemberModal = () => {
-    setShowNewMemberModal(false);
-  };
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
 
   const updateFilter = (filter: string) => {
     setFilter(filter);
@@ -56,7 +48,9 @@ export default function Club() {
           />
         </div>
         <div className="ml-3 flex-shrink-1">
-          <Button onClick={() => openNewMemberModal()}>New Member</Button>
+          <Button onClick={() => setShowAddMemberModal(true)}>
+            Add Member
+          </Button>
         </div>
       </div>
 
@@ -79,9 +73,32 @@ export default function Club() {
         </div>
       )}
 
-      <NewMemberModal
-        show={showNewMemberModal}
-        onClose={() => closeNewMemberModal()}
+      <AddMemberModal
+        title="Add Members to Club Roster"
+        members={Object.values(server.model.members).filter(
+          m =>
+            isActiveMember(m, server.term) &&
+            !hasMembership(m, Membership.Club, server.term),
+        )}
+        onClose={() => setShowAddMemberModal(false)}
+        show={showAddMemberModal}
+        onSelect={async members => {
+          const update: {
+            [accountId: string]: IMember;
+          } = {};
+
+          members.forEach(m => {
+            m.terms[server.term]!.memberships.push(Membership.Club);
+            update[m.accountId] = m;
+          });
+
+          if (await server.setMembers(update)) {
+            return true;
+          } else {
+            // TODO: Popup error
+            return false;
+          }
+        }}
       />
     </>
   );
