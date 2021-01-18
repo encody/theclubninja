@@ -4,28 +4,29 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import { IMember } from '../../model/Member';
-import { Membership } from '../../model/Membership';
+import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
 
-interface TeamRosterRowProps {
+interface ManagementRowProps {
   member: IMember;
+  membership: IMembership;
 }
 
-export default function TeamRosterRow(props: TeamRosterRowProps) {
+export default function ManagementRow(props: ManagementRowProps) {
   const server = useServer();
   return (
     <Container className={'list-group-item'}>
       <Row>
         <Col xs={4}>{props.member.name}</Col>
-        <Col xs={2}>{props.member.accountId}</Col>
-        <Col xs={6}>
+        <Col xs={3}>{props.member.accountId}</Col>
+        <Col xs={5}>
           <Button
             size="sm"
             variant="danger"
             onClick={async () => {
               const term = props.member.terms[server.term]!;
               term.memberships = term.memberships.filter(
-                m => m !== Membership.Team,
+                m => m !== props.membership.id,
               );
               if (
                 await server.setMembers({

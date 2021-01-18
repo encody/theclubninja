@@ -1,27 +1,5 @@
-export enum MemberType {
-  Student = 'student',
-  Alumni = 'alumni',
-  FacultyStaff = 'faculty_staff',
-  Other = 'other',
-}
-
-interface MemberTypeInformation {
+export interface IMemberType {
+  id: string;
   name: string;
+  order: number;
 }
-
-export const memberTypes: {
-  [memberType in MemberType]: MemberTypeInformation;
-} = {
-  student: {
-    name: 'Student',
-  },
-  alumni: {
-    name: 'Alumni',
-  },
-  faculty_staff: {
-    name: 'Faculty/Staff',
-  },
-  other: {
-    name: 'Other',
-  },
-};

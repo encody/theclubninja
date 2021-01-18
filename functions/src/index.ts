@@ -12,6 +12,8 @@ const router = new Router({
   prefix: '/api',
 });
 
+// TODO: Cache model & serve that instead of calling back to firestore every time to save on quota
+
 app.use(async (ctx, next) => {
   console.log(ctx.request.originalUrl, ctx.origin);
   if (/https?:\/\/localhost(:\d+)?/.test(ctx.origin)) {
@@ -90,6 +92,18 @@ router
   .get('/chargeTypes', async (ctx, next) => {
     ctx.response.body = (
       await firestore.collection('chargeTypes').get()
+    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
+    await next();
+  })
+  .get('/memberTypes', async (ctx, next) => {
+    ctx.response.body = (
+      await firestore.collection('memberTypes').get()
+    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
+    await next();
+  })
+  .get('/memberships', async (ctx, next) => {
+    ctx.response.body = (
+      await firestore.collection('memberships').get()
     ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
     await next();
   })

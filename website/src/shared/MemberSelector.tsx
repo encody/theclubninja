@@ -20,8 +20,16 @@ export default function MemberSelector(props: MemberSelectorProps) {
   const [filterString, setFilterString] = useState('');
   const [selectedMember, setSelectedMember] = useState(null as IMember | null);
 
+  const filteredMembers = Object.values(server.model.members)
+    .filter(props.filter)
+    .filter(
+      m =>
+        m.accountId.toLowerCase().includes(filterString.toLowerCase()) ||
+        m.name.toLowerCase().includes(filterString.toLowerCase()),
+    );
+
   return (
-    <>
+    <div className="d-flex">
       <DropdownButton
         as={ButtonGroup}
         id={props.id}
@@ -35,6 +43,7 @@ export default function MemberSelector(props: MemberSelectorProps) {
           <FormControl
             autoFocus
             className="mx-3 my-2 flex-grow-1"
+            style={{ width: '0' }}
             placeholder="Type to filter..."
             onChange={e => setFilterString(e.target.value)}
             value={filterString}
@@ -44,37 +53,34 @@ export default function MemberSelector(props: MemberSelectorProps) {
         <ul
           className="list-unstyled"
           style={{
-            maxHeight: '50vh',
+            maxHeight: '40vh',
+            minWidth: '230px',
             overflowY: 'auto',
           }}
         >
-          {server.model &&
-            Object.values(server.model.members)
-              .filter(props.filter)
-              .filter(
-                m =>
-                  m.accountId
-                    .toLowerCase()
-                    .includes(filterString.toLowerCase()) ||
-                  m.name.toLowerCase().includes(filterString.toLowerCase()),
-              )
-              .map(m => (
-                <Dropdown.Item
-                  key={m.accountId}
-                  active={m === selectedMember}
-                  onClick={() => {
-                    setSelectedMember(m);
-                    props.onSelect(m);
-                  }}
-                >
-                  {m.name} ({m.accountId})
-                </Dropdown.Item>
-              ))}
+          {server.model && filteredMembers.length ? (
+            filteredMembers.map(m => (
+              <Dropdown.Item
+                key={m.accountId}
+                active={m === selectedMember}
+                onClick={() => {
+                  setSelectedMember(m);
+                  props.onSelect(m);
+                }}
+              >
+                {m.name} ({m.accountId})
+              </Dropdown.Item>
+            ))
+          ) : (
+            <Dropdown.Item disabled>No members found.</Dropdown.Item>
+          )}
         </ul>
-      </DropdownButton>{' '}
+      </DropdownButton>
       {selectedMember !== null && (
         <Button
-          variant="light"
+          size="sm"
+          variant="outline-secondary"
+          className="ml-2"
           onClick={() => {
             setSelectedMember(null);
             props.onSelect(null);
@@ -83,6 +89,6 @@ export default function MemberSelector(props: MemberSelectorProps) {
           <Icon.XCircle />
         </Button>
       )}
-    </>
+    </div>
   );
 }

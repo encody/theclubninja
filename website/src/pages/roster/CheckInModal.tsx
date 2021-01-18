@@ -4,18 +4,19 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import { AttendanceEvent, AttendanceType } from '../../model/Attendance';
+import { AttendanceType } from '../../model/Attendance';
 import { ICreditType } from '../../model/CreditType';
 import { IMember } from '../../model/Member';
 import { useServer } from '../../server';
 
-interface ClubCheckInModalProps {
+interface CheckInCreditModalProps {
   member: IMember;
   show: boolean;
   onClose: () => void;
+  onSubmit: (credit: string | null, note: string) => Promise<boolean>;
 }
 
-export default function ClubCheckInModal(props: ClubCheckInModalProps) {
+export default function CheckInCreditModal(props: CheckInCreditModalProps) {
   const server = useServer();
 
   const available = (creditType: ICreditType) =>
@@ -52,7 +53,7 @@ export default function ClubCheckInModal(props: ClubCheckInModalProps) {
             active={useCredit === false}
             onClick={() => setUseCredit(false)}
           >
-            Paid Lesson
+            Paid Attendance
           </Button>
           <Dropdown as={ButtonGroup} className="mx-2">
             <Button
@@ -111,20 +112,13 @@ export default function ClubCheckInModal(props: ClubCheckInModalProps) {
           disabled={useCredit === null}
           onClick={async () => {
             props.onClose();
-            props.member.terms[server.term]!.attendance.push({
-              credit: useCredit && creditType ? creditType.id : null,
-              event: AttendanceEvent.Club,
-              timestamp: Date.now(),
-              type: AttendanceType.Present,
-              note,
-            });
             if (
-              await server.setMembers({
-                [props.member.accountId]: props.member,
-              })
+              await props.onSubmit(
+                useCredit && creditType ? creditType.id : null,
+                note,
+              )
             ) {
               reset();
-              // TODO: Alert success
             } else {
               // TODO: Alert failure
             }

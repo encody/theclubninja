@@ -6,22 +6,26 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { hasMembership, isActiveMember } from '../../model/Member';
-import { Membership } from '../../model/Membership';
+import { hasMembership, IMember, isActiveMember } from '../../model/Member';
+import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
-import AddMemberModal from './AddMemberModal';
-import TeamAttendanceHistoryRow from './TeamAttendanceHistoryRow';
-import TeamCheckInRow from './TeamCheckInRow';
-import TeamRosterRow from './TeamRosterRow';
+import AddMemberModal from '../../shared/AddMemberModal';
+import AttendanceHistoryRow from './AttendanceHistoryRow';
+import CheckInRow from './CheckInRow';
+import ManagementRow from './ManagementRow';
 
-export default function Team() {
+interface RosterProps {
+  membership: IMembership;
+}
+
+export default function Roster(props: RosterProps) {
   const server = useServer();
 
   const getFilteredMembers = () =>
     Object.values(server.model.members).filter(
       member =>
         isActiveMember(member, server.term) &&
-        hasMembership(member, Membership.Team, server.term) &&
+        hasMembership(member, props.membership.id, server.term) &&
         (member.name.toLowerCase().includes(filter.toLowerCase()) ||
           member.institutionId.toLowerCase().includes(filter.toLowerCase()) ||
           member.accountId.toLowerCase().includes(filter.toLowerCase())),
@@ -47,7 +51,7 @@ export default function Team() {
   return (
     <>
       <Row as="header">
-        <h2 className="mb-3">Team Check-In</h2>
+        <h2 className="mb-3">{props.membership.name}</h2>
       </Row>
 
       <div className="d-flex mb-3">
@@ -70,43 +74,54 @@ export default function Team() {
             <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
               <Row className="font-weight-bold">
                 <Col xs={4}>Name</Col>
-                <Col xs={2}>Account ID</Col>
-                <Col xs={6}>Check-In</Col>
+                <Col xs={3}>Account ID</Col>
+                <Col xs={5}>Check-In</Col>
               </Row>
             </ListGroup.Item>
             {filteredMembers.map(member => (
-              <TeamCheckInRow key={member.accountId} member={member} />
-            ))}
-          </ListGroup>
-        </Tab>
-        <Tab eventKey="history" title="Attendance History">
-          <ListGroup>
-            <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
-              <Row className="font-weight-bold">
-                <Col xs={4}>Name</Col>
-                <Col xs={2}>Account ID</Col>
-                <Col xs={6}>Check-In</Col>
-              </Row>
-            </ListGroup.Item>
-            {filteredMembers.map(member => (
-              <TeamAttendanceHistoryRow
+              <CheckInRow
                 key={member.accountId}
                 member={member}
+                membership={props.membership}
               />
             ))}
           </ListGroup>
         </Tab>
-        <Tab eventKey="roster" title="Roster">
+        {props.membership.useDetailedAttendance && (
+          <Tab eventKey="history" title="Attendance History">
+            <ListGroup>
+              <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
+                <Row className="font-weight-bold">
+                  <Col xs={4}>Name</Col>
+                  <Col xs={3}>Account ID</Col>
+                  <Col xs={5}>History</Col>
+                </Row>
+              </ListGroup.Item>
+              {filteredMembers.map(member => (
+                <AttendanceHistoryRow
+                  key={member.accountId}
+                  member={member}
+                  membership={props.membership}
+                />
+              ))}
+            </ListGroup>
+          </Tab>
+        )}
+        <Tab eventKey="management" title="Management">
           <ListGroup>
             <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
               <Row className="font-weight-bold">
                 <Col xs={4}>Name</Col>
-                <Col xs={2}>Account ID</Col>
-                <Col xs={6}>Actions</Col>
+                <Col xs={3}>Account ID</Col>
+                <Col xs={5}>Actions</Col>
               </Row>
             </ListGroup.Item>
             {filteredMembers.map(member => (
-              <TeamRosterRow key={member.accountId} member={member} />
+              <ManagementRow
+                key={member.accountId}
+                member={member}
+                membership={props.membership}
+              />
             ))}
           </ListGroup>
         </Tab>
@@ -119,6 +134,29 @@ export default function Team() {
       )}
 
       <AddMemberModal
+        title="Add Members to Team Roster"
+        members={Object.values(server.model.members).filter(
+          m =>
+            isActiveMember(m, server.term) &&
+            !hasMembership(m, props.membership.id, server.term),
+        )}
+        onSelect={async members => {
+          const update: {
+            [accountId: string]: IMember;
+          } = {};
+
+          members.forEach(m => {
+            m.terms[server.term]!.memberships.push(props.membership.id);
+            update[m.accountId] = m;
+          });
+
+          if (await server.setMembers(update)) {
+            return true;
+          } else {
+            // TODO: Popup error
+            return false;
+          }
+        }}
         onClose={() => closeAddMemberModal()}
         show={showAddMemberModal}
       />

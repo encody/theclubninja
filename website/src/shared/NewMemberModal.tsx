@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import Table from 'react-bootstrap/Table';
+import Row from 'react-bootstrap/Row';
 import { IMember } from '../model/Member';
-import { Membership } from '../model/Membership';
-import { MemberType, memberTypes } from '../model/MemberType';
 import { useServer } from '../server';
 import MemberSelector from './MemberSelector';
+import styles from './NewMemberModal.module.css';
 
 interface NewMemberModalProps {
   show: boolean;
@@ -21,7 +22,10 @@ export default function NewMemberModal(props: NewMemberModalProps) {
   const [graduationYear, setGraduationYear] = useState(
     new Date().getFullYear() + 2,
   );
-  const [memberType, setMemberType] = useState(MemberType.Student);
+  const memberTypeOrder = Object.values(server.model.memberTypes).sort(
+    (a, b) => a.order - b.order,
+  );
+  const [memberType, setMemberType] = useState(memberTypeOrder[0]?.id ?? '');
   const [referralMember, setReferralMember] = useState(null as IMember | null);
   const [source, setSource] = useState('');
   const [institutionId, setInstitutionId] = useState('');
@@ -30,7 +34,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
   const reset = () => {
     setName('');
     setGraduationYear(new Date().getFullYear() + 2);
-    setMemberType(MemberType.Student);
+    setMemberType(memberTypeOrder[0]?.id ?? '');
     setReferralMember(null);
     setSource('');
     setInstitutionId('');
@@ -50,24 +54,32 @@ export default function NewMemberModal(props: NewMemberModalProps) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Table responsive>
-          <tr>
-            <td>Name:</td>
-            <td>
+        <Container>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewMemberModal_Name">Name:</Form.Label>
+            </Col>
+            <Col>
               <Form.Control
                 required
+                id="NewMemberModal_Name"
                 type="text"
                 placeholder="The name's Bond. James Bond."
                 value={name}
                 onChange={e => setName(e.target.value)}
               />
-            </td>
-          </tr>
-          <tr>
-            <td>Account ID:</td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewMemberModal_AccountId">
+                Account ID:
+              </Form.Label>
+            </Col>
+            <Col>
               <Form.Control
                 required
+                id="NewMemberModal_AccountId"
                 className={
                   server.model.members[accountId]
                     ? 'is-invalid'
@@ -81,55 +93,68 @@ export default function NewMemberModal(props: NewMemberModalProps) {
                 onChange={e => setAccountId(e.target.value)}
               />
               <div className="invalid-feedback">Account ID already exists</div>
-            </td>
-          </tr>
-          <tr>
-            <td>Institution ID:</td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewMemberModal_InstitutionId">
+                Institution ID:
+              </Form.Label>
+            </Col>
+            <Col>
               <Form.Control
                 required
+                id="NewMemberModal_InstitutionId"
                 type="text"
                 placeholder="ID given by the associated institution"
                 value={institutionId}
                 onChange={e => setInstitutionId(e.target.value)}
               />
-            </td>
-          </tr>
-          <tr>
-            <td>Member Type:</td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewMemberModal_MemberType">
+                Member Type:
+              </Form.Label>
+            </Col>
+            <Col>
               <Form.Control
                 required
                 custom
+                id="NewMemberModal_MemberType"
                 as="select"
                 onChange={e =>
                   setMemberType(
-                    e.target.value in MemberType
-                      ? (e.target.value as MemberType)
-                      : MemberType.Student,
+                    server.model.memberTypes[e.target.value]
+                      ? e.target.value
+                      : memberTypeOrder[0].id ?? '',
                   )
                 }
               >
-                {(Object.keys(MemberType) as (keyof typeof MemberType)[]).map(
-                  k => (
-                    <option
-                      key={k}
-                      value={k}
-                      selected={MemberType[k] === memberType}
-                    >
-                      {memberTypes[MemberType[k]].name}
-                    </option>
-                  ),
-                )}
+                {memberTypeOrder.map(m => (
+                  <option
+                    key={m.id}
+                    value={m.id}
+                    selected={m.id === memberType}
+                  >
+                    {m.name}
+                  </option>
+                ))}
               </Form.Control>
-            </td>
-          </tr>
-          <tr>
-            <td>Graduation Year:</td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewMemberModal_GraduationYear">
+                Graduation Year:
+              </Form.Label>
+            </Col>
+            <Col>
               <Form.Control
                 required
                 type="text"
+                id="NewMemberModal_GraduationYear"
                 value={graduationYear}
                 onChange={e => {
                   const { value } = e.target;
@@ -139,31 +164,43 @@ export default function NewMemberModal(props: NewMemberModalProps) {
                   }
                 }}
               />
-            </td>
-          </tr>
-          <tr>
-            <td>How did you hear about us?</td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewMemberModal_Source">
+                How did you hear about us?{' '}
+                <small className="text-muted">(optional)</small>
+              </Form.Label>
+            </Col>
+            <Col>
               <Form.Control
                 required
+                id="NewMemberModal_Source"
+                placeholder="Telephone, television, telegraph, tele&hellip;path?"
                 as="textarea"
                 value={source}
                 onChange={e => setSource(e.target.value)}
               />
-            </td>
-          </tr>
-          <tr>
-            <td>Referring member:</td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewMemberModal_ReferralMember">
+                Referring member:{' '}
+                <small className="text-muted">(optional)</small>
+              </Form.Label>
+            </Col>
+            <Col>
               <MemberSelector
-                id="NewMemberModal_MemberSelector"
+                id="NewMemberModal_ReferralMember"
                 filter={() => true}
                 member={referralMember}
                 onSelect={m => setReferralMember(m)}
               />
-            </td>
-          </tr>
-        </Table>
+            </Col>
+          </Row>
+        </Container>
       </Modal.Body>
       <Modal.Footer>
         <Button
@@ -194,7 +231,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
                     [server.term]: {
                       attendance: [],
                       ledger: [],
-                      memberships: [Membership.Club],
+                      memberships: [], // TODO: Default memberships
                     },
                   },
                   waivers: [],

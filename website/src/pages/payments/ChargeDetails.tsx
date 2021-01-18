@@ -46,7 +46,7 @@ export const ChargeDetails = React.memo(
           <Modal.Title>
             {props.charge && props.member ? (
               <>
-                Charge: {server.model.chargeTypes[props.charge.chargeType].name}
+                Charge: {server.model.chargeTypes[props.charge.chargeType]?.name}
                 {' on '}
                 {DateTime.fromMillis(props.charge.start).toLocaleString(
                   DateTime.DATE_SHORT,
@@ -75,7 +75,7 @@ export const ChargeDetails = React.memo(
                   <tr>
                     <td>Reason:</td>
                     <td>
-                      {server.model.chargeTypes[props.charge.chargeType].name}
+                      {server.model.chargeTypes[props.charge.chargeType]?.name}
                     </td>
                   </tr>
                   <tr>

@@ -3,7 +3,6 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { Link } from 'react-router-dom';
 import { hasMembership, IMember } from '../../model/Member';
-import { Membership } from "../../model/Membership";
 import { useServer } from '../../server';
 import styles from './MemberRow.module.css';
 
@@ -23,9 +22,10 @@ export default function MemberRow(props: MemberRowProps) {
         <Col xs={5}>{props.member.name}</Col>
         <Col xs={3}>{props.member.accountId}</Col>
         <Col xs={2}>
-          {hasMembership(props.member, Membership.Team, server.term)
+          {/* TODO: Check membership or something here */}
+          {/* {hasMembership(props.member, Membership.Team, server.term)
             ? 'Yes'
-            : 'No'}
+            : 'No'} */}
         </Col>
         <Col xs={2}>Status</Col>
       </Row>

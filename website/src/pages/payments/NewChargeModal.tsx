@@ -1,15 +1,19 @@
 import { DateTime } from 'luxon';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import Table from 'react-bootstrap/Table';
 import * as uuid from 'uuid';
 import { IMember, isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
 import { CurrencyInput } from '../../shared/CurrencyInput';
 import MemberSelector from '../../shared/MemberSelector';
 import { bound } from '../../shared/util';
+import Container from 'react-bootstrap/esm/Container';
+import styles from './NewChargeModal.module.css';
+import FormLabel from 'react-bootstrap/esm/FormLabel';
 
 interface NewChargeModalProps {
   show: boolean;
@@ -49,24 +53,33 @@ export default function NewChargeModal(props: NewChargeModalProps) {
         <Modal.Title>New Charge</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Table responsive>
-          <tr>
-            <td>Account ID:</td>
-            <td>
+        <Container>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewChargeModal_MemberSelector">
+                Account ID:
+              </Form.Label>
+            </Col>
+            <Col>
               <MemberSelector
                 id="NewChargeModal_MemberSelector"
                 member={member}
                 filter={m => isActiveMember(m, server.term)}
                 onSelect={m => setMember(m)}
               />
-            </td>
-          </tr>
-          <tr>
-            <td>Reason:</td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewChargeModal_ChargeType">
+                Reason:
+              </Form.Label>
+            </Col>
+            <Col>
               <Form.Control
                 required
                 custom
+                id="NewChargeModal_ChargeType"
                 as="select"
                 onChange={e =>
                   setChargeType(
@@ -86,46 +99,57 @@ export default function NewChargeModal(props: NewChargeModalProps) {
                   </option>
                 ))}
               </Form.Control>
-            </td>
-          </tr>
-          <tr>
-            <td>Amount:</td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewChargeModal_Amount">Amount:</Form.Label>
+            </Col>
+            <Col>
               <CurrencyInput
                 required
+                id="NewChargeModal_Amount"
                 className="form-control"
                 onValueChange={v => setAmount(bound(0, v, 150000))}
                 value={amount}
               />
-            </td>
-          </tr>
-          <tr>
-            <td>Due date:</td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewChargeModal_DueDate">
+                Due date:
+              </Form.Label>
+            </Col>
+            <Col>
               <Form.Control
                 required
                 type="date"
+                id="NewChargeModal_DueDate"
                 value={DateTime.fromMillis(due).toISODate()}
                 min={DateTime.local().toISODate()}
                 onChange={e =>
                   setDue(DateTime.fromISO(e.target.value).toMillis())
                 }
               />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Notes: <small className="text-muted">(optional)</small>
-            </td>
-            <td>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewChargeModal_Notes">
+                Notes: <small className="text-muted">(optional)</small>
+              </Form.Label>
+            </Col>
+            <Col>
               <Form.Control
                 as="textarea"
+                id="NewChargeModal_Notes"
                 value={note}
                 onChange={e => setNote(e.target.value)}
               />
-            </td>
-          </tr>
-        </Table>
+            </Col>
+          </Row>
+        </Container>
       </Modal.Body>
       <Modal.Footer>
         <Button

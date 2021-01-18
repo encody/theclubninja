@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Container from 'react-bootstrap/Container';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { mostRecentTerm } from './model/Model';
 import Navbar from './navbar/Navbar';
-import Club from './pages/club/Club';
 import Members from './pages/members/Members';
 import Payments from './pages/payments/Payments';
+import Roster from './pages/roster/Roster';
 import SignIn from './pages/SignIn';
-import Team from './pages/team/Team';
-import { PrivateRoute, ProvideServer } from './server';
+import { PrivateRoute, ProvideServer, useServer } from './server';
 import AuthenticationOverlay from './shared/AuthenticationOverlay';
 
 export default function App() {
@@ -20,39 +18,49 @@ export default function App() {
           <Navbar />
 
           <Container>
-            <Switch>
-              <Route exact path="/">
-                <Home />
-              </Route>
-              <Route path="/signin">
-                <SignIn />
-              </Route>
-              <PrivateRoute path="/club">
-                <Club />
-              </PrivateRoute>
-              <PrivateRoute path="/team">
-                <Team />
-              </PrivateRoute>
-              <PrivateRoute path="/members">
-                <Members />
-              </PrivateRoute>
-              <PrivateRoute path="/payments">
-                <Payments />
-              </PrivateRoute>
-              <PrivateRoute path="/events">
-                <NotYet />
-              </PrivateRoute>
-              <PrivateRoute path="/dashboards">
-                <NotYet />
-              </PrivateRoute>
-              <Route path="*">
-                <NotFound />
-              </Route>
-            </Switch>
+            <Routes />
           </Container>
         </div>
       </Router>
     </ProvideServer>
+  );
+}
+
+function Routes() {
+  const server = useServer();
+  const membershipsOrder = Object.values(server.model.memberships).sort(
+    (a, b) => a.order - b.order,
+  );
+
+  return (
+    <Switch>
+      <Route exact path="/">
+        <Home />
+      </Route>
+      <Route path="/signin">
+        <SignIn />
+      </Route>
+      {membershipsOrder.map(m => (
+        <PrivateRoute key={m.id} path={'/' + m.slug}>
+          <Roster membership={m} />
+        </PrivateRoute>
+      ))}
+      <PrivateRoute path="/members">
+        <Members />
+      </PrivateRoute>
+      <PrivateRoute path="/payments">
+        <Payments />
+      </PrivateRoute>
+      <PrivateRoute path="/events">
+        <NotYet />
+      </PrivateRoute>
+      <PrivateRoute path="/dashboards">
+        <NotYet />
+      </PrivateRoute>
+      <Route path="*">
+        <NotFound />
+      </Route>
+    </Switch>
   );
 }
 

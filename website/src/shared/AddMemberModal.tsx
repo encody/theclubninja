@@ -6,41 +6,26 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import * as Icon from 'react-feather';
-import { hasMembership, IMember, isActiveMember } from '../../model/Member';
-import { Membership } from '../../model/Membership';
-import { useServer } from '../../server';
+import { IMember } from '../model/Member';
 
 interface AddMemberModalProps {
+  title: string;
+  members: IMember[];
   show: boolean;
   onClose: () => void;
+  onSelect: (members: IMember[]) => Promise<boolean>;
 }
 
 export default function AddMemberModal(props: AddMemberModalProps) {
-  const server = useServer();
-
-  const members = Object.values(server.model.members).filter(
-    m =>
-      isActiveMember(m, server.term) &&
-      !hasMembership(m, Membership.Team, server.term),
-  );
-
   const [filter, setFilter] = useState('');
-  const [filteredMembers, setFilteredMembers] = useState(members.slice());
   const [selectedMembers, setSelectedMembers] = useState(new Set<IMember>());
 
-  const updateFilter = (filterString: string) => {
-    const lcFilter = filterString.toLowerCase();
-
-    setFilter(filterString);
-    setFilteredMembers(
-      members.filter(
-        member =>
-          member.name.toLowerCase().includes(lcFilter) ||
-          member.institutionId.toLowerCase().includes(lcFilter) ||
-          member.accountId.toLowerCase().includes(lcFilter),
-      ),
-    );
-  };
+  const filteredMembers = props.members.filter(
+    member =>
+      member.name.toLowerCase().includes(filter.toLowerCase()) ||
+      member.institutionId.toLowerCase().includes(filter.toLowerCase()) ||
+      member.accountId.toLowerCase().includes(filter.toLowerCase()),
+  );
 
   const toggleSelected = (member: IMember) => {
     if (selectedMembers.has(member)) {
@@ -53,13 +38,13 @@ export default function AddMemberModal(props: AddMemberModalProps) {
 
   const reset = () => {
     setSelectedMembers(new Set());
-    updateFilter('');
+    setFilter('');
   };
 
   return (
     <Modal size="lg" show={props.show} onHide={props.onClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Add Member to Team Roster</Modal.Title>
+        <Modal.Title>{props.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="mb-3">
@@ -67,7 +52,7 @@ export default function AddMemberModal(props: AddMemberModalProps) {
             type="search"
             placeholder="Search&hellip;"
             value={filter}
-            onChange={e => updateFilter(e.target.value)}
+            onChange={e => setFilter(e.target.value)}
           />
         </div>
 
@@ -113,19 +98,8 @@ export default function AddMemberModal(props: AddMemberModalProps) {
           disabled={selectedMembers.size === 0}
           onClick={async () => {
             props.onClose();
-            const update: {
-              [accountId: string]: IMember;
-            } = {};
-
-            selectedMembers.forEach(m => {
-              m.terms[server.term]!.memberships.push(Membership.Team);
-              update[m.accountId] = m;
-            });
-
-            if (await server.setMembers(update)) {
+            if (await props.onSelect(Array.from(selectedMembers))) {
               reset();
-            } else {
-              // TODO: Popup error
             }
           }}
         >

@@ -15,7 +15,7 @@ export default function Navbar() {
   return (
     <BootstrapNavbar bg="light" expand="lg">
       <NavLink className="navbar-brand" to="/">
-        UMNBDC Check-In
+        UMNBDC
       </NavLink>
       <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
 

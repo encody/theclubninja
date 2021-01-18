@@ -1,8 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { IModel, mostRecentTerm } from './model/Model';
-import firebase from './firebase';
 import { Redirect, Route } from 'react-router-dom';
+import firebase from './firebase';
+import { IModel, mostRecentTerm } from './model/Model';
 
 const serverContext = createContext({} as IServer);
 
@@ -32,6 +32,8 @@ export interface IServer {
   getMembers: () => Promise<AxiosResponse<IModel['members']>>;
   getCreditTypes: () => Promise<AxiosResponse<IModel['creditTypes']>>;
   getChargeTypes: () => Promise<AxiosResponse<IModel['chargeTypes']>>;
+  getMemberTypes: () => Promise<AxiosResponse<IModel['memberTypes']>>;
+  getMemberships: () => Promise<AxiosResponse<IModel['memberships']>>;
   updateProfile: (
     newProfileId: string,
   ) => Promise<AxiosResponse<IServer['profile']>>;
@@ -54,12 +56,17 @@ function useProvideServer(): IServer {
   const [nonBlocking, setNonBlocking] = useState(
     new Set() as IServer['blocking'],
   );
-  const [model, setModel] = useState({
+  const [model, setModel]: [
+    IServer['model'],
+    React.Dispatch<React.SetStateAction<IServer['model']>>,
+  ] = useState({
     chargeTypes: {},
     creditTypes: {},
+    memberTypes: {},
+    memberships: {},
     members: {},
     terms: {},
-  } as IServer['model']);
+  });
   const [profile, setProfile] = useState(null as IServer['profile']);
   const [profileId, setProfileId] = useState('' as IServer['profileId']);
   const [term, setTerm] = useState('' as IServer['term']);
@@ -97,6 +104,24 @@ function useProvideServer(): IServer {
     setNonBlocking(new Set(nonBlocking));
     const result = await axios.get('/api/chargeTypes');
     nonBlocking.delete('getChargeTypes');
+    setNonBlocking(new Set(nonBlocking));
+    return result;
+  };
+
+  const getMemberTypes: IServer['getMemberTypes'] = async () => {
+    nonBlocking.add('getMemberTypes');
+    setNonBlocking(new Set(nonBlocking));
+    const result = await axios.get('/api/memberTypes');
+    nonBlocking.delete('getMemberTypes');
+    setNonBlocking(new Set(nonBlocking));
+    return result;
+  };
+
+  const getMemberships: IServer['getMemberships'] = async () => {
+    nonBlocking.add('getMemberships');
+    setNonBlocking(new Set(nonBlocking));
+    const result = await axios.get('/api/memberships');
+    nonBlocking.delete('getMemberships');
     setNonBlocking(new Set(nonBlocking));
     return result;
   };
@@ -147,6 +172,8 @@ function useProvideServer(): IServer {
       terms: (await getTerms()).data,
       creditTypes: (await getCreditTypes()).data,
       chargeTypes: (await getChargeTypes()).data,
+      memberTypes: (await getMemberTypes()).data,
+      memberships: (await getMemberships()).data,
     };
     setModel(model);
     const t = mostRecentTerm(model).id;
@@ -161,6 +188,8 @@ function useProvideServer(): IServer {
     setModel({
       chargeTypes: {},
       creditTypes: {},
+      memberTypes: {},
+      memberships: {},
       members: {},
       terms: {},
     });
@@ -229,6 +258,8 @@ function useProvideServer(): IServer {
     getMembers,
     getCreditTypes,
     getChargeTypes,
+    getMemberTypes,
+    getMemberships,
     updateProfile,
     setMembers,
     updateModel,

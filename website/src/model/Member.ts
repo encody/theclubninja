@@ -1,13 +1,11 @@
 import { ICharge, isPaid } from './Charge';
-import { Membership } from './Membership';
 import { IMemberTerm } from './MemberTerm';
-import { MemberType } from './MemberType';
 import { IWaiver } from './Waiver';
 
 export interface IMember {
   name: string;
   institutionId: string;
-  memberType: MemberType;
+  memberType: string;
   accountId: string;
   graduationYear: number;
   source: string;
@@ -72,7 +70,7 @@ export function isActiveMember(member: IMember, termId: string): boolean {
 
 export function hasMembership(
   member: IMember,
-  membership: Membership,
+  membership: string,
   termId: string,
 ): boolean {
   const term = member.terms[termId];

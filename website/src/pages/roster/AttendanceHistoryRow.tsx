@@ -3,23 +3,22 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Row from 'react-bootstrap/Row';
-import { AttendanceEvent } from '../../model/Attendance';
 import { IMember } from '../../model/Member';
+import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
 
-interface TeamAttendanceHistoryRowProps {
+interface AttendanceHistoryRowProps {
   member: IMember;
+  membership: IMembership;
 }
 
-export default function TeamAttendanceHistoryRow(
-  props: TeamAttendanceHistoryRowProps,
-) {
+export default function AttendanceHistoryRow(props: AttendanceHistoryRowProps) {
   const server = useServer();
 
   const getAttendanceHistory = () => {
     const currentTerm = props.member.terms[server.term];
     const teamAttendance = currentTerm
-      ? currentTerm.attendance.filter(a => a.event === AttendanceEvent.Team)
+      ? currentTerm.attendance.filter(a => a.event === props.membership.id)
       : [];
     const attendanceHistory = teamAttendance.reduce(
       (acc, record) => {
@@ -44,8 +43,8 @@ export default function TeamAttendanceHistoryRow(
     <Container className={'list-group-item'}>
       <Row>
         <Col xs={4}>{props.member.name}</Col>
-        <Col xs={2}>{props.member.accountId}</Col>
-        <Col xs={6}>
+        <Col xs={3}>{props.member.accountId}</Col>
+        <Col xs={5}>
           <ProgressBar>
             {!!attendanceHistory.present && (
               <ProgressBar

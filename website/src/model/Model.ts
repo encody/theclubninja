@@ -1,6 +1,8 @@
 import { IChargeType } from './ChargeType';
 import { ICreditType } from './CreditType';
 import { IMember } from './Member';
+import { IMembership } from './Membership';
+import { IMemberType } from './MemberType';
 import { ITerm } from './Term';
 
 export interface IModel {
@@ -9,6 +11,12 @@ export interface IModel {
   };
   creditTypes: {
     [id: string]: ICreditType;
+  };
+  memberTypes: {
+    [id: string]: IMemberType;
+  };
+  memberships: {
+    [id: string]: IMembership;
   };
   members: {
     [accountId: string]: IMember;
