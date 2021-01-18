@@ -10,7 +10,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
 import { hasPayment, ICharge, isOverdue, isPaid } from '../../model/Charge';
-import { IMember, isActiveMember } from '../../model/Member';
+import { isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
 import { ChargeDetails } from './ChargeDetails';
 import NewChargeModal from './NewChargeModal';
@@ -30,45 +30,6 @@ interface PaymentsFilter {
 export default function Payments() {
   const server = useServer();
 
-  const getFilteredMembers = () =>
-    Object.values(server.model.members).filter(
-      member =>
-        isActiveMember(member, server.term) &&
-        // string filter
-        (member.name.toLowerCase().includes(filter.string.toLowerCase()) ||
-          member.institutionId
-            .toLowerCase()
-            .includes(filter.string.toLowerCase()) ||
-          member.accountId
-            .toLowerCase()
-            .includes(filter.string.toLowerCase())) &&
-        // payment status filters
-        member.terms[server.term]?.ledger.some((charge: ICharge) => {
-          const chargeIsPaid = isPaid(charge),
-            chargeIsOverdue = isOverdue(charge),
-            chargeHasPayment = hasPayment(charge);
-          return (
-            ((chargeIsPaid && filter.paid) ||
-              (chargeIsOverdue && filter.overdue) ||
-              (chargeHasPayment && !chargeIsPaid && filter.partial) ||
-              (!chargeIsPaid &&
-                !chargeIsOverdue &&
-                !chargeHasPayment &&
-                filter.pending)) &&
-            (!!filter.after
-              ? charge.payments.some(
-                  payment => filter.after! < payment.timestamp,
-                )
-              : true) &&
-            (!!filter.before
-              ? charge.payments.some(
-                  payment => filter.before! > payment.timestamp,
-                )
-              : true)
-          );
-        }),
-    );
-
   const [filter, setFilter] = useState({
     string: '',
     paid: true,
@@ -79,14 +40,69 @@ export default function Payments() {
     before: null,
   } as PaymentsFilter);
   const [showNewChargeModal, setShowNewChargeModal] = useState(false);
-  let filteredMembers = getFilteredMembers();
+
+  const getFilteredMembers = () =>
+    Object.values(server.model.members).filter(
+      member =>
+        isActiveMember(member, server.term) &&
+        // string filter
+        (member.name.toLowerCase().includes(filter.string.toLowerCase()) ||
+          member.institutionId
+            .toLowerCase()
+            .includes(filter.string.toLowerCase()) ||
+          member.accountId.toLowerCase().includes(filter.string.toLowerCase())),
+    );
+
+  const stringFilteredMembers = getFilteredMembers();
+  const filteredMembersWithCharges = new Set<string>();
+
+  const filterCharge = (charge: ICharge) => {
+    const chargeIsPaid = isPaid(charge),
+      chargeIsOverdue = isOverdue(charge),
+      chargeHasPayment = hasPayment(charge);
+    return (
+      ((chargeIsPaid && filter.paid) ||
+        (chargeIsOverdue && filter.overdue) ||
+        (chargeHasPayment && !chargeIsPaid && filter.partial) ||
+        (!chargeIsPaid &&
+          !chargeIsOverdue &&
+          !chargeHasPayment &&
+          filter.pending)) &&
+      (!!filter.after
+        ? charge.payments.some(payment => filter.after! < payment.timestamp)
+        : true) &&
+      (!!filter.before
+        ? charge.payments.some(payment => filter.before! > payment.timestamp)
+        : true)
+    );
+  };
+
+  const getFilteredCharges = () =>
+    // payment status filters
+    stringFilteredMembers
+      .flatMap(
+        member =>
+          member.terms[server.term]?.ledger.flatMap(charge => {
+            if (filterCharge(charge)) {
+              filteredMembersWithCharges.add(charge.accountId);
+              return [charge];
+            } else {
+              return [];
+            }
+          }) ?? [],
+      )
+      .reduce((acc, charge) => acc.add(charge.id), new Set<string>());
+
+  const filteredCharges = getFilteredCharges();
+  const filteredMembers = stringFilteredMembers.filter(member =>
+    filteredMembersWithCharges.has(member.accountId),
+  );
 
   const updateFilterString = (filterString: string) => {
     setFilter({
       ...filter,
       string: filterString,
     });
-    filteredMembers = getFilteredMembers();
   };
 
   const updateFilter: <
@@ -100,7 +116,6 @@ export default function Payments() {
       ...filter,
       [which]: value,
     });
-    filteredMembers = getFilteredMembers();
   };
 
   return (
@@ -179,7 +194,7 @@ export default function Payments() {
                   htmlFor="payments-date-after"
                   className="text-muted"
                 >
-                  <small>After</small>
+                  <small>Payments after</small>
                 </Form.Label>
                 <Form.Control
                   id="payments-date-after"
@@ -202,7 +217,7 @@ export default function Payments() {
                   htmlFor="payments-date-before"
                   className="text-muted"
                 >
-                  <small>Before</small>
+                  <small>Payments before</small>
                 </Form.Label>
                 <Form.Control
                   id="payments-date-before"
@@ -227,7 +242,15 @@ export default function Payments() {
         <Col lg={9}>
           <Accordion>
             {filteredMembers.map(member => (
-              <PaymentMemberOverview key={member.accountId} member={member} />
+              <PaymentMemberOverview
+                key={member.accountId}
+                member={member}
+                charges={
+                  member.terms[server.term]?.ledger.filter(c =>
+                    filteredCharges.has(c.id),
+                  ) ?? []
+                }
+              />
             ))}
           </Accordion>
 
@@ -254,18 +277,16 @@ export default function Payments() {
 interface ChargeDetailsModalProps
   extends RouteComponentProps<{ accountId: string; chargeId?: string }> {}
 
-const ChargeDetailsModal = withRouter(
-    (props: ChargeDetailsModalProps) => {
-      const server = useServer();
-      const close = () => props.history.push('/payments');
-      const member = server.model.members[props.match.params.accountId];
-      const [charge] = Object.values(member?.terms ?? {}).flatMap(term =>
-        term!.ledger.filter(c => c.id === props.match.params.chargeId),
-      );
-      return (
-        <Modal size="lg" show={!!props.match.params.chargeId} onHide={close}>
-          <ChargeDetails member={member} charge={charge} onHide={close} />
-        </Modal>
-      );
-    },
-);
+const ChargeDetailsModal = withRouter((props: ChargeDetailsModalProps) => {
+  const server = useServer();
+  const close = () => props.history.push('/payments');
+  const member = server.model.members[props.match.params.accountId];
+  const [charge] = Object.values(member?.terms ?? {}).flatMap(term =>
+    term!.ledger.filter(c => c.id === props.match.params.chargeId),
+  );
+  return (
+    <Modal size="lg" show={!!props.match.params.chargeId} onHide={close}>
+      <ChargeDetails member={member} charge={charge} onHide={close} />
+    </Modal>
+  );
+});

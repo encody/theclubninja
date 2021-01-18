@@ -1,14 +1,11 @@
 import { DateTime } from 'luxon';
-import React, { useState } from 'react';
+import React from 'react';
 import Col from 'react-bootstrap/Col';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
-import { Link, Route, RouteComponentProps, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ICharge } from '../../model/Charge';
 import { IMember } from '../../model/Member';
 import { useServer } from '../../server';
-import { ChargeDetails } from './ChargeDetails';
 import { PaymentStatusBadge } from './PaymentStatusBadge';
 
 interface PaymentRowProps {

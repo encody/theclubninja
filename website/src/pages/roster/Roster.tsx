@@ -12,7 +12,7 @@ import { useServer } from '../../server';
 import AddMemberModal from '../../shared/AddMemberModal';
 import AttendanceHistoryRow from './AttendanceHistoryRow';
 import CheckInRow from './CheckInRow';
-import ManagementRow from './ManagementRow';
+import ManageRow from './ManageRow';
 
 interface RosterProps {
   membership: IMembership;
@@ -107,7 +107,7 @@ export default function Roster(props: RosterProps) {
             </ListGroup>
           </Tab>
         )}
-        <Tab eventKey="management" title="Management">
+        <Tab eventKey="manage" title="Manage">
           <ListGroup>
             <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
               <Row className="font-weight-bold">
@@ -117,7 +117,7 @@ export default function Roster(props: RosterProps) {
               </Row>
             </ListGroup.Item>
             {filteredMembers.map(member => (
-              <ManagementRow
+              <ManageRow
                 key={member.accountId}
                 member={member}
                 membership={props.membership}

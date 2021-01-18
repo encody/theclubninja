@@ -4,7 +4,6 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import { AttendanceType } from '../../model/Attendance';
 import { ICreditType } from '../../model/CreditType';
 import { IMember } from '../../model/Member';
 import { useServer } from '../../server';

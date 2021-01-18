@@ -7,12 +7,12 @@ import { IMember } from '../../model/Member';
 import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
 
-interface ManagementRowProps {
+interface ManageRowProps {
   member: IMember;
   membership: IMembership;
 }
 
-export default function ManagementRow(props: ManagementRowProps) {
+export default function ManageRow(props: ManageRowProps) {
   const server = useServer();
   return (
     <Container className={'list-group-item'}>

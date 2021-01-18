@@ -6,7 +6,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
-import { IMember, isActiveMember } from '../../model/Member';
+import { isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
 import NewMemberModal from '../../shared/NewMemberModal';
 import MemberDetails from './MemberDetails';
@@ -27,14 +27,6 @@ export default function Members() {
   const [filter, setFilter] = useState('');
   let filteredMembers = getFilteredMembers();
   const [showNewMemberModal, setShowNewMemberModal] = useState(false);
-
-  const openNewMemberModal = () => {
-    setShowNewMemberModal(true);
-  };
-
-  const closeNewMemberModal = () => {
-    setShowNewMemberModal(false);
-  };
 
   const updateFilter = (filter: string) => {
     setFilter(filter);
@@ -57,7 +49,7 @@ export default function Members() {
           />
         </div>
         <div className="ml-3 flex-shrink-1">
-          <Button onClick={() => openNewMemberModal()}>New Member</Button>
+          <Button onClick={() => setShowNewMemberModal(true)}>New Member</Button>
         </div>
       </div>
 
@@ -66,8 +58,8 @@ export default function Members() {
           <Row className="font-weight-bold">
             <Col xs={5}>Name</Col>
             <Col xs={3}>Account ID</Col>
-            <Col xs={2}>Team Member</Col>
-            <Col xs={2}>Status</Col>
+            <Col xs={2}>Memberships</Col>
+            <Col xs={2}>Type</Col>
           </Row>
         </ListGroup.Item>
         {filteredMembers.map(member => (
@@ -87,7 +79,7 @@ export default function Members() {
 
       <NewMemberModal
         show={showNewMemberModal}
-        onClose={() => closeNewMemberModal()}
+        onClose={() => setShowNewMemberModal(false)}
       />
     </>
   );

@@ -243,6 +243,7 @@ function useProvideServer(): IServer {
         blocking.delete('auth');
         setBlocking(new Set(blocking));
       }),
+      // eslint-disable-next-line
     [],
   );
 

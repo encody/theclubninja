@@ -1,19 +1,18 @@
 import { DateTime } from 'luxon';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/esm/Container';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import Row from 'react-bootstrap/Row';
 import * as uuid from 'uuid';
 import { IMember, isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
 import { CurrencyInput } from '../../shared/CurrencyInput';
 import MemberSelector from '../../shared/MemberSelector';
 import { bound } from '../../shared/util';
-import Container from 'react-bootstrap/esm/Container';
 import styles from './NewChargeModal.module.css';
-import FormLabel from 'react-bootstrap/esm/FormLabel';
 
 interface NewChargeModalProps {
   show: boolean;

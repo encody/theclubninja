@@ -17,7 +17,7 @@ import {
 } from '../../model/Member';
 import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
-import CheckInCreditModal from './CheckInModal';
+import CheckInCreditModal from './CheckInCreditModal';
 
 interface TeamCheckInRowProps {
   member: IMember;
@@ -43,13 +43,20 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
     credit: string | null,
     note: string,
   ) => {
-    props.member.terms[server.term]!.attendance.push({
-      credit,
-      event: props.membership.id,
-      timestamp: Date.now(),
-      type: pendingAttendanceType,
-      note,
-    });
+    if (attendanceRecord) {
+      attendanceRecord.credit = credit;
+      attendanceRecord.note = note;
+      attendanceRecord.timestamp = Date.now();
+      attendanceRecord.type = pendingAttendanceType;
+    } else {
+      props.member.terms[server.term]!.attendance.push({
+        credit,
+        event: props.membership.id,
+        timestamp: Date.now(),
+        type: pendingAttendanceType,
+        note,
+      });
+    }
     if (
       await server.setMembers({
         [props.member.accountId]: props.member,
@@ -89,53 +96,45 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
           {props.membership.useDetailedAttendance ? (
             <ButtonGroup>
               <Button
-                variant={
+                variant="outline-success"
+                active={
                   attendanceRecord &&
                   attendanceRecord.type === AttendanceType.Present
-                    ? 'success'
-                    : 'outline-success'
                 }
                 size="sm"
-                disabled={!!attendanceRecord}
                 onClick={() => registerAttendance(AttendanceType.Present)}
               >
                 Present
               </Button>
               <Button
-                variant={
+                variant="outline-warning"
+                active={
                   attendanceRecord &&
                   attendanceRecord.type === AttendanceType.Late
-                    ? 'warning'
-                    : 'outline-warning'
                 }
                 size="sm"
-                disabled={!!attendanceRecord}
                 onClick={() => registerAttendance(AttendanceType.Late)}
               >
                 Late
               </Button>
               <Button
-                variant={
+                variant="outline-info"
+                active={
                   attendanceRecord &&
                   attendanceRecord.type === AttendanceType.Excused
-                    ? 'info'
-                    : 'outline-info'
                 }
                 size="sm"
-                disabled={!!attendanceRecord}
                 onClick={() => registerAttendance(AttendanceType.Excused)}
               >
                 Excused
               </Button>
               <Button
-                variant={
+                variant="outline-danger"
+                active={
                   attendanceRecord &&
                   attendanceRecord.type === AttendanceType.Unexcused
-                    ? 'danger'
-                    : 'outline-danger'
                 }
                 size="sm"
-                disabled={!!attendanceRecord}
                 onClick={() => registerAttendance(AttendanceType.Unexcused)}
               >
                 Unexcused

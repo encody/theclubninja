@@ -4,18 +4,18 @@ import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
+import { ICharge } from '../../model/Charge';
 import { IMember } from '../../model/Member';
-import { useServer } from '../../server';
 import PaymentRow from './PaymentRow';
 
 interface PaymentMemberOverviewProps {
   member: IMember;
+  charges: ICharge[];
 }
 
 export default function PaymentMemberOverview(
   props: PaymentMemberOverviewProps,
 ) {
-  const server = useServer();
   return (
     <Card>
       <Accordion.Toggle
@@ -38,10 +38,14 @@ export default function PaymentMemberOverview(
                 <Col sm={2}>Status</Col>
               </Row>
             </ListGroup.Item>
-            {props.member.terms[server.term]?.ledger.map((charge, i) => (
-              <PaymentRow key={i} charge={charge} member={props.member} />
+            {props.charges.map((charge, i) => (
+              <PaymentRow
+                key={charge.id}
+                charge={charge}
+                member={props.member}
+              />
             ))}
-            {!props.member.terms[server.term]?.ledger.length && (
+            {!props.charges.length && (
               <ListGroup.Item>No entries found.</ListGroup.Item>
             )}
           </ListGroup>

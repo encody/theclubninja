@@ -46,7 +46,8 @@ export const ChargeDetails = React.memo(
           <Modal.Title>
             {props.charge && props.member ? (
               <>
-                Charge: {server.model.chargeTypes[props.charge.chargeType]?.name}
+                Charge:{' '}
+                {server.model.chargeTypes[props.charge.chargeType]?.name}
                 {' on '}
                 {DateTime.fromMillis(props.charge.start).toLocaleString(
                   DateTime.DATE_SHORT,
@@ -273,28 +274,38 @@ export const ChargeDetails = React.memo(
                 </tbody>
                 <tfoot>
                   {/* Add payment button */}
-                  {!isAddingPayment && !isPaid(props.charge) && (
-                    <tr>
-                      <td colSpan={5}>
-                        <div className="d-flex justify-content-end align-items-center">
-                          {isAwaitingAddingPayment && (
-                            <Spinner
-                              className="mr-3"
-                              animation="border"
-                              size="sm"
-                              variant="success"
-                            />
-                          )}
+                  <tr>
+                    <td colSpan={5}>
+                      <div className="d-flex justify-content-end align-items-center">
+                        {isAwaitingAddingPayment && (
+                          <Spinner
+                            className="mr-3"
+                            animation="border"
+                            size="sm"
+                            variant="success"
+                          />
+                        )}
+                        <div className="mr-2">
+                          <strong>Remaining:</strong>{' '}
+                          {(
+                            (props.charge!.value - amountPaid(props.charge!)) /
+                            100
+                          ).toLocaleString('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                          })}
+                        </div>
+                        {!isAddingPayment && !isPaid(props.charge) && (
                           <Button
                             variant="success"
                             onClick={() => setIsAddingPayment(true)}
                           >
                             Add Payment
                           </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
+                        )}
+                      </div>
+                    </td>
+                  </tr>
                 </tfoot>
               </Table>
             </Modal.Body>

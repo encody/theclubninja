@@ -1,9 +1,11 @@
 import React from 'react';
 import Col from 'react-bootstrap/Col';
+import Badge from 'react-bootstrap/esm/Badge';
 import Row from 'react-bootstrap/Row';
 import { Link } from 'react-router-dom';
 import { hasMembership, IMember } from '../../model/Member';
 import { useServer } from '../../server';
+import { orderable } from '../../shared/util';
 import styles from './MemberRow.module.css';
 
 interface MemberRowProps {
@@ -12,6 +14,10 @@ interface MemberRowProps {
 
 export default function MemberRow(props: MemberRowProps) {
   const server = useServer();
+
+  const membershipsOrder = Object.values(server.model.memberships).sort(
+    orderable,
+  );
 
   return (
     <Link
@@ -23,11 +29,18 @@ export default function MemberRow(props: MemberRowProps) {
         <Col xs={3}>{props.member.accountId}</Col>
         <Col xs={2}>
           {/* TODO: Check membership or something here */}
-          {/* {hasMembership(props.member, Membership.Team, server.term)
-            ? 'Yes'
-            : 'No'} */}
+          {membershipsOrder
+            .flatMap(m =>
+              hasMembership(props.member, m.id, server.term) ? [m.name] : [],
+            )
+            .join(', ')}
+          {props.member.terms[server.term]?.memberships.length === 0 && (
+            <span className="text-muted">(none)</span>
+          )}
         </Col>
-        <Col xs={2}>Status</Col>
+        <Col xs={2}>
+          {server.model.memberTypes[props.member.memberType]?.name}
+        </Col>
       </Row>
     </Link>
   );
