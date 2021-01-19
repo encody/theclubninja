@@ -1,6 +1,7 @@
 import { ICharge } from './Charge';
 import { IChargeType } from './ChargeType';
 import { ICreditType } from './CreditType';
+import { IdCollection } from './IdRecord';
 import { IMember } from './Member';
 import { IMembership } from './Membership';
 import { IMemberType } from './MemberType';
@@ -30,13 +31,13 @@ export interface IModel {
   };
 }
 
-export function mostRecentTerm(model: IModel) {
-  const keys = Object.keys(model.terms);
+export function mostRecentTerm(terms: IdCollection<ITerm>) {
+  const keys = Object.keys(terms);
   const result =
-    model.terms[
+    terms[
       keys[
         keys
-          .map(key => model.terms[key].start)
+          .map(key => terms[key].start)
           .reduce(
             (bestIndex, currentStartTime, currentIndex, a) =>
               currentStartTime > a[bestIndex] ? currentIndex : bestIndex,

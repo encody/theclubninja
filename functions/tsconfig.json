@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "lib": ["es2019"],
     "module": "commonjs",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
@@ -9,7 +10,5 @@
     "target": "es2017"
   },
   "compileOnSave": true,
-  "include": [
-    "src"
-  ]
+  "include": ["src", "../website/src/model"]
 }

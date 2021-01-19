@@ -1,11 +1,15 @@
-import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin';
-import * as Koa from 'koa';
 import * as Router from '@koa/router';
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+import * as Koa from 'koa';
+import { IUserProfile } from '../../website/src/model/UserProfile';
+import { CollectionManager } from './CollectionManager';
 
 admin.initializeApp();
 
 const firestore = admin.firestore();
+
+const cm = new CollectionManager(firestore);
 
 const app = new Koa();
 const router = new Router({
@@ -33,7 +37,7 @@ app.use(async (ctx, next) => {
     !(ctx.cookies && ctx.cookies.get('__session'))
   ) {
     console.error('No session cookie or authorization header found');
-    ctx.status = 403;
+    ctx.status = 401;
     ctx.response.body = 'Unauthorized';
     return;
   }
@@ -52,7 +56,7 @@ app.use(async (ctx, next) => {
     idToken = ctx.cookies.get('__session')!;
   } else {
     // No cookie
-    ctx.response.status = 403;
+    ctx.response.status = 401;
     ctx.response.body = 'Unauthorized';
     return;
   }
@@ -60,57 +64,73 @@ app.use(async (ctx, next) => {
   try {
     const decodedIdToken = await admin.auth().verifyIdToken(idToken);
     ctx.state.user = decodedIdToken;
-    return await next();
+    ctx.state.profile = (await cm.get('users'))[decodedIdToken.uid];
+    if (!ctx.state.profile) {
+      ctx.response.status = 403;
+      ctx.response.body = 'Forbidden';
+      return;
+    } else {
+      return await next();
+    }
   } catch (error) {
     console.error('Error while verifying Firebase ID token:', error);
-    ctx.response.status = 403;
+    ctx.response.status = 401;
     ctx.response.body = 'Unauthorized';
     return;
   }
 });
 
+[
+  'terms',
+  'creditTypes',
+  'chargeTypes',
+  'memberTypes',
+  'memberships',
+  'members',
+].forEach(key => {
+  console.log('Creating route for GET /' + key + '...');
+  router.get('/' + key, async (ctx, next) => {
+    ctx.response.body = await cm.get(key);
+    await next();
+  });
+});
+
+([
+  'members',
+  'terms',
+  'charges',
+] as (keyof IUserProfile['permissions'])[]).forEach(key => {
+  router.post('/' + key, async (ctx, next) => {
+    if ((ctx.state.profile as IUserProfile).permissions[key].write) {
+      try {
+        const update = (ctx.req as any).body;
+        await cm.set(key, update);
+        ctx.response.body = { success: true };
+        ctx.response.status = 200;
+        await next();
+      } catch (e) {
+        console.error(e);
+        ctx.response.body = { success: false };
+        ctx.response.status = 500;
+        await next();
+      }
+    } else {
+      ctx.response.status = 403;
+      ctx.response.body = 'Forbidden';
+      return;
+    }
+  });
+});
+
 router
-  .get('/terms', async (ctx, next) => {
-    ctx.response.body = (await firestore.collection('terms').get()).docs.reduce(
-      (acc, doc) => ({ ...acc, [doc.id]: doc.data() }),
-      {},
-    );
-    await next();
-  })
-  .get('/members', async (ctx, next) => {
-    ctx.response.body = (
-      await firestore.collection('members').get()
-    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
-    await next();
-  })
-  .get('/creditTypes', async (ctx, next) => {
-    ctx.response.body = (
-      await firestore.collection('creditTypes').get()
-    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
-    await next();
-  })
-  .get('/chargeTypes', async (ctx, next) => {
-    ctx.response.body = (
-      await firestore.collection('chargeTypes').get()
-    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
-    await next();
-  })
-  .get('/memberTypes', async (ctx, next) => {
-    ctx.response.body = (
-      await firestore.collection('memberTypes').get()
-    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
-    await next();
-  })
-  .get('/memberships', async (ctx, next) => {
-    ctx.response.body = (
-      await firestore.collection('memberships').get()
-    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
-    await next();
-  })
   .get('/charges', async (ctx, next) => {
-    ctx.response.body = (
-      await firestore.collection('charges').get()
-    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
+    if ((ctx.state.profile as IUserProfile).permissions.ledger.read) {
+      ctx.response.body = await cm.get('charges');
+    } else {
+      ctx.response.status = 403;
+      ctx.response.body = 'Forbidden';
+      return;
+    }
     await next();
   })
   .get('/profile', async (ctx, next) => {
@@ -121,62 +141,9 @@ router
         .get()
     ).data();
     await next();
-  })
-  .post('/members', async (ctx, next) => {
-    try {
-      const members = (ctx.req as any).body;
-      const b = firestore.batch();
-      for (const id of Object.keys(members)) {
-        b.set(firestore.collection('members').doc(id), members[id]);
-      }
-      b.commit();
-      ctx.response.body = { success: true };
-      ctx.response.status = 200;
-      await next();
-    } catch (e) {
-      console.error(e);
-      ctx.response.body = { success: false };
-      ctx.response.status = 500;
-      await next();
-    }
-  })
-  .post('/terms', async (ctx, next) => {
-    try {
-      const members = (ctx.req as any).body;
-      const b = firestore.batch();
-      for (const id of Object.keys(members)) {
-        b.set(firestore.collection('terms').doc(id), members[id]);
-      }
-      b.commit();
-      ctx.response.body = { success: true };
-      ctx.response.status = 200;
-      await next();
-    } catch (e) {
-      console.error(e);
-      ctx.response.body = { success: false };
-      ctx.response.status = 500;
-      await next();
-    }
-  })
-  .post('/charges', async (ctx, next) => {
-    try {
-      const charges = (ctx.req as any).body;
-      const b = firestore.batch();
-      for (const id of Object.keys(charges)) {
-        b.set(firestore.collection('charges').doc(id), charges[id]);
-      }
-      b.commit();
-      ctx.response.body = { success: true };
-      ctx.response.status = 200;
-      await next();
-    } catch (e) {
-      console.error(e);
-      ctx.response.body = { success: false };
-      ctx.response.status = 500;
-      await next();
-    }
   });
 
-app.use(router.routes()).use(router.allowedMethods());
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 export const api = functions.https.onRequest(app.callback());

@@ -257,7 +257,7 @@ export default function Payments() {
 
           {filteredMembers.length ? null : (
             <div className="row justify-content-center m-3">
-              <p>No members.</p>
+              <p>No charges.</p>
             </div>
           )}
         </Col>

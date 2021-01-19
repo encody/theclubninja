@@ -26,7 +26,7 @@ export default function Navbar() {
 
         <BootstrapNavbar.Collapse>
           <Nav className="mr-auto">
-            {server.profile && server.profile.admin && (
+            {server.profile && (
               <>
                 <NavLink
                   className="nav-link"
@@ -49,13 +49,15 @@ export default function Navbar() {
                 >
                   Members
                 </NavLink>
-                <NavLink
-                  className="nav-link"
-                  activeClassName="active"
-                  to="/payments"
-                >
-                  Payments
-                </NavLink>
+                {server.profile.permissions.ledger.read && (
+                  <NavLink
+                    className="nav-link"
+                    activeClassName="active"
+                    to="/payments"
+                  >
+                    Payments
+                  </NavLink>
+                )}
                 <NavLink
                   className="nav-link"
                   activeClassName="active"

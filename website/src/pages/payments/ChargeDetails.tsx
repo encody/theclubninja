@@ -320,7 +320,7 @@ export const ChargeDetails = React.memo(
                   const term = props.member!.terms[props.charge!.term]!;
                   term.ledger = term.ledger.filter(
                     charge => charge !== props.charge!.id,
-                  );
+                  ); // TODO: Delete the actual record
                   if (
                     await server.setMembers({
                       [props.member!.accountId]: props.member!,

@@ -35,22 +35,24 @@ export default class MemberDetails extends React.Component<
         </Modal.Header>
         <Modal.Body>
           <Table responsive>
-            <tr>
-              <td>Account ID:</td>
-              <td>{this.props.member.accountId}</td>
-            </tr>
-            <tr>
-              <td>Institution ID:</td>
-              <td>{this.props.member.institutionId}</td>
-            </tr>
-            <tr>
-              <td>Waiver:</td>
-              <td>{lastWaiverDisplay}</td>
-            </tr>
-            <tr>
-              <td>Graduation Year:</td>
-              <td>{this.props.member.graduationYear}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <td>Account ID:</td>
+                <td>{this.props.member.accountId}</td>
+              </tr>
+              <tr>
+                <td>Institution ID:</td>
+                <td>{this.props.member.institutionId}</td>
+              </tr>
+              <tr>
+                <td>Waiver:</td>
+                <td>{lastWaiverDisplay}</td>
+              </tr>
+              <tr>
+                <td>Graduation Year:</td>
+                <td>{this.props.member.graduationYear}</td>
+              </tr>
+            </tbody>
           </Table>
         </Modal.Body>
       </>

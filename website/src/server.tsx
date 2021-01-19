@@ -1,8 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Redirect, Route, RouteProps } from 'react-router-dom';
 import firebase from './firebase';
 import { IModel, mostRecentTerm } from './model/Model';
+import { IUserProfile } from './model/UserProfile';
 
 const serverContext = createContext({} as IServer);
 
@@ -21,23 +22,19 @@ export const useServer = () => {
 export interface IServer {
   model: IModel;
   term: string;
-  profile: {
-    admin: boolean;
-  } | null;
+  profile: IUserProfile | null;
   profileId: string;
   user: firebase.User | null;
   blocking: Set<string>;
   nonBlocking: Set<string>;
-  getTerms: () => Promise<AxiosResponse<IModel['terms']>>;
-  getMembers: () => Promise<AxiosResponse<IModel['members']>>;
-  getCreditTypes: () => Promise<AxiosResponse<IModel['creditTypes']>>;
-  getChargeTypes: () => Promise<AxiosResponse<IModel['chargeTypes']>>;
-  getMemberTypes: () => Promise<AxiosResponse<IModel['memberTypes']>>;
-  getMemberships: () => Promise<AxiosResponse<IModel['memberships']>>;
-  getCharges: () => Promise<AxiosResponse<IModel['charges']>>;
-  updateProfile: (
-    newProfileId: string,
-  ) => Promise<AxiosResponse<IServer['profile']>>;
+  getTerms: () => Promise<IModel['terms']>;
+  getMembers: () => Promise<IModel['members']>;
+  getCreditTypes: () => Promise<IModel['creditTypes']>;
+  getChargeTypes: () => Promise<IModel['chargeTypes']>;
+  getMemberTypes: () => Promise<IModel['memberTypes']>;
+  getMemberships: () => Promise<IModel['memberships']>;
+  getCharges: () => Promise<IModel['charges']>;
+  updateProfile: (newProfileId: string) => Promise<IServer['profile']>;
   updateModel: () => Promise<IModel>;
   clearModel: () => void;
   clearProfile: () => void;
@@ -86,68 +83,30 @@ function useProvideServer(): IServer {
   const [term, setTerm] = useState('' as IServer['term']);
   const [user, setUser] = useState(null as IServer['user']);
 
-  const getTerms: IServer['getTerms'] = async () => {
-    nonBlocking.add('getTerms');
-    setNonBlocking(new Set(nonBlocking));
-    const result = await axios.get('/api/terms');
-    nonBlocking.delete('getTerms');
-    setNonBlocking(new Set(nonBlocking));
-    return result;
-  };
+  function nonBlockingGet(path: string): () => Promise<any> {
+    return async () => {
+      nonBlocking.add(path);
+      setNonBlocking(new Set(nonBlocking));
+      try {
+        const result = await axios.get('/api/' + path);
+        nonBlocking.delete(path);
+        setNonBlocking(new Set(nonBlocking));
+        return result.data;
+      } catch (e) {
+        nonBlocking.delete(path);
+        setNonBlocking(new Set(nonBlocking));
+        return {};
+      }
+    };
+  }
 
-  const getMembers: IServer['getMembers'] = async () => {
-    nonBlocking.add('getMembers');
-    setNonBlocking(new Set(nonBlocking));
-    const result = await axios.get('/api/members');
-    nonBlocking.delete('getMembers');
-    setNonBlocking(new Set(nonBlocking));
-    return result;
-  };
-
-  const getCreditTypes: IServer['getCreditTypes'] = async () => {
-    nonBlocking.add('getCreditTypes');
-    setNonBlocking(new Set(nonBlocking));
-    const result = await axios.get('/api/creditTypes');
-    nonBlocking.delete('getCreditTypes');
-    setNonBlocking(new Set(nonBlocking));
-    return result;
-  };
-
-  const getChargeTypes: IServer['getChargeTypes'] = async () => {
-    nonBlocking.add('getChargeTypes');
-    setNonBlocking(new Set(nonBlocking));
-    const result = await axios.get('/api/chargeTypes');
-    nonBlocking.delete('getChargeTypes');
-    setNonBlocking(new Set(nonBlocking));
-    return result;
-  };
-
-  const getMemberTypes: IServer['getMemberTypes'] = async () => {
-    nonBlocking.add('getMemberTypes');
-    setNonBlocking(new Set(nonBlocking));
-    const result = await axios.get('/api/memberTypes');
-    nonBlocking.delete('getMemberTypes');
-    setNonBlocking(new Set(nonBlocking));
-    return result;
-  };
-
-  const getMemberships: IServer['getMemberships'] = async () => {
-    nonBlocking.add('getMemberships');
-    setNonBlocking(new Set(nonBlocking));
-    const result = await axios.get('/api/memberships');
-    nonBlocking.delete('getMemberships');
-    setNonBlocking(new Set(nonBlocking));
-    return result;
-  };
-
-  const getCharges: IServer['getCharges'] = async () => {
-    nonBlocking.add('getCharges');
-    setNonBlocking(new Set(nonBlocking));
-    const result = await axios.get('/api/charges');
-    nonBlocking.delete('getCharges');
-    setNonBlocking(new Set(nonBlocking));
-    return result;
-  };
+  const getTerms = nonBlockingGet('terms');
+  const getMembers = nonBlockingGet('members');
+  const getCreditTypes = nonBlockingGet('creditTypes');
+  const getChargeTypes = nonBlockingGet('chargeTypes');
+  const getMemberTypes = nonBlockingGet('memberTypes');
+  const getMemberships = nonBlockingGet('memberships');
+  const getCharges = nonBlockingGet('charges');
 
   const updateProfile: IServer['updateProfile'] = async (
     newProfileId: string,
@@ -161,7 +120,7 @@ function useProvideServer(): IServer {
 
     blocking.delete('updateProfile');
     setBlocking(new Set(blocking));
-    return result;
+    return result.data;
   };
 
   const clearProfile = () => {
@@ -228,17 +187,17 @@ function useProvideServer(): IServer {
     setNonBlocking(new Set(nonBlocking));
 
     const model: IModel = {
-      members: (await getMembers()).data,
-      terms: (await getTerms()).data,
-      creditTypes: (await getCreditTypes()).data,
-      chargeTypes: (await getChargeTypes()).data,
-      memberTypes: (await getMemberTypes()).data,
-      memberships: (await getMemberships()).data,
-      charges: (await getCharges()).data,
+      members: await getMembers(),
+      terms: await getTerms(),
+      creditTypes: await getCreditTypes(),
+      chargeTypes: await getChargeTypes(),
+      memberTypes: await getMemberTypes(),
+      memberships: await getMemberships(),
+      charges: await getCharges(),
     };
-    setModel(model);
-    const t = mostRecentTerm(model).id;
+    const t = mostRecentTerm(model.terms).id;
     setTerm(t);
+    setModel(model);
 
     nonBlocking.delete('updateModel');
     setNonBlocking(new Set(nonBlocking));
@@ -337,7 +296,9 @@ function useProvideServer(): IServer {
   };
 }
 
-export function PrivateRoute({ children, ...rest }: any) {
+interface PrivateRouteProps extends RouteProps {}
+
+export function PrivateRoute({ children, ...rest }: PrivateRouteProps) {
   let server = useServer();
 
   return (
@@ -346,8 +307,10 @@ export function PrivateRoute({ children, ...rest }: any) {
       render={({ location }) =>
         server.blocking.size > 0 ? (
           <></>
-        ) : server.profile && server.profile.admin ? (
+        ) : server.profile ? (
           children
+        ) : server.user ? (
+          <p>You do not have permission to access this resource.</p>
         ) : (
           <Redirect
             to={{
