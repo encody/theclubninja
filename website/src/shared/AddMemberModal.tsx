@@ -42,7 +42,7 @@ export default function AddMemberModal(props: AddMemberModalProps) {
   };
 
   return (
-    <Modal size="lg" show={props.show} onHide={props.onClose}>
+    <Modal scrollable size="lg" show={props.show} onHide={props.onClose}>
       <Modal.Header closeButton>
         <Modal.Title>{props.title}</Modal.Title>
       </Modal.Header>

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
+import ButtonGroup from 'react-bootstrap/esm/ButtonGroup';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
-import { isActiveMember } from '../../model/Member';
+import { IMember, isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
+import AddMemberModal from '../../shared/AddMemberModal';
 import NewMemberModal from '../../shared/NewMemberModal';
 import MemberDetails from './MemberDetails';
 import MemberRow from './MemberRow';
@@ -27,6 +29,7 @@ export default function Members() {
   const [filter, setFilter] = useState('');
   let filteredMembers = getFilteredMembers();
   const [showNewMemberModal, setShowNewMemberModal] = useState(false);
+  const [showInactiveMemberModal, setShowInactiveMemberModal] = useState(false);
 
   const updateFilter = (filter: string) => {
     setFilter(filter);
@@ -49,9 +52,12 @@ export default function Members() {
           />
         </div>
         <div className="ml-3 flex-shrink-1">
-          <Button onClick={() => setShowNewMemberModal(true)}>
-            New Member
-          </Button>
+            <Button onClick={() => setShowNewMemberModal(true)} className="mr-3">
+              New Member
+            </Button>
+            <Button onClick={() => setShowInactiveMemberModal(true)}>
+              Inactive Members
+            </Button>
         </div>
       </div>
 
@@ -82,6 +88,38 @@ export default function Members() {
       <NewMemberModal
         show={showNewMemberModal}
         onClose={() => setShowNewMemberModal(false)}
+      />
+      <AddMemberModal
+        show={showInactiveMemberModal}
+        onClose={() => setShowInactiveMemberModal(false)}
+        title={
+          'Add Inactive Members to Term ' +
+          server.model.terms[server.term]?.name
+        }
+        members={Object.values(server.model.members).filter(
+          m => !isActiveMember(m, server.term),
+        )}
+        onSelect={async members => {
+          const update: {
+            [accountId: string]: IMember;
+          } = {};
+
+          members.forEach(m => {
+            m.terms[server.term] = {
+              attendance: [],
+              ledger: [],
+              memberships: [],
+            };
+            update[m.accountId] = m;
+          });
+
+          if (await server.setMembers(update)) {
+            return true;
+          } else {
+            // TODO: Popup error
+            return false;
+          }
+        }}
       />
     </>
   );

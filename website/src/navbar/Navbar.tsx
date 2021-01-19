@@ -112,7 +112,7 @@ export default function Navbar() {
                     <NavDropdown.Item
                       key={term.id}
                       active={server.term === term.id}
-                      onClick={() => server.setTerm(term.id)}
+                      onClick={() => server.setTerm(term.id)} // TODO: Save in localStorage
                     >
                       {term.name}
                     </NavDropdown.Item>
