@@ -49,6 +49,11 @@ export interface IServer {
     charges: IModel['charges'],
     doNotUpdateModel?: boolean,
   ) => Promise<boolean>;
+  setTerms: (
+    terms: IModel['terms'],
+    doNotUpdateModel?: boolean,
+  ) => Promise<boolean>;
+  setTerm: (termId: string) => void;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -200,6 +205,24 @@ function useProvideServer(): IServer {
     return result.success;
   };
 
+  const setTerms: IServer['setTerms'] = async (
+    terms: IModel['terms'],
+    doNotUpdateModel?: boolean,
+  ) => {
+    nonBlocking.add('setTerms');
+    setNonBlocking(new Set(nonBlocking));
+
+    const result: IServerResponse = (await axios.post('/api/terms', terms))
+      .data;
+    if (result.success && !doNotUpdateModel) {
+      updateModel();
+    }
+
+    nonBlocking.delete('setTerms');
+    setNonBlocking(new Set(nonBlocking));
+    return result.success;
+  };
+
   const updateModel = async () => {
     nonBlocking.add('updateModel');
     setNonBlocking(new Set(nonBlocking));
@@ -304,6 +327,8 @@ function useProvideServer(): IServer {
     updateProfile,
     setMembers,
     setCharges,
+    setTerms,
+    setTerm,
     updateModel,
     clearModel,
     clearProfile,

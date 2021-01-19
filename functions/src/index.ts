@@ -140,6 +140,24 @@ router
       await next();
     }
   })
+  .post('/terms', async (ctx, next) => {
+    try {
+      const members = (ctx.req as any).body;
+      const b = firestore.batch();
+      for (const id of Object.keys(members)) {
+        b.set(firestore.collection('terms').doc(id), members[id]);
+      }
+      b.commit();
+      ctx.response.body = { success: true };
+      ctx.response.status = 200;
+      await next();
+    } catch (e) {
+      console.error(e);
+      ctx.response.body = { success: false };
+      ctx.response.status = 500;
+      await next();
+    }
+  })
   .post('/charges', async (ctx, next) => {
     try {
       const charges = (ctx.req as any).body;
