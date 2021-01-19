@@ -158,8 +158,9 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
           {/* Dues status indicators */}
           {hasPaidForTerm(
             props.member,
-            server.term,
             props.membership.duesId,
+            server.model.charges,
+            server.term,
           ) ? (
             <OverlayTrigger
               overlay={
@@ -170,17 +171,21 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
             >
               <Icon.DollarSign size={18} className="text-success" />
             </OverlayTrigger>
-          ) : hasUnpaid(props.member, props.membership.duesId, server.term) ? (
+          ) : hasUnpaid(
+              props.member,
+              props.membership.duesId,
+              server.model.charges,
+              server.term,
+            ) ? (
             <>
               <Link
                 className="btn btn-primary btn-sm"
                 to={
                   '/payments/' +
-                  props.member.accountId +
-                  '/' +
                   getUnpaid(
                     props.member,
                     props.membership.duesId,
+                    server.model.charges,
                     server.term,
                   )[0].id
                 }

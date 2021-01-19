@@ -1,3 +1,4 @@
+import { ICharge } from './Charge';
 import { IChargeType } from './ChargeType';
 import { ICreditType } from './CreditType';
 import { IMember } from './Member';
@@ -17,6 +18,9 @@ export interface IModel {
   };
   memberships: {
     [id: string]: IMembership;
+  };
+  charges: {
+    [id: string]: ICharge;
   };
   members: {
     [accountId: string]: IMember;

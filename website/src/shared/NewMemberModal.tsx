@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+import * as uuid from 'uuid';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -5,10 +7,13 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
+import { ICharge } from '../model/Charge';
 import { IMember } from '../model/Member';
+import { IMembership } from '../model/Membership';
 import { useServer } from '../server';
 import MemberSelector from './MemberSelector';
 import styles from './NewMemberModal.module.css';
+import { orderable } from './util';
 
 interface NewMemberModalProps {
   show: boolean;
@@ -25,20 +30,55 @@ export default function NewMemberModal(props: NewMemberModalProps) {
   const memberTypeOrder = Object.values(server.model.memberTypes).sort(
     (a, b) => a.order - b.order,
   );
-  const [memberType, setMemberType] = useState(memberTypeOrder[0]?.id ?? '');
+  const [memberType, setMemberType] = useState(
+    memberTypeOrder[0] ? memberTypeOrder[0].id : undefined,
+  );
   const [referralMember, setReferralMember] = useState(null as IMember | null);
   const [source, setSource] = useState('');
   const [institutionId, setInstitutionId] = useState('');
   const [accountId, setAccountId] = useState('');
+  const membershipDefaultsMap = () => {
+    const entries = Object.entries(server.model.memberships);
+    if (entries.length > 0) {
+      return Array.from(entries).reduce(
+        (acc, [id, m]) => acc.set(id, m.default),
+        new Map<string, boolean>(),
+      );
+    } else {
+      return new Map<string, boolean>();
+    }
+  };
+  const [memberships, setMemberships] = useState(membershipDefaultsMap());
+  const [dues, setDues] = useState(membershipDefaultsMap());
 
   const reset = () => {
     setName('');
     setGraduationYear(new Date().getFullYear() + 2);
-    setMemberType(memberTypeOrder[0]?.id ?? '');
+    setMemberType(memberTypeOrder[0] ? memberTypeOrder[0].id : undefined);
     setReferralMember(null);
     setSource('');
     setInstitutionId('');
     setAccountId('');
+    setMemberships(membershipDefaultsMap());
+    setDues(membershipDefaultsMap());
+  };
+
+  const toggleMembership = (membership: IMembership) => {
+    memberships.set(
+      membership.id,
+      !(memberships.has(membership.id)
+        ? memberships.get(membership.id)
+        : membership.default),
+    );
+    setMemberships(new Map(memberships));
+  };
+
+  const toggleDues = (membership: IMembership) => {
+    dues.set(
+      membership.id,
+      !(dues.has(membership.id) ? dues.get(membership.id) : membership.default),
+    );
+    setMemberships(new Map(memberships));
   };
 
   return (
@@ -61,10 +101,11 @@ export default function NewMemberModal(props: NewMemberModalProps) {
             </Col>
             <Col>
               <Form.Control
+                autoFocus
                 required
                 id="NewMemberModal_Name"
                 type="text"
-                placeholder="The name's Bond. James Bond."
+                placeholder="James Bond"
                 value={name}
                 onChange={e => setName(e.target.value)}
               />
@@ -88,7 +129,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
                     : ''
                 }
                 type="text"
-                placeholder="An unambiguous, human-readable identifier"
+                placeholder="bond007"
                 value={accountId}
                 onChange={e => setAccountId(e.target.value)}
               />
@@ -106,7 +147,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
                 required
                 id="NewMemberModal_InstitutionId"
                 type="text"
-                placeholder="ID given by the associated institution"
+                placeholder="1234567890"
                 value={institutionId}
                 onChange={e => setInstitutionId(e.target.value)}
               />
@@ -131,13 +172,10 @@ export default function NewMemberModal(props: NewMemberModalProps) {
                       : memberTypeOrder[0].id ?? '',
                   )
                 }
+                value={memberType}
               >
                 {memberTypeOrder.map(m => (
-                  <option
-                    key={m.id}
-                    value={m.id}
-                    selected={m.id === memberType}
-                  >
+                  <option key={m.id} value={m.id}>
                     {m.name}
                   </option>
                 ))}
@@ -155,6 +193,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
                 required
                 type="text"
                 id="NewMemberModal_GraduationYear"
+                placeholder={DateTime.local().year.toString()}
                 value={graduationYear}
                 onChange={e => {
                   const { value } = e.target;
@@ -200,6 +239,61 @@ export default function NewMemberModal(props: NewMemberModalProps) {
               />
             </Col>
           </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>Add membership:</Col>
+            <Col className="d-flex">
+              {Object.values(server.model.memberships)
+                .sort(orderable)
+                .map(membership => (
+                  <Form.Check
+                    key={membership.id}
+                    id={'NewMemberModal_CheckMembership-' + membership.id}
+                    type="checkbox"
+                    custom
+                    className="mr-3"
+                    label={membership.name}
+                    onChange={() => toggleMembership(membership)}
+                    checked={
+                      memberships.has(membership.id)
+                        ? memberships.get(membership.id)
+                        : !!membership.default
+                    }
+                  />
+                ))}
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>Add dues:</Col>
+            <Col className="d-flex">
+              {Object.values(server.model.memberships)
+                .sort(orderable)
+                .filter(
+                  membership => membership.duesId in server.model.chargeTypes,
+                )
+                .map(membership => (
+                  <Form.Check
+                    key={membership.id}
+                    id={'NewMemberModal_CheckDues-' + membership.id}
+                    type="checkbox"
+                    custom
+                    className="mr-3"
+                    label={`${membership.name} (${(
+                      server.model.chargeTypes[membership.duesId].defaultValue /
+                      100
+                    ).toLocaleString('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                    })})`}
+                    onChange={() => toggleDues(membership)}
+                    checked={
+                      dues.has(membership.id)
+                        ? dues.get(membership.id)
+                        : !!membership.default
+                    }
+                  />
+                ))}
+            </Col>
+          </Row>
         </Container>
       </Modal.Body>
       <Modal.Footer>
@@ -215,28 +309,66 @@ export default function NewMemberModal(props: NewMemberModalProps) {
           }
           onClick={async () => {
             props.onClose();
-            if (
-              await server.setMembers({
-                [accountId]: {
-                  name,
-                  accountId,
-                  graduationYear,
-                  institutionId,
-                  memberType,
-                  referralMember: referralMember
-                    ? referralMember.accountId
-                    : '',
-                  source,
-                  terms: {
-                    [server.term]: {
-                      attendance: [],
-                      ledger: [],
-                      memberships: [], // TODO: Default memberships
+            const duesCharges = Object.values(
+              server.model.memberships,
+            ).flatMap<ICharge>(m =>
+              (dues.has(m.id) ? dues.get(m.id) : m.default)
+                ? [
+                    {
+                      id: uuid.v4(),
+                      accountId: accountId,
+                      chargeType: m.duesId,
+                      term: server.term,
+                      start: Date.now(),
+                      end: DateTime.local().plus({ days: 30 }).toMillis(),
+                      note: 'Automatically generated on member creation',
+                      payments: [],
+                      value: server.model.chargeTypes[m.duesId].defaultValue,
                     },
+                  ]
+                : [],
+            );
+            const duesPromise =
+              duesCharges.length > 0
+                ? server.setCharges(
+                    duesCharges.reduce((acc, c) => ({ [c.id]: c, ...acc }), {}),
+                  )
+                : null;
+            if (
+              await Promise.all([
+                duesPromise,
+                server.setMembers({
+                  [accountId]: {
+                    name,
+                    accountId,
+                    graduationYear,
+                    institutionId,
+                    memberType: memberType ?? memberTypeOrder[0].id,
+                    referralMember: referralMember
+                      ? referralMember.accountId
+                      : '',
+                    source,
+                    terms: {
+                      [server.term]: {
+                        attendance: [],
+                        ledger: duesCharges.map(c => c.id),
+                        memberships: Object.values(
+                          server.model.memberships,
+                        ).flatMap(m =>
+                          (
+                            memberships.has(m.id)
+                              ? memberships.get(m.id)
+                              : m.default
+                          )
+                            ? [m.id]
+                            : [],
+                        ),
+                      },
+                    },
+                    waivers: [],
                   },
-                  waivers: [],
-                },
-              })
+                }),
+              ])
             ) {
               reset();
             } else {

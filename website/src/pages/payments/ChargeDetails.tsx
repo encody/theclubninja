@@ -243,9 +243,8 @@ export const ChargeDetails = React.memo(
                                       reference: newPaymentReference,
                                     });
                                     if (
-                                      await server.setMembers({
-                                        [props.member!
-                                          .accountId]: props.member!,
+                                      await server.setCharges({
+                                        [props.charge!.id]: props.charge!,
                                       })
                                     ) {
                                       // TODO: Success
@@ -320,7 +319,7 @@ export const ChargeDetails = React.memo(
                   props.onHide();
                   const term = props.member!.terms[props.charge!.term]!;
                   term.ledger = term.ledger.filter(
-                    charge => charge.id !== props.charge!.id,
+                    charge => charge !== props.charge!.id,
                   );
                   if (
                     await server.setMembers({

@@ -34,13 +34,21 @@ export interface IServer {
   getChargeTypes: () => Promise<AxiosResponse<IModel['chargeTypes']>>;
   getMemberTypes: () => Promise<AxiosResponse<IModel['memberTypes']>>;
   getMemberships: () => Promise<AxiosResponse<IModel['memberships']>>;
+  getCharges: () => Promise<AxiosResponse<IModel['charges']>>;
   updateProfile: (
     newProfileId: string,
   ) => Promise<AxiosResponse<IServer['profile']>>;
   updateModel: () => Promise<IModel>;
   clearModel: () => void;
   clearProfile: () => void;
-  setMembers: (members: IModel['members']) => Promise<boolean>;
+  setMembers: (
+    members: IModel['members'],
+    doNotUpdateModel?: boolean,
+  ) => Promise<boolean>;
+  setCharges: (
+    charges: IModel['charges'],
+    doNotUpdateModel?: boolean,
+  ) => Promise<boolean>;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -64,6 +72,7 @@ function useProvideServer(): IServer {
     creditTypes: {},
     memberTypes: {},
     memberships: {},
+    charges: {},
     members: {},
     terms: {},
   });
@@ -126,6 +135,15 @@ function useProvideServer(): IServer {
     return result;
   };
 
+  const getCharges: IServer['getCharges'] = async () => {
+    nonBlocking.add('getCharges');
+    setNonBlocking(new Set(nonBlocking));
+    const result = await axios.get('/api/charges');
+    nonBlocking.delete('getCharges');
+    setNonBlocking(new Set(nonBlocking));
+    return result;
+  };
+
   const updateProfile: IServer['updateProfile'] = async (
     newProfileId: string,
   ) => {
@@ -148,17 +166,36 @@ function useProvideServer(): IServer {
 
   const setMembers: IServer['setMembers'] = async (
     members: IModel['members'],
+    doNotUpdateModel?: boolean,
   ) => {
     nonBlocking.add('setMembers');
     setNonBlocking(new Set(nonBlocking));
 
     const result: IServerResponse = (await axios.post('/api/members', members))
       .data;
-    if (result.success) {
+    if (result.success && !doNotUpdateModel) {
       updateModel();
     }
 
     nonBlocking.delete('setMembers');
+    setNonBlocking(new Set(nonBlocking));
+    return result.success;
+  };
+
+  const setCharges: IServer['setCharges'] = async (
+    charges: IModel['charges'],
+    doNotUpdateModel?: boolean,
+  ) => {
+    nonBlocking.add('setCharges');
+    setNonBlocking(new Set(nonBlocking));
+
+    const result: IServerResponse = (await axios.post('/api/charges', charges))
+      .data;
+    if (result.success && !doNotUpdateModel) {
+      updateModel();
+    }
+
+    nonBlocking.delete('setCharges');
     setNonBlocking(new Set(nonBlocking));
     return result.success;
   };
@@ -174,6 +211,7 @@ function useProvideServer(): IServer {
       chargeTypes: (await getChargeTypes()).data,
       memberTypes: (await getMemberTypes()).data,
       memberships: (await getMemberships()).data,
+      charges: (await getCharges()).data,
     };
     setModel(model);
     const t = mostRecentTerm(model).id;
@@ -190,6 +228,7 @@ function useProvideServer(): IServer {
       creditTypes: {},
       memberTypes: {},
       memberships: {},
+      charges: {},
       members: {},
       terms: {},
     });
@@ -243,7 +282,7 @@ function useProvideServer(): IServer {
         blocking.delete('auth');
         setBlocking(new Set(blocking));
       }),
-      // eslint-disable-next-line
+    // eslint-disable-next-line
     [],
   );
 
@@ -261,8 +300,10 @@ function useProvideServer(): IServer {
     getChargeTypes,
     getMemberTypes,
     getMemberships,
+    getCharges,
     updateProfile,
     setMembers,
+    setCharges,
     updateModel,
     clearModel,
     clearProfile,

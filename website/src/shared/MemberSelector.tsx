@@ -18,7 +18,9 @@ interface MemberSelectorProps {
 export default function MemberSelector(props: MemberSelectorProps) {
   const server = useServer();
   const [filterString, setFilterString] = useState('');
-  const [selectedMember, setSelectedMember] = useState(null as IMember | null);
+  const [selectedMember, setSelectedMember] = useState(
+    props.member ?? (null as IMember | null),
+  );
 
   const filteredMembers = Object.values(server.model.members)
     .filter(props.filter)

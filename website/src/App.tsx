@@ -8,6 +8,7 @@ import Roster from './pages/roster/Roster';
 import SignIn from './pages/SignIn';
 import { PrivateRoute, ProvideServer, useServer } from './server';
 import AuthenticationOverlay from './shared/AuthenticationOverlay';
+import { orderable } from './shared/util';
 
 export default function App() {
   return (
@@ -29,10 +30,12 @@ export default function App() {
 function Routes() {
   const server = useServer();
   const membershipsOrder = Object.values(server.model.memberships).sort(
-    (a, b) => a.order - b.order,
+    orderable,
   );
 
-  return (
+  return server.blocking.size !== 0 ? (
+    <></>
+  ) : (
     <Switch>
       <Route exact path="/">
         <Home />

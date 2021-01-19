@@ -107,6 +107,12 @@ router
     ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
     await next();
   })
+  .get('/charges', async (ctx, next) => {
+    ctx.response.body = (
+      await firestore.collection('charges').get()
+    ).docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
+    await next();
+  })
   .get('/profile', async (ctx, next) => {
     ctx.response.body = (
       await firestore
@@ -122,6 +128,24 @@ router
       const b = firestore.batch();
       for (const id of Object.keys(members)) {
         b.set(firestore.collection('members').doc(id), members[id]);
+      }
+      b.commit();
+      ctx.response.body = { success: true };
+      ctx.response.status = 200;
+      await next();
+    } catch (e) {
+      console.error(e);
+      ctx.response.body = { success: false };
+      ctx.response.status = 500;
+      await next();
+    }
+  })
+  .post('/charges', async (ctx, next) => {
+    try {
+      const charges = (ctx.req as any).body;
+      const b = firestore.batch();
+      for (const id of Object.keys(charges)) {
+        b.set(firestore.collection('charges').doc(id), charges[id]);
       }
       b.commit();
       ctx.response.body = { success: true };

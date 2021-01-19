@@ -82,8 +82,9 @@ export default function Payments() {
     stringFilteredMembers
       .flatMap(
         member =>
-          member.terms[server.term]?.ledger.flatMap(charge => {
-            if (filterCharge(charge)) {
+          member.terms[server.term]?.ledger.flatMap(chargeId => {
+            const charge = server.model.charges[chargeId];
+            if (charge && filterCharge(charge)) {
               filteredMembersWithCharges.add(charge.accountId);
               return [charge];
             } else {
@@ -246,9 +247,9 @@ export default function Payments() {
                 key={member.accountId}
                 member={member}
                 charges={
-                  member.terms[server.term]?.ledger.filter(c =>
-                    filteredCharges.has(c.id),
-                  ) ?? []
+                  member.terms[server.term]?.ledger
+                    .filter(c => filteredCharges.has(c))
+                    .map(c => server.model.charges[c]) ?? []
                 }
               />
             ))}
@@ -262,7 +263,7 @@ export default function Payments() {
         </Col>
       </Row>
 
-      <Route path="/payments/:accountId?/:chargeId?">
+      <Route path="/payments/:chargeId?">
         <ChargeDetailsModal />
       </Route>
 
@@ -275,15 +276,15 @@ export default function Payments() {
 }
 
 interface ChargeDetailsModalProps
-  extends RouteComponentProps<{ accountId: string; chargeId?: string }> {}
+  extends RouteComponentProps<{ chargeId?: string }> {}
 
 const ChargeDetailsModal = withRouter((props: ChargeDetailsModalProps) => {
   const server = useServer();
   const close = () => props.history.push('/payments');
-  const member = server.model.members[props.match.params.accountId];
-  const [charge] = Object.values(member?.terms ?? {}).flatMap(term =>
-    term!.ledger.filter(c => c.id === props.match.params.chargeId),
-  );
+  const charge = props.match.params.chargeId
+    ? server.model.charges[props.match.params.chargeId]
+    : undefined;
+  const member = charge ? server.model.members[charge.accountId] : undefined;
   return (
     <Modal size="lg" show={!!props.match.params.chargeId} onHide={close}>
       <ChargeDetails member={member} charge={charge} onHide={close} />

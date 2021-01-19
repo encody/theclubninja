@@ -10,20 +10,18 @@ interface CurrencyInputProps
 }
 
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
-  (props, ref) => {
+  ({ prefix, decimals, step, value, onValueChange, ...props }, ref) => {
     const formatValue = (v: number) =>
-      props.prefix! + '' + (v / 10 ** props.decimals!).toFixed(props.decimals!);
+      prefix! + '' + (v / 10 ** decimals!).toFixed(decimals!);
 
     const parseValue = (v: string) =>
-      v.includes(props.prefix!)
-        ? parseFloat(v.split(props.prefix!)[1]) * 10 ** props.decimals!
+      v.includes(prefix!)
+        ? parseFloat(v.split(prefix!)[1]) * 10 ** decimals!
         : !isNaN(parseFloat(v))
-        ? parseFloat(v) * 10 ** props.decimals!
+        ? parseFloat(v) * 10 ** decimals!
         : 0;
 
-    const [internalValue, setInternalValue] = useState(
-      formatValue(props.value),
-    );
+    const [internalValue, setInternalValue] = useState(formatValue(value));
     const [isEditing, setIsEditing] = useState(false);
 
     return (
@@ -31,15 +29,15 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         {...props}
         type="text"
         ref={ref}
-        value={isEditing ? internalValue : formatValue(props.value)}
+        value={isEditing ? internalValue : formatValue(value)}
         onFocus={() => {
-          setInternalValue(formatValue(props.value));
+          setInternalValue(formatValue(value));
           setIsEditing(true);
         }}
         onChange={e => setInternalValue(e.target.value)}
         onBlur={() => {
           setIsEditing(false);
-          props.onValueChange(parseValue(internalValue));
+          onValueChange(parseValue(internalValue));
         }}
       />
     );

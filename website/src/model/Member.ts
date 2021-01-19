@@ -1,5 +1,6 @@
 import { ICharge, isPaid } from './Charge';
 import { IMemberTerm } from './MemberTerm';
+import { IModel } from './Model';
 import { IWaiver } from './Waiver';
 
 export interface IMember {
@@ -16,23 +17,27 @@ export interface IMember {
 
 export function hasPaidForTerm(
   member: IMember,
-  termId: string,
   chargeType: string,
+  allCharges: IModel['charges'],
+  termId: string,
 ): boolean {
   const term = member.terms[termId];
   if (!term) {
     return false;
   }
 
-  const charges = term.ledger.filter(
-    charge => charge.chargeType === chargeType,
+  return (
+    term.ledger.length > 0 &&
+    term.ledger.every(chargeId => {
+      const charge = allCharges[chargeId];
+      return !!charge && charge.chargeType === chargeType && isPaid(charge);
+    })
   );
-
-  return charges.length > 0 && charges.every(isPaid);
 }
 export function getUnpaid(
   member: IMember,
   chargeType: string,
+  allCharges: IModel['charges'],
   termId: string,
 ): ICharge[] {
   const term = member.terms[termId];
@@ -40,9 +45,12 @@ export function getUnpaid(
     return [];
   }
 
-  const charges = term.ledger.filter(
-    charge => charge.chargeType === chargeType && !isPaid(charge),
-  );
+  const charges = term.ledger.flatMap(chargeId => {
+    const charge = allCharges[chargeId];
+    return charge && charge.chargeType === chargeType && !isPaid(charge)
+      ? [charge]
+      : [];
+  });
 
   return charges;
 }
@@ -50,6 +58,7 @@ export function getUnpaid(
 export function hasUnpaid(
   member: IMember,
   chargeType: string,
+  allCharges: IModel['charges'],
   termId: string,
 ): boolean {
   const term = member.terms[termId];
@@ -57,11 +66,10 @@ export function hasUnpaid(
     return false;
   }
 
-  const charges = term.ledger.filter(
-    charge => charge.chargeType === chargeType,
-  );
-
-  return charges.length > 0 && charges.some(c => !isPaid(c));
+  return term.ledger.some(chargeId => {
+    const charge = allCharges[chargeId];
+    return !!charge && charge.chargeType === chargeType && !isPaid(charge);
+  });
 }
 
 export function isActiveMember(member: IMember, termId: string): boolean {

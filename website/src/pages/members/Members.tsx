@@ -49,7 +49,9 @@ export default function Members() {
           />
         </div>
         <div className="ml-3 flex-shrink-1">
-          <Button onClick={() => setShowNewMemberModal(true)}>New Member</Button>
+          <Button onClick={() => setShowNewMemberModal(true)}>
+            New Member
+          </Button>
         </div>
       </div>
 

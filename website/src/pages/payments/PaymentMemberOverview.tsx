@@ -24,7 +24,7 @@ export default function PaymentMemberOverview(
         eventKey={props.member.accountId}
         style={{ cursor: 'pointer' }}
       >
-        {props.member.name}
+        {props.member.name} ({props.member.accountId})
       </Accordion.Toggle>
       <Accordion.Collapse eventKey={props.member.accountId}>
         <Card.Body className="p-0 pt-1">

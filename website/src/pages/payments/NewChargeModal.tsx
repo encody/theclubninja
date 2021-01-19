@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/esm/Container';
@@ -7,11 +7,12 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import * as uuid from 'uuid';
+import { ICharge } from '../../model/Charge';
 import { IMember, isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
 import { CurrencyInput } from '../../shared/CurrencyInput';
 import MemberSelector from '../../shared/MemberSelector';
-import { bound } from '../../shared/util';
+import { bound, orderable } from '../../shared/util';
 import styles from './NewChargeModal.module.css';
 
 interface NewChargeModalProps {
@@ -23,7 +24,7 @@ export default function NewChargeModal(props: NewChargeModalProps) {
   const server = useServer();
 
   const chargeTypesOrder = () =>
-    Object.values(server.model.chargeTypes).sort((a, b) => a.order - b.order);
+    Object.values(server.model.chargeTypes).sort(orderable);
 
   const [member, setMember] = useState(null as IMember | null);
   const [note, setNote] = useState('');
@@ -32,12 +33,12 @@ export default function NewChargeModal(props: NewChargeModalProps) {
       DateTime.local().plus({ days: 30 }).toISODate(),
     ).toMillis(),
   );
-  const [amount, setAmount] = useState(0);
-  const [chargeType, setChargeType] = useState(chargeTypesOrder()[0]?.id || '');
+  const [amount, setAmount] = useState(undefined as number | undefined);
+  const [chargeType, setChargeType] = useState(chargeTypesOrder()[0]?.id);
 
   const reset = () => {
-    setAmount(0);
-    setChargeType(chargeTypesOrder()[0]?.id || '');
+    setAmount(undefined);
+    setChargeType(chargeTypesOrder()[0]?.id);
     setNote('');
     setDue(
       DateTime.fromISO(
@@ -80,20 +81,17 @@ export default function NewChargeModal(props: NewChargeModalProps) {
                 custom
                 id="NewChargeModal_ChargeType"
                 as="select"
-                onChange={e =>
-                  setChargeType(
-                    server.model.chargeTypes[e.target.value]
-                      ? e.target.value
-                      : chargeTypesOrder()[0].id,
-                  )
-                }
+                onChange={e => {
+                  const type = server.model.chargeTypes[e.target.value]
+                    ? e.target.value
+                    : chargeTypesOrder()[0].id;
+                  setChargeType(type);
+                  setAmount(server.model.chargeTypes[type].defaultValue);
+                }}
+                value={chargeType}
               >
                 {chargeTypesOrder().map(t => (
-                  <option
-                    key={t.id}
-                    value={t.id}
-                    selected={chargeType === t.id}
-                  >
+                  <option key={t.id} value={t.id}>
                     {t.name}
                   </option>
                 ))}
@@ -110,7 +108,13 @@ export default function NewChargeModal(props: NewChargeModalProps) {
                 id="NewChargeModal_Amount"
                 className="form-control"
                 onValueChange={v => setAmount(bound(0, v, 150000))}
-                value={amount}
+                value={
+                  amount !== undefined
+                    ? amount
+                    : server.model.chargeTypes[
+                        chargeType ?? chargeTypesOrder()[0]?.id
+                      ]?.defaultValue ?? 0
+                }
               />
             </Col>
           </Row>
@@ -153,27 +157,50 @@ export default function NewChargeModal(props: NewChargeModalProps) {
       <Modal.Footer>
         <Button
           variant="primary"
-          disabled={!member || !member.terms[server.term] || amount < 0}
+          disabled={
+            !member ||
+            !member.terms[server.term] ||
+            (amount !== undefined && amount < 0)
+          }
           onClick={async () => {
             props.onClose();
 
-            const term = member!.terms[server.term]!;
-            term.ledger.push({
+            const newCharge: ICharge = {
               id: uuid.v4(), // TODO: Generate server-side
               accountId: member!.accountId,
               term: server.term,
               end: due,
-              start: Date.now(),
+              start: Date.now(), // TODO: Also generate server-side
               note,
               payments: [],
-              chargeType,
-              value: amount,
-            });
+              chargeType: chargeType ?? chargeTypesOrder()[0]!.id,
+              value:
+                amount !== undefined
+                  ? amount
+                  : server.model.chargeTypes[chargeType]
+                  ? server.model.chargeTypes[chargeType].defaultValue
+                  : 0,
+            };
+            server.model.members[member!.accountId].terms[
+              server.term
+            ]!.ledger.push(newCharge.id);
             if (
-              await server.setMembers({
-                [member!.accountId]: member!,
-              })
+              await Promise.all([
+                server.setMembers(
+                  {
+                    [member!.accountId]: member!,
+                  },
+                  true,
+                ),
+                server.setCharges(
+                  {
+                    [newCharge.id]: newCharge,
+                  },
+                  true,
+                ),
+              ])
             ) {
+              await server.updateModel();
               reset();
             } else {
               // TODO: Alert server error

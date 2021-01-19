@@ -18,7 +18,7 @@ export default function PaymentRow(props: PaymentRowProps) {
 
   return (
     <Link
-      to={'/payments/' + props.member.accountId + '/' + props.charge.id}
+      to={'/payments/' + props.charge.id}
       className="list-group-item list-group-item-action"
     >
       <Row>
