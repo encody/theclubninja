@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/esm/Container';
@@ -33,12 +33,12 @@ export default function NewChargeModal(props: NewChargeModalProps) {
       DateTime.local().plus({ days: 30 }).toISODate(),
     ).toMillis(),
   );
-  const [amount, setAmount] = useState(undefined as number | undefined);
-  const [chargeType, setChargeType] = useState(chargeTypesOrder()[0]?.id);
+  const [amount, setAmount] = useState(chargeTypesOrder()[0]!.defaultValue);
+  const [chargeType, setChargeType] = useState(chargeTypesOrder()[0]!.id);
 
   const reset = () => {
-    setAmount(undefined);
-    setChargeType(chargeTypesOrder()[0]?.id);
+    setAmount(chargeTypesOrder()[0]!.defaultValue);
+    setChargeType(chargeTypesOrder()[0]!.id);
     setNote('');
     setDue(
       DateTime.fromISO(
@@ -108,13 +108,7 @@ export default function NewChargeModal(props: NewChargeModalProps) {
                 id="NewChargeModal_Amount"
                 className="form-control"
                 onValueChange={v => setAmount(bound(0, v, 150000))}
-                value={
-                  amount !== undefined
-                    ? amount
-                    : server.model.chargeTypes[
-                        chargeType ?? chargeTypesOrder()[0]?.id
-                      ]?.defaultValue ?? 0
-                }
+                value={amount}
               />
             </Col>
           </Row>
@@ -173,28 +167,24 @@ export default function NewChargeModal(props: NewChargeModalProps) {
               start: Date.now(), // TODO: Also generate server-side
               note,
               payments: [],
-              chargeType: chargeType ?? chargeTypesOrder()[0]!.id,
-              value:
-                amount !== undefined
-                  ? amount
-                  : server.model.chargeTypes[chargeType]
-                  ? server.model.chargeTypes[chargeType].defaultValue
-                  : 0,
+              chargeType: chargeType,
+              value: amount,
             };
             server.model.members[member!.accountId].terms[
               server.term
             ]!.ledger.push(newCharge.id);
             if (
               await Promise.all([
-                server.setMembers(
-                  {
-                    [member!.accountId]: member!,
-                  },
-                  true,
-                ),
                 server.setCharges(
                   {
                     [newCharge.id]: newCharge,
+                  },
+                  true,
+                ),
+                server.setMembers(
+                  {
+                    [member!.accountId]:
+                      server.model.members[member!.accountId],
                   },
                   true,
                 ),

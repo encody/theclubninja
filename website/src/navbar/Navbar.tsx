@@ -49,7 +49,7 @@ export default function Navbar() {
                 >
                   Members
                 </NavLink>
-                {server.profile.permissions.ledger.read && (
+                {server.profile.permissions.charges.read && (
                   <NavLink
                     className="nav-link"
                     activeClassName="active"

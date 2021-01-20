@@ -3,21 +3,14 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
-import Tooltip from 'react-bootstrap/esm/Tooltip';
 import Row from 'react-bootstrap/Row';
 import * as Icon from 'react-feather';
-import { Link } from 'react-router-dom';
 import { AttendanceType, IAttendance } from '../../model/Attendance';
-import {
-  getUnpaid,
-  hasPaidForTerm,
-  hasUnpaid,
-  IMember,
-} from '../../model/Member';
+import { IMember } from '../../model/Member';
 import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
 import CheckInCreditModal from './CheckInCreditModal';
+import DuesStatus from './DuesStatus';
 
 interface TeamCheckInRowProps {
   member: IMember;
@@ -156,67 +149,7 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
             </>
           )}{' '}
           {/* Dues status indicators */}
-          {server.profile?.permissions.ledger.read &&
-            (hasPaidForTerm(
-              props.member,
-              props.membership.duesId,
-              server.model.charges,
-              server.term,
-            ) ? (
-              <OverlayTrigger
-                overlay={
-                  <Tooltip id={`tooltip-chargespaid-${props.member.accountId}`}>
-                    Dues paid.
-                  </Tooltip>
-                }
-              >
-                <Icon.DollarSign size={18} className="text-success" />
-              </OverlayTrigger>
-            ) : hasUnpaid(
-                props.member,
-                props.membership.duesId,
-                server.model.charges,
-                server.term,
-              ) ? (
-              server.profile?.permissions.ledger.write ? (
-                <Link
-                  className="btn btn-primary btn-sm"
-                  to={
-                    '/payments/' +
-                    getUnpaid(
-                      props.member,
-                      props.membership.duesId,
-                      server.model.charges,
-                      server.term,
-                    )[0].id
-                  }
-                >
-                  Pay Now
-                </Link>
-              ) : (
-                <OverlayTrigger
-                  overlay={
-                    <Tooltip
-                      id={`tooltip-chargespaid-${props.member.accountId}`}
-                    >
-                      Unpaid dues.
-                    </Tooltip>
-                  }
-                >
-                  <Icon.DollarSign size={18} className="text-warning" />
-                </OverlayTrigger>
-              )
-            ) : (
-              <OverlayTrigger
-                overlay={
-                  <Tooltip id={`tooltip-nocharges-${props.member.accountId}`}>
-                    No charges found.
-                  </Tooltip>
-                }
-              >
-                <Icon.FileMinus size={18} className="text-danger" />
-              </OverlayTrigger>
-            ))}
+          <DuesStatus member={props.member} membership={props.membership} />
         </Col>
       </Row>
 

@@ -2,6 +2,7 @@ import * as Router from '@koa/router';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as Koa from 'koa';
+import { IdCollection } from '../../website/src/model/IdRecord';
 import { IUserProfile } from '../../website/src/model/UserProfile';
 import { CollectionManager } from './CollectionManager';
 
@@ -10,6 +11,8 @@ admin.initializeApp();
 const firestore = admin.firestore();
 
 const cm = new CollectionManager(firestore);
+let cachedProfiles: IdCollection<IUserProfile> = {};
+let lastProfilesCachingTime = 0;
 
 const app = new Koa();
 const router = new Router({
@@ -64,7 +67,11 @@ app.use(async (ctx, next) => {
   try {
     const decodedIdToken = await admin.auth().verifyIdToken(idToken);
     ctx.state.user = decodedIdToken;
-    ctx.state.profile = (await cm.get('users'))[decodedIdToken.uid];
+    if (Date.now() - lastProfilesCachingTime > 1000 * 60 * 10) {
+      // if the user profiles have not been updated in the last ten minutes
+      cachedProfiles = await cm.get('users');
+    }
+    ctx.state.profile = cachedProfiles[decodedIdToken.uid];
     if (!ctx.state.profile) {
       ctx.response.status = 403;
       ctx.response.body = 'Forbidden';
@@ -124,7 +131,7 @@ app.use(async (ctx, next) => {
 
 router
   .get('/charges', async (ctx, next) => {
-    if ((ctx.state.profile as IUserProfile).permissions.ledger.read) {
+    if ((ctx.state.profile as IUserProfile).permissions.charges.read) {
       ctx.response.body = await cm.get('charges');
     } else {
       ctx.response.status = 403;

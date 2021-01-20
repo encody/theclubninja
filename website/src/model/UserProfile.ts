@@ -4,7 +4,7 @@ export interface IUserProfile {
     terms: {
       write: boolean;
     };
-    ledger: {
+    charges: {
       read: boolean;
       write: boolean;
     };

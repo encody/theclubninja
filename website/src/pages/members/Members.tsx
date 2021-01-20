@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
-import ButtonGroup from 'react-bootstrap/esm/ButtonGroup';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
@@ -52,12 +51,12 @@ export default function Members() {
           />
         </div>
         <div className="ml-3 flex-shrink-1">
-            <Button onClick={() => setShowNewMemberModal(true)} className="mr-3">
-              New Member
-            </Button>
-            <Button onClick={() => setShowInactiveMemberModal(true)}>
-              Inactive Members
-            </Button>
+          <Button onClick={() => setShowNewMemberModal(true)} className="mr-3">
+            New Member
+          </Button>
+          <Button onClick={() => setShowInactiveMemberModal(true)}>
+            Inactive Members
+          </Button>
         </div>
       </div>
 

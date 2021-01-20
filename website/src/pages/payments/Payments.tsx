@@ -12,6 +12,7 @@ import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
 import { hasPayment, ICharge, isOverdue, isPaid } from '../../model/Charge';
 import { isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
+import SpinnyBox from '../../shared/SpinnyBox';
 import { ChargeDetails } from './ChargeDetails';
 import NewChargeModal from './NewChargeModal';
 import PaymentMemberOverview from './PaymentMemberOverview';
@@ -118,6 +119,10 @@ export default function Payments() {
       [which]: value,
     });
   };
+
+  if (Object.keys(server.model.chargeTypes).length === 0) {
+    return <SpinnyBox />;
+  }
 
   return (
     <>

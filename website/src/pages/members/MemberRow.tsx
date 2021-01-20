@@ -1,6 +1,5 @@
 import React from 'react';
 import Col from 'react-bootstrap/Col';
-import Badge from 'react-bootstrap/esm/Badge';
 import Row from 'react-bootstrap/Row';
 import { Link } from 'react-router-dom';
 import { hasMembership, IMember } from '../../model/Member';

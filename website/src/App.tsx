@@ -51,7 +51,7 @@ function Routes() {
       <PrivateRoute path="/members">
         <Members />
       </PrivateRoute>
-      {server.profile?.permissions.ledger.read && (
+      {server.profile?.permissions.charges.read && (
         <PrivateRoute path="/payments">
           <Payments />
         </PrivateRoute>
