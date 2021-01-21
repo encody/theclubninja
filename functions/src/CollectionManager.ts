@@ -6,7 +6,7 @@ export class CollectionManager {
   private async retrieveCollection<T extends IdRecord>(
     collectionId: string,
   ): Promise<IdCollection<T>> {
-    let query: FirebaseFirestore.Query = this.firestore.collection(
+    const query: FirebaseFirestore.Query = this.firestore.collection(
       collectionId,
     );
     return (await query.get()).docs.reduce(

@@ -74,6 +74,7 @@ app.use(async (ctx, next) => {
     if (Date.now() - lastProfilesCachingTime > 1000 * 60 * 10) {
       // if the user profiles have not been updated in the last ten minutes
       cachedProfiles = await cm.get('users');
+      lastProfilesCachingTime = Date.now();
     }
     ctx.state.profile = cachedProfiles[decodedIdToken.uid];
     if (!ctx.state.profile) {
@@ -136,7 +137,7 @@ app.use(async (ctx, next) => {
 router
   .get('/charges', async (ctx, next) => {
     if ((ctx.state.profile as IUserProfile).permissions.charges.read) {
-      const charges = (await cm.get('charges')) as IdCollection<ICharge>;
+      const charges: IdCollection<ICharge> = await cm.get('charges');
       const invoiceIds: string[] = [];
       Object.values(charges).forEach(charge => {
         const onlinePayments = charge.payments.filter(
