@@ -4,10 +4,11 @@ import { IModel } from './Model';
 import { IWaiver } from './Waiver';
 
 export interface IMember {
+  id: string;
   name: string;
   institutionId: string;
   memberType: string;
-  accountId: string;
+  email: string;
   graduationYear: number;
   source: string;
   referralMember: string;
@@ -45,11 +46,12 @@ export function getUnpaid(
     return [];
   }
 
-  const charges = term.ledger.flatMap(chargeId => {
+  const charges: ICharge[] = [];
+  term.ledger.forEach(chargeId => {
     const charge = allCharges[chargeId];
-    return charge && charge.chargeType === chargeType && !isPaid(charge)
-      ? [charge]
-      : [];
+    if (charge && charge.chargeType === chargeType && !isPaid(charge)) {
+      charges.push(charge);
+    }
   });
 
   return charges;

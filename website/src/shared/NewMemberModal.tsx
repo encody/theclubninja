@@ -1,5 +1,4 @@
 import { DateTime } from 'luxon';
-import * as uuid from 'uuid';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -7,6 +6,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
+import * as uuid from 'uuid';
 import { ICharge } from '../model/Charge';
 import { IMember } from '../model/Member';
 import { IMembership } from '../model/Membership';
@@ -24,6 +24,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
   const server = useServer();
 
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [graduationYear, setGraduationYear] = useState(
     new Date().getFullYear() + 2,
   );
@@ -36,7 +37,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
   const [referralMember, setReferralMember] = useState(null as IMember | null);
   const [source, setSource] = useState('');
   const [institutionId, setInstitutionId] = useState('');
-  const [accountId, setAccountId] = useState('');
+  const [memberId, setMemberId] = useState('');
   const membershipDefaultsMap = () => {
     const entries = Object.entries(server.model.memberships);
     if (entries.length > 0) {
@@ -58,7 +59,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
     setReferralMember(null);
     setSource('');
     setInstitutionId('');
-    setAccountId('');
+    setMemberId('');
     setMemberships(membershipDefaultsMap());
     setDues(membershipDefaultsMap());
   };
@@ -80,6 +81,12 @@ export default function NewMemberModal(props: NewMemberModalProps) {
     );
     setMemberships(new Map(memberships));
   };
+
+  const isValidEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+
+  const memberWithEmailExists = (email: string) =>
+    Object.values(server.model.members).findIndex(m => m.email === email) !==
+    -1;
 
   return (
     <Modal
@@ -113,27 +120,52 @@ export default function NewMemberModal(props: NewMemberModalProps) {
           </Row>
           <Row className={styles.row}>
             <Col sm={3}>
-              <Form.Label htmlFor="NewMemberModal_AccountId">
-                Account ID:
-              </Form.Label>
+              <Form.Label htmlFor="NewMemberModal_Email">Email:</Form.Label>
             </Col>
             <Col>
               <Form.Control
                 required
-                id="NewMemberModal_AccountId"
                 className={
-                  server.model.members[accountId]
+                  email.length === 0
+                    ? ''
+                    : isValidEmail(email) && !memberWithEmailExists(email)
+                    ? 'is-valid'
+                    : 'is-invalid'
+                }
+                id="NewMemberModal_Email"
+                type="email"
+                placeholder="me@james.bond"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
+              <div className="invalid-feedback">
+                {!isValidEmail(email) && 'Please enter a valid email address.'}
+                {isValidEmail(email) &&
+                  'A member with that email address already exists.'}
+              </div>
+            </Col>
+          </Row>
+          <Row className={styles.row}>
+            <Col sm={3}>
+              <Form.Label htmlFor="NewMemberModal_Id">Member ID:</Form.Label>
+            </Col>
+            <Col>
+              <Form.Control
+                required
+                id="NewMemberModal_Id"
+                className={
+                  server.model.members[memberId]
                     ? 'is-invalid'
-                    : accountId.trim().length
+                    : memberId.trim().length
                     ? 'is-valid'
                     : ''
                 }
                 type="text"
                 placeholder="bond007"
-                value={accountId}
-                onChange={e => setAccountId(e.target.value)}
+                value={memberId}
+                onChange={e => setMemberId(e.target.value)}
               />
-              <div className="invalid-feedback">Account ID already exists</div>
+              <div className="invalid-feedback">Member ID already exists</div>
             </Col>
           </Row>
           <Row className={styles.row}>
@@ -301,8 +333,8 @@ export default function NewMemberModal(props: NewMemberModalProps) {
           variant="primary"
           disabled={
             name.trim().length === 0 || // No name
-            accountId.trim().length === 0 || // No account ID
-            !!server.model.members[accountId] || // Account ID already exists
+            memberId.trim().length === 0 || // No account ID
+            !!server.model.members[memberId] || // Account ID already exists
             graduationYear < 1900 || // Unlikely graduation year
             graduationYear > 2100 || // ...
             institutionId.trim().length === 0 // No institution ID
@@ -316,7 +348,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
                 ? [
                     {
                       id: uuid.v4(),
-                      accountId: accountId,
+                      memberId: memberId,
                       chargeType: m.duesId,
                       term: server.term,
                       start: Date.now(),
@@ -338,15 +370,14 @@ export default function NewMemberModal(props: NewMemberModalProps) {
               await Promise.all([
                 duesPromise,
                 server.setMembers({
-                  [accountId]: {
+                  [memberId]: {
                     name,
-                    accountId,
+                    id: memberId,
+                    email,
                     graduationYear,
                     institutionId,
                     memberType: memberType ?? memberTypeOrder[0].id,
-                    referralMember: referralMember
-                      ? referralMember.accountId
-                      : '',
+                    referralMember: referralMember ? referralMember.id : '',
                     source,
                     terms: {
                       [server.term]: {

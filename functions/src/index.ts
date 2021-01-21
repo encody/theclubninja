@@ -2,7 +2,11 @@ import * as Router from '@koa/router';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as Koa from 'koa';
+import { v4 } from 'uuid';
+import { ICharge } from '../../website/src/model/Charge';
 import { IdCollection } from '../../website/src/model/IdRecord';
+import { IInvoice, ISendInvoiceRequest } from '../../website/src/model/Invoice';
+import { IPayment, PaymentType } from '../../website/src/model/Payment';
 import { IUserProfile } from '../../website/src/model/UserProfile';
 import { CollectionManager } from './CollectionManager';
 
@@ -41,7 +45,7 @@ app.use(async (ctx, next) => {
   ) {
     console.error('No session cookie or authorization header found');
     ctx.status = 401;
-    ctx.response.body = 'Unauthorized';
+    ctx.response.body = { success: false, error: 'Unauthorized' };
     return;
   }
 
@@ -60,7 +64,7 @@ app.use(async (ctx, next) => {
   } else {
     // No cookie
     ctx.response.status = 401;
-    ctx.response.body = 'Unauthorized';
+    ctx.response.body = { success: false, error: 'Unauthorized' };
     return;
   }
 
@@ -74,7 +78,7 @@ app.use(async (ctx, next) => {
     ctx.state.profile = cachedProfiles[decodedIdToken.uid];
     if (!ctx.state.profile) {
       ctx.response.status = 403;
-      ctx.response.body = 'Forbidden';
+      ctx.response.body = { success: false, error: 'Forbidden' };
       return;
     } else {
       return await next();
@@ -82,7 +86,7 @@ app.use(async (ctx, next) => {
   } catch (error) {
     console.error('Error while verifying Firebase ID token:', error);
     ctx.response.status = 401;
-    ctx.response.body = 'Unauthorized';
+    ctx.response.body = { success: false, error: 'Unauthorized' };
     return;
   }
 });
@@ -117,13 +121,13 @@ app.use(async (ctx, next) => {
         await next();
       } catch (e) {
         console.error(e);
-        ctx.response.body = { success: false };
+        ctx.response.body = { success: false, error: 'Internal Server Error' };
         ctx.response.status = 500;
         await next();
       }
     } else {
       ctx.response.status = 403;
-      ctx.response.body = 'Forbidden';
+      ctx.response.body = { success: false, error: 'Forbidden' };
       return;
     }
   });
@@ -132,10 +136,38 @@ app.use(async (ctx, next) => {
 router
   .get('/charges', async (ctx, next) => {
     if ((ctx.state.profile as IUserProfile).permissions.charges.read) {
-      ctx.response.body = await cm.get('charges');
+      const charges = (await cm.get('charges')) as IdCollection<ICharge>;
+      const invoiceIds: string[] = [];
+      Object.values(charges).forEach(charge => {
+        const onlinePayments = charge.payments.filter(
+          payment =>
+            payment.type === PaymentType.Online &&
+            payment.reference !== undefined,
+        );
+        invoiceIds.push(...onlinePayments.map(p => p.reference!));
+      });
+
+      if (invoiceIds.length > 0) {
+        const invoices = await firestore
+          .collection('invoices')
+          .where(admin.firestore.FieldPath.documentId(), 'in', invoiceIds)
+          .get();
+        invoices.docs.forEach(invoiceDoc => {
+          const invoice = invoiceDoc.data() as IInvoice;
+          const charge = charges[invoice.chargeId];
+          const payment = charge.payments.find(
+            p => p.reference === invoice.id,
+          )!;
+          payment.reference = invoice.stripeInvoiceRecord;
+          payment.status = invoice.stripeInvoiceStatus;
+        });
+      }
+
+      ctx.response.status = 200;
+      ctx.response.body = charges;
     } else {
       ctx.response.status = 403;
-      ctx.response.body = 'Forbidden';
+      ctx.response.body = { success: false, error: 'Forbidden' };
       return;
     }
     await next();
@@ -149,6 +181,66 @@ router
     ).data();
     await next();
   });
+
+router.post('/sendInvoice', async (ctx, next) => {
+  const sendInvoiceReq = (ctx.req as any).body as
+    | ISendInvoiceRequest
+    | undefined;
+  if (sendInvoiceReq) {
+    const { amount, chargeId, email, description } = sendInvoiceReq;
+
+    if (amount && chargeId && email && description) {
+      const paymentId = v4();
+
+      const invoice: IInvoice = {
+        id: v4(),
+        chargeId,
+        paymentId,
+        email,
+        items: [
+          {
+            description,
+            amount,
+            quantity: 1,
+            currency: 'usd',
+          },
+        ],
+      };
+
+      const payment: IPayment = {
+        id: paymentId,
+        chargeId,
+        timestamp: Date.now(),
+        type: PaymentType.Online,
+        value: amount,
+        reference: invoice.id,
+      };
+
+      try {
+        await firestore.runTransaction(async t => {
+          const charge = (
+            await t.get(firestore.collection('charges').doc(chargeId))
+          ).data() as ICharge | undefined;
+          if (charge) {
+            charge.payments.push(payment);
+            t.set(firestore.collection('charges').doc(chargeId), charge);
+            t.set(firestore.collection('invoices').doc(invoice.id), invoice);
+          }
+        });
+
+        ctx.response.status = 200;
+        ctx.response.body = { success: true };
+        return next();
+      } catch (e) {
+        ctx.response.status = 500;
+        ctx.response.body = { success: false, error: 'Internal Server Error' };
+      }
+    }
+  }
+
+  ctx.response.status = 400;
+  ctx.response.body = { success: false, error: 'Bad Request' };
+});
 
 app.use(router.routes());
 app.use(router.allowedMethods());

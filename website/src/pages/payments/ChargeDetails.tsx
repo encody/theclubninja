@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Spinner from 'react-bootstrap/esm/Spinner';
+import Tooltip from 'react-bootstrap/esm/Tooltip';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -18,6 +19,7 @@ import { PaymentType } from '../../model/Payment';
 import { useServer } from '../../server';
 import { CurrencyInput } from '../../shared/CurrencyInput';
 import { bound } from '../../shared/util';
+import { ExternalPaymentStatusIcon } from './ExternalPaymentStatusIcon';
 import { PaymentStatusAlert } from './PaymentStatusAlert';
 import { PaymentStatusBadge } from './PaymentStatusBadge';
 
@@ -39,6 +41,11 @@ export const ChargeDetails = React.memo(
       props.charge ? props.charge.value - amountPaid(props.charge) : 0,
     );
     const [newPaymentReference, setNewPaymentReference] = useState('');
+    const [isSendingInvoice, setIsSendingInvoice] = useState(false);
+
+    const remainingCharge = props.charge
+      ? props.charge!.value - amountPaid(props.charge!)
+      : 0;
 
     return (
       <>
@@ -70,7 +77,7 @@ export const ChargeDetails = React.memo(
                   <tr>
                     <td>To:</td>
                     <td>
-                      {props.member.name} ({props.member.accountId})
+                      {props.member.name} ({props.member.id})
                     </td>
                   </tr>
                   <tr>
@@ -149,14 +156,30 @@ export const ChargeDetails = React.memo(
                       </td>
                       <td>
                         {payment.reference ? (
-                          <a href="#">{payment.reference}</a>
+                          <a target="_blank" href={payment.reference}>
+                            View
+                          </a>
+                        ) : payment.type === PaymentType.Online ? (
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={
+                              <Tooltip
+                                id={'ChargeDetails_Processing' + payment.id}
+                              >
+                                Processing.
+                              </Tooltip>
+                            }
+                          >
+                            <Icon.Clock className="text-info" size={16} />
+                          </OverlayTrigger>
                         ) : (
                           <span className="text-muted">N/A</span>
-                        )}
+                        )}{' '}
+                        <ExternalPaymentStatusIcon payment={payment} />
                       </td>
                       <td>
                         {payment.enteredByUserId ? (
-                          <a href="#">{payment.enteredByUserId}</a>
+                          payment.enteredByUserId
                         ) : (
                           <span className="text-muted">N/A</span>
                         )}
@@ -177,17 +200,12 @@ export const ChargeDetails = React.memo(
                             </Popover>
                           }
                         >
-                          <Button
-                            className="ml-2 "
-                            variant="outline-light"
-                            size="sm"
-                          >
-                            <Icon.Info
-                              size={18}
-                              stroke="#999"
-                              cursor="pointer"
-                            />
-                          </Button>
+                          <Icon.Info
+                            className="ml-2"
+                            size={16}
+                            stroke="#999"
+                            cursor="pointer"
+                          />
                         </OverlayTrigger>
                       </td>
                     </tr>
@@ -207,12 +225,7 @@ export const ChargeDetails = React.memo(
                                   value={newPaymentValue}
                                   onValueChange={v =>
                                     setNewPaymentValue(
-                                      bound(
-                                        0,
-                                        v,
-                                        props.charge!.value -
-                                          amountPaid(props.charge!),
-                                      ),
+                                      bound(0, v, remainingCharge),
                                     )
                                   }
                                 />
@@ -276,32 +289,67 @@ export const ChargeDetails = React.memo(
                   <tr>
                     <td colSpan={5}>
                       <div className="d-flex justify-content-end align-items-center">
-                        {isAwaitingAddingPayment && (
-                          <Spinner
-                            className="mr-3"
-                            animation="border"
-                            size="sm"
-                            variant="success"
-                          />
-                        )}
+                        {isAwaitingAddingPayment ||
+                          (isSendingInvoice && (
+                            <Spinner
+                              className="mr-3"
+                              animation="border"
+                              size="sm"
+                              variant="success"
+                            />
+                          ))}
                         <div className="mr-2">
                           <strong>Remaining:</strong>{' '}
-                          {(
-                            (props.charge!.value - amountPaid(props.charge!)) /
-                            100
-                          ).toLocaleString('en-US', {
+                          {(remainingCharge / 100).toLocaleString('en-US', {
                             style: 'currency',
                             currency: 'USD',
                           })}
                         </div>
-                        {!isAddingPayment && !isPaid(props.charge) && (
-                          <Button
-                            variant="success"
-                            onClick={() => setIsAddingPayment(true)}
-                          >
-                            Add Payment
-                          </Button>
-                        )}
+                        {!isAddingPayment &&
+                          !isPaid(props.charge) &&
+                          props.charge!.payments.findIndex(
+                            p => p.type === PaymentType.Online,
+                          ) === -1 && (
+                            <>
+                              <Button
+                                className="mr-2"
+                                variant="primary"
+                                disabled={isSendingInvoice}
+                                onClick={async () => {
+                                  setIsSendingInvoice(true);
+                                  if (
+                                    await server.sendInvoice({
+                                      amount: remainingCharge,
+                                      chargeId: props.charge!.id,
+                                      description:
+                                        server.model.chargeTypes[
+                                          props.charge!.chargeType
+                                        ].name +
+                                        ' on ' +
+                                        DateTime.fromMillis(
+                                          props.charge!.start,
+                                        ).toLocaleString(DateTime.DATE_FULL) +
+                                        '\n\n' +
+                                        props.charge!.note,
+                                      email: props.member!.email,
+                                    })
+                                  ) {
+                                    setIsSendingInvoice(false);
+                                  } else {
+                                    // TODO: error
+                                  }
+                                }}
+                              >
+                                Send Invoice
+                              </Button>
+                              <Button
+                                variant="success"
+                                onClick={() => setIsAddingPayment(true)}
+                              >
+                                Add Payment...
+                              </Button>
+                            </>
+                          )}
                       </div>
                     </td>
                   </tr>
@@ -314,7 +362,14 @@ export const ChargeDetails = React.memo(
               </div>
               <Button
                 variant="danger"
-                disabled={hasPayment(props.charge)}
+                disabled={props.charge!.payments.some(
+                  p =>
+                    (p.type === PaymentType.Online &&
+                      !['void', 'uncollectible', 'payment_failed'].includes(
+                        p.status!,
+                      )) ||
+                    p.type === PaymentType.Manual,
+                )}
                 onClick={async () => {
                   props.onHide();
                   const term = props.member!.terms[props.charge!.term]!;
@@ -323,7 +378,7 @@ export const ChargeDetails = React.memo(
                   ); // TODO: Delete the actual record
                   if (
                     await server.setMembers({
-                      [props.member!.accountId]: props.member!,
+                      [props.member!.id]: props.member!,
                     })
                   ) {
                     // yay

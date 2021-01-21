@@ -20,12 +20,12 @@ export default function MemberRow(props: MemberRowProps) {
 
   return (
     <Link
-      to={'/members/' + props.member.accountId}
+      to={'/members/' + props.member.id}
       className={'list-group-item list-group-item-action ' + styles.row}
     >
       <Row>
         <Col xs={5}>{props.member.name}</Col>
-        <Col xs={3}>{props.member.accountId}</Col>
+        <Col xs={3}>{props.member.id}</Col>
         <Col xs={2}>
           {/* TODO: Check membership or something here */}
           {membershipsOrder

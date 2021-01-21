@@ -52,7 +52,7 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
     }
     if (
       await server.setMembers({
-        [props.member.accountId]: props.member,
+        [props.member.id]: props.member,
       })
     ) {
       return true;
@@ -83,7 +83,7 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
     <Container className={'list-group-item'}>
       <Row>
         <Col xs={4}>{props.member.name}</Col>
-        <Col xs={3}>{props.member.accountId}</Col>
+        <Col xs={3}>{props.member.id}</Col>
         <Col xs={5}>
           {/* Check-in buttons */}
           {props.membership.useDetailedAttendance ? (

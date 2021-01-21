@@ -28,7 +28,7 @@ export default function Roster(props: RosterProps) {
         hasMembership(member, props.membership.id, server.term) &&
         (member.name.toLowerCase().includes(filter.toLowerCase()) ||
           member.institutionId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.accountId.toLowerCase().includes(filter.toLowerCase())),
+          member.id.toLowerCase().includes(filter.toLowerCase())),
     );
 
   const [filter, setFilter] = useState('');
@@ -80,7 +80,7 @@ export default function Roster(props: RosterProps) {
             </ListGroup.Item>
             {filteredMembers.map(member => (
               <CheckInRow
-                key={member.accountId}
+                key={member.id}
                 member={member}
                 membership={props.membership}
               />
@@ -99,7 +99,7 @@ export default function Roster(props: RosterProps) {
               </ListGroup.Item>
               {filteredMembers.map(member => (
                 <AttendanceHistoryRow
-                  key={member.accountId}
+                  key={member.id}
                   member={member}
                   membership={props.membership}
                 />
@@ -118,7 +118,7 @@ export default function Roster(props: RosterProps) {
             </ListGroup.Item>
             {filteredMembers.map(member => (
               <ManageRow
-                key={member.accountId}
+                key={member.id}
                 member={member}
                 membership={props.membership}
               />
@@ -142,12 +142,12 @@ export default function Roster(props: RosterProps) {
         )}
         onSelect={async members => {
           const update: {
-            [accountId: string]: IMember;
+            [id: string]: IMember;
           } = {};
 
           members.forEach(m => {
             m.terms[server.term]!.memberships.push(props.membership.id);
-            update[m.accountId] = m;
+            update[m.id] = m;
           });
 
           if (await server.setMembers(update)) {

@@ -161,7 +161,7 @@ export default function NewChargeModal(props: NewChargeModalProps) {
 
             const newCharge: ICharge = {
               id: uuid.v4(), // TODO: Generate server-side
-              accountId: member!.accountId,
+              memberId: member!.id,
               term: server.term,
               end: due,
               start: Date.now(), // TODO: Also generate server-side
@@ -170,7 +170,7 @@ export default function NewChargeModal(props: NewChargeModalProps) {
               chargeType: chargeType,
               value: amount,
             };
-            server.model.members[member!.accountId].terms[
+            server.model.members[member!.id].terms[
               server.term
             ]!.ledger.push(newCharge.id);
             if (
@@ -183,8 +183,8 @@ export default function NewChargeModal(props: NewChargeModalProps) {
                 ),
                 server.setMembers(
                   {
-                    [member!.accountId]:
-                      server.model.members[member!.accountId],
+                    [member!.id]:
+                      server.model.members[member!.id],
                   },
                   true,
                 ),

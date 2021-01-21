@@ -51,7 +51,7 @@ export default function Payments() {
           member.institutionId
             .toLowerCase()
             .includes(filter.string.toLowerCase()) ||
-          member.accountId.toLowerCase().includes(filter.string.toLowerCase())),
+          member.id.toLowerCase().includes(filter.string.toLowerCase())),
     );
 
   const stringFilteredMembers = getFilteredMembers();
@@ -86,7 +86,7 @@ export default function Payments() {
           member.terms[server.term]?.ledger.flatMap(chargeId => {
             const charge = server.model.charges[chargeId];
             if (charge && filterCharge(charge)) {
-              filteredMembersWithCharges.add(charge.accountId);
+              filteredMembersWithCharges.add(charge.memberId);
               return [charge];
             } else {
               return [];
@@ -97,7 +97,7 @@ export default function Payments() {
 
   const filteredCharges = getFilteredCharges();
   const filteredMembers = stringFilteredMembers.filter(member =>
-    filteredMembersWithCharges.has(member.accountId),
+    filteredMembersWithCharges.has(member.id),
   );
 
   const updateFilterString = (filterString: string) => {
@@ -249,7 +249,7 @@ export default function Payments() {
           <Accordion>
             {filteredMembers.map(member => (
               <PaymentMemberOverview
-                key={member.accountId}
+                key={member.id}
                 member={member}
                 charges={
                   member.terms[server.term]?.ledger
@@ -289,7 +289,7 @@ const ChargeDetailsModal = withRouter((props: ChargeDetailsModalProps) => {
   const charge = props.match.params.chargeId
     ? server.model.charges[props.match.params.chargeId]
     : undefined;
-  const member = charge ? server.model.members[charge.accountId] : undefined;
+  const member = charge ? server.model.members[charge.memberId] : undefined;
   return (
     <Modal size="lg" show={!!props.match.params.chargeId} onHide={close}>
       <ChargeDetails member={member} charge={charge} onHide={close} />

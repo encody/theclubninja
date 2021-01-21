@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Redirect, Route, RouteProps } from 'react-router-dom';
 import firebase from './firebase';
 import { IModel, mostRecentTerm } from './model/Model';
+import { ISendInvoiceRequest } from './model/Invoice';
 import { IUserProfile } from './model/UserProfile';
 
 const serverContext = createContext({} as IServer);
@@ -50,6 +51,7 @@ export interface IServer {
     terms: IModel['terms'],
     doNotUpdateModel?: boolean,
   ) => Promise<boolean>;
+  sendInvoice: (request: ISendInvoiceRequest) => Promise<boolean>;
   setTerm: (termId: string) => void;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -182,18 +184,54 @@ function useProvideServer(): IServer {
     return result.success;
   };
 
+  const sendInvoice: IServer['sendInvoice'] = async (
+    request: ISendInvoiceRequest,
+  ) => {
+    nonBlocking.add('sendInvoice');
+    setNonBlocking(new Set(nonBlocking));
+
+    const result: IServerResponse = (
+      await axios.post('/api/sendInvoice', request)
+    ).data;
+    if (result.success) {
+      updateModel();
+    }
+
+    nonBlocking.delete('sendInvoice');
+    setNonBlocking(new Set(nonBlocking));
+    return result.success;
+  };
+
   const updateModel = async () => {
     nonBlocking.add('updateModel');
     setNonBlocking(new Set(nonBlocking));
 
+    const [
+      members,
+      terms,
+      creditTypes,
+      chargeTypes,
+      memberTypes,
+      memberships,
+      charges,
+    ] = await Promise.all([
+      getMembers(),
+      getTerms(),
+      getCreditTypes(),
+      getChargeTypes(),
+      getMemberTypes(),
+      getMemberships(),
+      getCharges(),
+    ]);
+
     const model: IModel = {
-      members: await getMembers(),
-      terms: await getTerms(),
-      creditTypes: await getCreditTypes(),
-      chargeTypes: await getChargeTypes(),
-      memberTypes: await getMemberTypes(),
-      memberships: await getMemberships(),
-      charges: await getCharges(),
+      members,
+      terms,
+      creditTypes,
+      chargeTypes,
+      memberTypes,
+      memberships,
+      charges,
     };
     const t = mostRecentTerm(model.terms).id;
     setTerm(t);
@@ -289,6 +327,7 @@ function useProvideServer(): IServer {
     setTerms,
     setTerm,
     updateModel,
+    sendInvoice,
     clearModel,
     clearProfile,
     signIn,

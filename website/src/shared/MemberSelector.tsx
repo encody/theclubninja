@@ -26,7 +26,7 @@ export default function MemberSelector(props: MemberSelectorProps) {
     .filter(props.filter)
     .filter(
       m =>
-        m.accountId.toLowerCase().includes(filterString.toLowerCase()) ||
+        m.id.toLowerCase().includes(filterString.toLowerCase()) ||
         m.name.toLowerCase().includes(filterString.toLowerCase()),
     );
 
@@ -37,7 +37,7 @@ export default function MemberSelector(props: MemberSelectorProps) {
         id={props.id}
         title={
           props.member
-            ? `${props.member.name} (${props.member.accountId})`
+            ? `${props.member.name} (${props.member.id})`
             : 'Select member...'
         }
       >
@@ -63,14 +63,14 @@ export default function MemberSelector(props: MemberSelectorProps) {
           {server.model && filteredMembers.length ? (
             filteredMembers.map(m => (
               <Dropdown.Item
-                key={m.accountId}
+                key={m.id}
                 active={m === selectedMember}
                 onClick={() => {
                   setSelectedMember(m);
                   props.onSelect(m);
                 }}
               >
-                {m.name} ({m.accountId})
+                {m.name} ({m.id})
               </Dropdown.Item>
             ))
           ) : (

@@ -9,5 +9,12 @@ export interface IPayment {
   type: PaymentType;
   enteredByUserId?: string;
   reference?: string;
+  status?:
+    | 'draft'
+    | 'open'
+    | 'paid'
+    | 'uncollectible'
+    | 'void'
+    | 'payment_failed';
   value: number;
 }

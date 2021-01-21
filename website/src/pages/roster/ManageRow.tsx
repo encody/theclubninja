@@ -18,7 +18,7 @@ export default function ManageRow(props: ManageRowProps) {
     <Container className={'list-group-item'}>
       <Row>
         <Col xs={4}>{props.member.name}</Col>
-        <Col xs={3}>{props.member.accountId}</Col>
+        <Col xs={3}>{props.member.id}</Col>
         <Col xs={5}>
           <Button
             size="sm"
@@ -30,7 +30,7 @@ export default function ManageRow(props: ManageRowProps) {
               );
               if (
                 await server.setMembers({
-                  [props.member.accountId]: props.member,
+                  [props.member.id]: props.member,
                 })
               ) {
                 // TODO: Alert success

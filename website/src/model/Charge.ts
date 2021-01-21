@@ -1,8 +1,8 @@
-import { IPayment } from './Payment';
+import { IPayment, PaymentType } from './Payment';
 
 export interface ICharge {
   id: string;
-  accountId: string;
+  memberId: string;
   term: string;
   value: number;
   note: string;
@@ -25,5 +25,12 @@ export function hasPayment(charge: ICharge) {
 }
 
 export function amountPaid(charge: ICharge) {
-  return charge.payments.reduce((total, payment) => total + payment.value, 0);
+  return charge.payments.reduce(
+    (total, payment) =>
+      total +
+      (payment.type === PaymentType.Manual || payment.status === 'paid'
+        ? payment.value
+        : 0),
+    0,
+  );
 }

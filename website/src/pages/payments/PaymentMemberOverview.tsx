@@ -21,12 +21,12 @@ export default function PaymentMemberOverview(
       <Accordion.Toggle
         className="cursor-pointer"
         as={Card.Header}
-        eventKey={props.member.accountId}
+        eventKey={props.member.id}
         style={{ cursor: 'pointer' }}
       >
-        {props.member.name} ({props.member.accountId})
+        {props.member.name} ({props.member.id})
       </Accordion.Toggle>
-      <Accordion.Collapse eventKey={props.member.accountId}>
+      <Accordion.Collapse eventKey={props.member.id}>
         <Card.Body className="p-0 pt-1">
           <ListGroup variant="flush">
             <ListGroup.Item>

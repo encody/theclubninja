@@ -7,7 +7,7 @@ export function PaymentStatusBadge(props: {
   variant?: 'paid' | 'overdue' | 'partial' | 'pending';
 }) {
   if (props.variant === 'paid' || (props.charge && isPaid(props.charge))) {
-    return <Badge variant="light">Paid</Badge>;
+    return <Badge variant="dark">Paid</Badge>;
   } else if (
     props.variant === 'overdue' ||
     (props.charge && isOverdue(props.charge))
@@ -17,8 +17,8 @@ export function PaymentStatusBadge(props: {
     props.variant === 'partial' ||
     (props.charge && hasPayment(props.charge))
   ) {
-    return <Badge variant="success">Partial</Badge>;
+    return <Badge variant="info">Partial</Badge>;
   }
 
-  return <Badge variant="info">Pending</Badge>;
+  return <Badge variant="warning">Pending</Badge>;
 }

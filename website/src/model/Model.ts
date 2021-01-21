@@ -24,7 +24,7 @@ export interface IModel {
     [id: string]: ICharge;
   };
   members: {
-    [accountId: string]: IMember;
+    [id: string]: IMember;
   };
   terms: {
     [termId: string]: ITerm;

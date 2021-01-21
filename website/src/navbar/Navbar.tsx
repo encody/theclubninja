@@ -95,7 +95,7 @@ export default function Navbar() {
                 />
               )}
             </BootstrapNavbar.Text>
-            {server.blocking.size === 0 && (
+            {server.blocking.size === 0 && server.user && (
               <NavDropdown
                 id="Navbar_TermDropdown"
                 className="mr-2"

@@ -38,7 +38,7 @@ export default class MemberDetails extends React.Component<
             <tbody>
               <tr>
                 <td>Account ID:</td>
-                <td>{this.props.member.accountId}</td>
+                <td>{this.props.member.id}</td>
               </tr>
               <tr>
                 <td>Institution ID:</td>

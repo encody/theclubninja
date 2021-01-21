@@ -32,7 +32,7 @@ export default function DuesStatus(props: DuesStatusProps) {
       return (
         <OverlayTrigger
           overlay={
-            <Tooltip id={`tooltip-chargespaid-${props.member.accountId}`}>
+            <Tooltip id={`tooltip-chargespaid-${props.member.id}`}>
               Dues paid.
             </Tooltip>
           }
@@ -74,7 +74,7 @@ export default function DuesStatus(props: DuesStatusProps) {
           return (
             <OverlayTrigger
               overlay={
-                <Tooltip id={`tooltip-chargespaid-${props.member.accountId}`}>
+                <Tooltip id={`tooltip-chargespaid-${props.member.id}`}>
                   Unpaid dues.
                 </Tooltip>
               }
@@ -88,7 +88,7 @@ export default function DuesStatus(props: DuesStatusProps) {
         return (
           <OverlayTrigger
             overlay={
-              <Tooltip id={`tooltip-nocharges-${props.member.accountId}`}>
+              <Tooltip id={`tooltip-nocharges-${props.member.id}`}>
                 No charges found.
               </Tooltip>
             }

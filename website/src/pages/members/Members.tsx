@@ -22,7 +22,7 @@ export default function Members() {
         isActiveMember(member, server.term) &&
         (member.name.toLowerCase().includes(filter.toLowerCase()) ||
           member.institutionId.toLowerCase().includes(filter.toLowerCase()) ||
-          member.accountId.toLowerCase().includes(filter.toLowerCase())),
+          member.id.toLowerCase().includes(filter.toLowerCase())),
     );
 
   const [filter, setFilter] = useState('');
@@ -70,7 +70,7 @@ export default function Members() {
           </Row>
         </ListGroup.Item>
         {filteredMembers.map(member => (
-          <MemberRow key={member.accountId} member={member} />
+          <MemberRow key={member.id} member={member} />
         ))}
       </ListGroup>
 
@@ -100,7 +100,7 @@ export default function Members() {
         )}
         onSelect={async members => {
           const update: {
-            [accountId: string]: IMember;
+            [id: string]: IMember;
           } = {};
 
           members.forEach(m => {
@@ -109,7 +109,7 @@ export default function Members() {
               ledger: [],
               memberships: [],
             };
-            update[m.accountId] = m;
+            update[m.id] = m;
           });
 
           if (await server.setMembers(update)) {
@@ -134,7 +134,7 @@ function MemberDetailsModal(props: MemberDetailsModalProps) {
   };
 
   const member = Object.values(server.model.members).find(
-    m => m.accountId === props.match.params.id,
+    m => m.id === props.match.params.id,
   );
   return (
     <Modal size="lg" show={!!props.match.params.id} onHide={() => close()}>

@@ -24,7 +24,7 @@ export default function AddMemberModal(props: AddMemberModalProps) {
     member =>
       member.name.toLowerCase().includes(filter.toLowerCase()) ||
       member.institutionId.toLowerCase().includes(filter.toLowerCase()) ||
-      member.accountId.toLowerCase().includes(filter.toLowerCase()),
+      member.id.toLowerCase().includes(filter.toLowerCase()),
   );
 
   const toggleSelected = (member: IMember) => {
@@ -71,7 +71,7 @@ export default function AddMemberModal(props: AddMemberModalProps) {
               action
               active={selectedMembers.has(member)}
               onClick={() => toggleSelected(member)}
-              key={member.accountId}
+              key={member.id}
             >
               <Row>
                 <Col xs={1}>
@@ -82,7 +82,7 @@ export default function AddMemberModal(props: AddMemberModalProps) {
                   )}
                 </Col>
                 <Col xs={6}>{member.name}</Col>
-                <Col xs={5}>{member.accountId}</Col>
+                <Col xs={5}>{member.id}</Col>
               </Row>
             </ListGroup.Item>
           ))}
