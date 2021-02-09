@@ -36,6 +36,7 @@ export default function NewTermModal(props: NewTermModalProps) {
       show={props.show}
       onHide={props.onClose}
       scrollable={false}
+      dialogClassName={styles['min-dialog']}
     >
       <Modal.Header closeButton>
         <Modal.Title>

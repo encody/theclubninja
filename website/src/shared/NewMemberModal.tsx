@@ -54,6 +54,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
 
   const reset = () => {
     setName('');
+    setEmail('');
     setGraduationYear(new Date().getFullYear() + 2);
     setMemberType(memberTypeOrder[0] ? memberTypeOrder[0].id : undefined);
     setReferralMember(null);

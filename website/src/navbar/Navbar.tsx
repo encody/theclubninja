@@ -7,6 +7,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import Tooltip from 'react-bootstrap/Tooltip';
 import * as Icon from 'react-feather';
 import { NavLink } from 'react-router-dom';
+import { mostRecentTerm } from '../model/Model';
 import { useServer } from '../server';
 import styles from './Navbar.module.css';
 import NewTermModal from './NewTermModal';
@@ -114,7 +115,14 @@ export default function Navbar() {
                     <NavDropdown.Item
                       key={term.id}
                       active={server.term === term.id}
-                      onClick={() => server.setTerm(term.id)} // TODO: Save in localStorage
+                      onClick={() => {
+                        server.setTerm(term.id);
+                        if (term.id === mostRecentTerm(server.model.terms).id) {
+                          localStorage.removeItem('term');
+                        } else {
+                          localStorage.setItem('term', term.id);
+                        }
+                      }}
                     >
                       {term.name}
                     </NavDropdown.Item>

@@ -48,7 +48,7 @@ export default function NewChargeModal(props: NewChargeModalProps) {
   };
 
   return (
-    <Modal size="lg" show={props.show} onHide={props.onClose}>
+    <Modal size="lg" show={props.show} onHide={props.onClose} dialogClassName={styles['min-dialog']}>
       <Modal.Header closeButton>
         <Modal.Title>New Charge</Modal.Title>
       </Modal.Header>

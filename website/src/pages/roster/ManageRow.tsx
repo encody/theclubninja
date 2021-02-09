@@ -18,8 +18,8 @@ export default function ManageRow(props: ManageRowProps) {
     <Container className={'list-group-item'}>
       <Row>
         <Col xs={4}>{props.member.name}</Col>
-        <Col xs={3}>{props.member.id}</Col>
-        <Col xs={5}>
+        <Col xs={2}>{props.member.id}</Col>
+        <Col xs={6}>
           <Button
             size="sm"
             variant="danger"

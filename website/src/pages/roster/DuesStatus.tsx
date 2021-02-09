@@ -12,7 +12,7 @@ import {
 import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
 
-interface DuesStatusProps {
+interface DuesStatusProps extends React.HTMLAttributes<HTMLDivElement> {
   member: IMember;
   membership: IMembership;
 }

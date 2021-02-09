@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import styles from './Payments.module.css';
 import React, { useState } from 'react';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
@@ -130,21 +131,21 @@ export default function Payments() {
         <h2 className="mb-3">Payments</h2>
       </Row>
 
-      <div className="d-flex mb-3">
-        <div className="flex-grow-1">
+      <Row className="flex-wrap-reverse">
+        <Col className="mb-3">
           <Form.Control
             type="search"
             placeholder="Search&hellip;"
             value={filter.string}
             onChange={e => updateFilterString(e.target.value)}
           />
-        </div>
-        <div className="ml-3 flex-shrink-1">
+        </Col>
+        <Col md="auto" className="text-right mb-3">
           <Button onClick={() => setShowNewChargeModal(true)}>
             New Charge
           </Button>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       <Row>
         <Col lg={3}>
@@ -291,7 +292,12 @@ const ChargeDetailsModal = withRouter((props: ChargeDetailsModalProps) => {
     : undefined;
   const member = charge ? server.model.members[charge.memberId] : undefined;
   return (
-    <Modal size="lg" show={!!props.match.params.chargeId} onHide={close}>
+    <Modal
+      size="lg"
+      show={!!props.match.params.chargeId}
+      onHide={close}
+      dialogClassName={styles['min-dialog']}
+    >
       <ChargeDetails member={member} charge={charge} onHide={close} />
     </Modal>
   );

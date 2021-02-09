@@ -43,8 +43,8 @@ export default function AttendanceHistoryRow(props: AttendanceHistoryRowProps) {
     <Container className={'list-group-item'}>
       <Row>
         <Col xs={4}>{props.member.name}</Col>
-        <Col xs={3}>{props.member.id}</Col>
-        <Col xs={5}>
+        <Col xs={2}>{props.member.id}</Col>
+        <Col xs={6}>
           <ProgressBar>
             {!!attendanceHistory.present && (
               <ProgressBar

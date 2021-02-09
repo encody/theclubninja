@@ -32,6 +32,25 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
     }
   };
 
+  const unregisterAttendance = async () => {
+    if (attendanceRecord) {
+      const memberTerm = props.member.terms[server.term]!;
+      memberTerm.attendance = memberTerm.attendance.filter(
+        a => a !== attendanceRecord,
+      );
+      if (
+        await server.setMembers({
+          [props.member.id]: props.member,
+        })
+      ) {
+        return true;
+      } else {
+        // TODO: Alert failure
+        return false;
+      }
+    }
+  };
+
   const sendAttendanceToServer = async (
     credit: string | null,
     note: string,
@@ -83,8 +102,8 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
     <Container className={'list-group-item'}>
       <Row>
         <Col xs={4}>{props.member.name}</Col>
-        <Col xs={3}>{props.member.id}</Col>
-        <Col xs={5}>
+        <Col xs={2}>{props.member.id}</Col>
+        <Col xs={6}>
           {/* Check-in buttons */}
           {props.membership.useDetailedAttendance ? (
             <ButtonGroup>
@@ -134,8 +153,12 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
               </Button>
             </ButtonGroup>
           ) : attendanceRecord ? (
-            <Button variant="success" size="sm" disabled>
-              <Icon.UserCheck size={18} className="mr-1" /> Check In
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => unregisterAttendance()}
+            >
+              <Icon.UserCheck size={18} className="mr-1" /> Checked In
             </Button>
           ) : (
             <>
@@ -149,7 +172,11 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
             </>
           )}{' '}
           {/* Dues status indicators */}
-          <DuesStatus member={props.member} membership={props.membership} />
+          <DuesStatus
+            className="text-right"
+            member={props.member}
+            membership={props.membership}
+          />
         </Col>
       </Row>
 

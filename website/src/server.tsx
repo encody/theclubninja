@@ -233,8 +233,15 @@ function useProvideServer(): IServer {
       memberships,
       charges,
     };
-    const t = mostRecentTerm(model.terms).id;
-    setTerm(t);
+    if (term === '') {
+      const l = localStorage.getItem('term');
+      if (l) {
+        setTerm(l);
+      } else {
+        const t = mostRecentTerm(model.terms).id;
+        setTerm(t);
+      }
+    }
     setModel(model);
 
     nonBlocking.delete('updateModel');

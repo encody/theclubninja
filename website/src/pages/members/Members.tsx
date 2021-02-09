@@ -41,31 +41,35 @@ export default function Members() {
         <h2 className="mb-3">Members</h2>
       </Row>
 
-      <div className="d-flex mb-3">
-        <div className="flex-grow-1">
+      <Row className="flex-wrap-reverse">
+        <Col>
           <Form.Control
             type="search"
             placeholder="Search&hellip;"
             value={filter}
             onChange={e => updateFilter(e.target.value)}
           />
-        </div>
-        <div className="ml-3 flex-shrink-1">
-          <Button onClick={() => setShowNewMemberModal(true)} className="mr-3">
+        </Col>
+        <Col md="auto" className="text-right mb-3">
+          <Button
+            onClick={() => setShowNewMemberModal(true)}
+            variant="success"
+            className="mr-3"
+          >
             New Member
           </Button>
           <Button onClick={() => setShowInactiveMemberModal(true)}>
             Inactive Members
           </Button>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       <ListGroup>
         <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
           <Row className="font-weight-bold">
             <Col xs={5}>Name</Col>
-            <Col xs={3}>Account ID</Col>
-            <Col xs={2}>Memberships</Col>
+            <Col xs={2}>Account ID</Col>
+            <Col xs={3}>Memberships</Col>
             <Col xs={2}>Type</Col>
           </Row>
         </ListGroup.Item>

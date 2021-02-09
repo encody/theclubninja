@@ -1,3 +1,7 @@
 .row {
   margin-bottom: 16px;
 }
+
+.min-dialog {
+  min-width: 400px;
+}

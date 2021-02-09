@@ -25,9 +25,8 @@ export default function MemberRow(props: MemberRowProps) {
     >
       <Row>
         <Col xs={5}>{props.member.name}</Col>
-        <Col xs={3}>{props.member.id}</Col>
-        <Col xs={2}>
-          {/* TODO: Check membership or something here */}
+        <Col xs={2}>{props.member.id}</Col>
+        <Col xs={3}>
           {membershipsOrder
             .flatMap(m =>
               hasMembership(props.member, m.id, server.term) ? [m.name] : [],

@@ -10,6 +10,7 @@ import { hasMembership, IMember, isActiveMember } from '../../model/Member';
 import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
 import AddMemberModal from '../../shared/AddMemberModal';
+import NewMemberModal from '../../shared/NewMemberModal';
 import AttendanceHistoryRow from './AttendanceHistoryRow';
 import CheckInRow from './CheckInRow';
 import ManageRow from './ManageRow';
@@ -34,18 +35,11 @@ export default function Roster(props: RosterProps) {
   const [filter, setFilter] = useState('');
   let filteredMembers = getFilteredMembers();
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [showNewMemberModal, setShowNewMemberModal] = useState(false);
 
   const updateFilter = (filterString: string) => {
     setFilter(filterString);
     filteredMembers = getFilteredMembers();
-  };
-
-  const openAddMemberModal = () => {
-    setShowAddMemberModal(true);
-  };
-
-  const closeAddMemberModal = () => {
-    setShowAddMemberModal(false);
   };
 
   return (
@@ -54,19 +48,28 @@ export default function Roster(props: RosterProps) {
         <h2 className="mb-3">{props.membership.name}</h2>
       </Row>
 
-      <div className="d-flex mb-3">
-        <div className="flex-grow-1">
+      <Row className="flex-wrap-reverse">
+        <Col className="mb-3">
           <Form.Control
             type="search"
             placeholder="Search&hellip;"
             value={filter}
             onChange={e => updateFilter(e.target.value)}
           />
-        </div>
-        <div className="ml-3 flex-shrink-1">
-          <Button onClick={() => openAddMemberModal()}>Add Member</Button>
-        </div>
-      </div>
+        </Col>
+        <Col md="auto" className="text-right mb-3">
+          <Button
+            onClick={() => setShowNewMemberModal(true)}
+            variant="success"
+            className="mr-3"
+          >
+            New Member
+          </Button>
+          <Button onClick={() => setShowAddMemberModal(true)}>
+            Add Members
+          </Button>
+        </Col>
+      </Row>
 
       <Tabs id="teamCheckIn" defaultActiveKey="checkin">
         <Tab eventKey="checkin" title="Check-In">
@@ -74,8 +77,8 @@ export default function Roster(props: RosterProps) {
             <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
               <Row className="font-weight-bold">
                 <Col xs={4}>Name</Col>
-                <Col xs={3}>Account ID</Col>
-                <Col xs={5}>Check-In</Col>
+                <Col xs={2}>Account ID</Col>
+                <Col xs={6}>Check-In</Col>
               </Row>
             </ListGroup.Item>
             {filteredMembers.map(member => (
@@ -93,8 +96,8 @@ export default function Roster(props: RosterProps) {
               <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
                 <Row className="font-weight-bold">
                   <Col xs={4}>Name</Col>
-                  <Col xs={3}>Account ID</Col>
-                  <Col xs={5}>History</Col>
+                  <Col xs={2}>Account ID</Col>
+                  <Col xs={6}>History</Col>
                 </Row>
               </ListGroup.Item>
               {filteredMembers.map(member => (
@@ -112,8 +115,8 @@ export default function Roster(props: RosterProps) {
             <ListGroup.Item className="border-top-0 border-left-0 border-right-0">
               <Row className="font-weight-bold">
                 <Col xs={4}>Name</Col>
-                <Col xs={3}>Account ID</Col>
-                <Col xs={5}>Actions</Col>
+                <Col xs={2}>Account ID</Col>
+                <Col xs={6}>Actions</Col>
               </Row>
             </ListGroup.Item>
             {filteredMembers.map(member => (
@@ -133,8 +136,12 @@ export default function Roster(props: RosterProps) {
         </div>
       )}
 
+      <NewMemberModal
+        show={showNewMemberModal}
+        onClose={() => setShowNewMemberModal(false)}
+      />
       <AddMemberModal
-        title="Add Members to Team Roster"
+        title={`Add Members to ${props.membership.name} Roster`}
         members={Object.values(server.model.members).filter(
           m =>
             isActiveMember(m, server.term) &&
@@ -157,7 +164,7 @@ export default function Roster(props: RosterProps) {
             return false;
           }
         }}
-        onClose={() => closeAddMemberModal()}
+        onClose={() => setShowAddMemberModal(false)}
         show={showAddMemberModal}
       />
     </>
