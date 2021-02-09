@@ -29,10 +29,10 @@ export function hasPaidForTerm(
 
   return (
     term.ledger.length > 0 &&
-    term.ledger.every(chargeId => {
-      const charge = allCharges[chargeId];
-      return !!charge && charge.chargeType === chargeType && isPaid(charge);
-    })
+    term.ledger
+      .map(id => allCharges[id])
+      .filter(c => !!c && c.chargeType === chargeType)
+      .every(isPaid)
   );
 }
 export function getUnpaid(
