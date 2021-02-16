@@ -1,9 +1,9 @@
 import React from 'react';
-import Accordion from 'react-bootstrap/Accordion';
-import Card from 'react-bootstrap/Card';
-import Col from 'react-bootstrap/Col';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Row from 'react-bootstrap/Row';
+import Accordion from 'react-bootstrap/esm/Accordion';
+import Card from 'react-bootstrap/esm/Card';
+import Col from 'react-bootstrap/esm/Col';
+import ListGroup from 'react-bootstrap/esm/ListGroup';
+import Row from 'react-bootstrap/esm/Row';
 import { ICharge } from '../../model/Charge';
 import { IMember } from '../../model/Member';
 import PaymentRow from './PaymentRow';
@@ -19,7 +19,6 @@ export default function PaymentMemberOverview(
   return (
     <Card>
       <Accordion.Toggle
-        className="cursor-pointer"
         as={Card.Header}
         eventKey={props.member.id}
         style={{ cursor: 'pointer' }}

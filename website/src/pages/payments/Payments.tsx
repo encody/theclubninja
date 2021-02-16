@@ -1,14 +1,17 @@
+import { writeToString } from '@fast-csv/format';
 import { DateTime } from 'luxon';
-import styles from './Payments.module.css';
 import React, { useState } from 'react';
-import Accordion from 'react-bootstrap/Accordion';
-import Card from 'react-bootstrap/Card';
-import Col from 'react-bootstrap/Col';
+import Accordion from 'react-bootstrap/esm/Accordion';
 import Button from 'react-bootstrap/esm/Button';
+import Card from 'react-bootstrap/esm/Card';
+import Col from 'react-bootstrap/esm/Col';
+import Form from 'react-bootstrap/esm/Form';
+import ListGroup from 'react-bootstrap/esm/ListGroup';
 import Modal from 'react-bootstrap/esm/Modal';
-import Form from 'react-bootstrap/Form';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Row from 'react-bootstrap/Row';
+import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
+import Row from 'react-bootstrap/esm/Row';
+import Tooltip from 'react-bootstrap/esm/Tooltip';
+import * as Icon from 'react-feather';
 import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
 import { hasPayment, ICharge, isOverdue, isPaid } from '../../model/Charge';
 import { isActiveMember } from '../../model/Member';
@@ -17,6 +20,7 @@ import SpinnyBox from '../../shared/SpinnyBox';
 import { ChargeDetails } from './ChargeDetails';
 import NewChargeModal from './NewChargeModal';
 import PaymentMemberOverview from './PaymentMemberOverview';
+import styles from './Payments.module.css';
 import { PaymentStatusBadge } from './PaymentStatusBadge';
 
 interface PaymentsFilter {
@@ -27,6 +31,7 @@ interface PaymentsFilter {
   pending: boolean;
   after: number | null;
   before: number | null;
+  user: string;
 }
 
 export default function Payments() {
@@ -40,6 +45,7 @@ export default function Payments() {
     pending: true,
     after: null,
     before: null,
+    user: '',
   } as PaymentsFilter);
   const [showNewChargeModal, setShowNewChargeModal] = useState(false);
 
@@ -62,6 +68,12 @@ export default function Payments() {
     const chargeIsPaid = isPaid(charge),
       chargeIsOverdue = isOverdue(charge),
       chargeHasPayment = hasPayment(charge);
+    const filterUser = filter.user.trim().toLowerCase();
+    const hasPaymentMatchingUser =
+      filterUser === '' ||
+      charge.payments.some(p =>
+        p.enteredByUserId?.toLowerCase().includes(filterUser),
+      );
     return (
       ((chargeIsPaid && filter.paid) ||
         (chargeIsOverdue && filter.overdue) ||
@@ -70,6 +82,7 @@ export default function Payments() {
           !chargeIsOverdue &&
           !chargeHasPayment &&
           filter.pending)) &&
+      hasPaymentMatchingUser &&
       (!!filter.after
         ? charge.payments.some(payment => filter.after! < payment.timestamp)
         : true) &&
@@ -125,10 +138,94 @@ export default function Payments() {
     return <SpinnyBox />;
   }
 
+  const runExport = async () => {
+    const a = document.createElement('a');
+    const items = Object.values(server.model.members)
+      .filter(m => isActiveMember(m, server.term))
+      .flatMap(
+        member =>
+          member.terms[server.term]?.ledger.flatMap(cid => {
+            const charge = server.model.charges[cid];
+            return (
+              charge?.payments.map(payment => ({
+                member,
+                charge,
+                payment,
+              })) ?? []
+            );
+          }) ?? [],
+      )
+      .map(entry => [
+        entry.member.id,
+        entry.member.institutionId,
+        entry.member.name,
+        entry.member.email,
+        entry.charge.id,
+        entry.charge.chargeType,
+        entry.charge.value,
+        DateTime.fromMillis(entry.charge.start).toISODate(),
+        DateTime.fromMillis(entry.charge.end).toISODate(),
+        entry.charge.note,
+        entry.payment.id,
+        entry.payment.value,
+        DateTime.fromMillis(entry.payment.timestamp).toISODate(),
+        entry.payment.type,
+        entry.payment.enteredByUserId,
+        entry.payment.reference,
+        entry.payment.status,
+      ]);
+
+    const headers = [
+      'Member ID',
+      'Member Institution ID',
+      'Member Name',
+      'Member Email',
+      'Charge ID',
+      'Charge Type',
+      'Charge Value',
+      'Charge Created Date',
+      'Charge Due Date',
+      'Charge Note',
+      'Payment ID',
+      'Payment Value',
+      'Payment Date',
+      'Payment Type',
+      'Payment User',
+      'Payment Reference',
+      'Payment Status',
+    ];
+
+    const csvText = await writeToString(items, {
+      headers,
+    });
+
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvText);
+    const fname =
+      'payments-' + server.term + '-' + DateTime.local().toISODate() + '.csv';
+
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <>
       <Row as="header">
         <h2 className="mb-3">Payments</h2>
+        <OverlayTrigger
+          placement="left"
+          overlay={<Tooltip id="payments-export-tooltip">Export</Tooltip>}
+        >
+          <Button
+            className="ml-auto"
+            variant="link"
+            size="sm"
+            onClick={() => runExport()}
+          >
+            <Icon.Download />
+          </Button>
+        </OverlayTrigger>
       </Row>
 
       <Row className="flex-wrap-reverse">
@@ -149,101 +246,133 @@ export default function Payments() {
 
       <Row>
         <Col lg={3}>
-          <Card className="mb-2">
-            <Card.Header>Filters</Card.Header>
-            {/* payment status filters */}
-            <ListGroup variant="flush">
-              <ListGroup.Item>
-                <Form.Check
-                  custom
-                  type="checkbox"
-                  label={<PaymentStatusBadge variant="overdue" />}
-                  id="overdue-checkbox"
-                  checked={filter.overdue}
-                  onChange={() => updateFilter('overdue', !filter.overdue)}
-                />
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Form.Check
-                  custom
-                  type="checkbox"
-                  label={<PaymentStatusBadge variant="pending" />}
-                  id="pending-checkbox"
-                  checked={filter.pending}
-                  onChange={() => updateFilter('pending', !filter.pending)}
-                />
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Form.Check
-                  custom
-                  type="checkbox"
-                  label={<PaymentStatusBadge variant="partial" />}
-                  id="partial-checkbox"
-                  checked={filter.partial}
-                  onChange={() => updateFilter('partial', !filter.partial)}
-                />
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Form.Check
-                  custom
-                  type="checkbox"
-                  label={<PaymentStatusBadge variant="paid" />}
-                  id="paid-checkbox"
-                  checked={filter.paid}
-                  onChange={() => updateFilter('paid', !filter.paid)}
-                />
-              </ListGroup.Item>
-            </ListGroup>
-            {/* payment date filters */}
-            <ListGroup variant="flush">
-              <ListGroup.Item>
-                <Form.Label
-                  htmlFor="payments-date-after"
-                  className="text-muted"
-                >
-                  <small>Payments after</small>
-                </Form.Label>
-                <Form.Control
-                  id="payments-date-after"
-                  type="date"
-                  value={
-                    !!filter.after
-                      ? DateTime.fromMillis(filter.after).toISODate()
-                      : ''
-                  }
-                  onChange={e =>
-                    updateFilter(
-                      'after',
-                      DateTime.fromISO(e.target.value).toMillis(),
-                    )
-                  }
-                />
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Form.Label
-                  htmlFor="payments-date-before"
-                  className="text-muted"
-                >
-                  <small>Payments before</small>
-                </Form.Label>
-                <Form.Control
-                  id="payments-date-before"
-                  type="date"
-                  value={
-                    !!filter.before
-                      ? DateTime.fromMillis(filter.before).toISODate()
-                      : ''
-                  }
-                  onChange={e =>
-                    updateFilter(
-                      'before',
-                      DateTime.fromISO(e.target.value).toMillis(),
-                    )
-                  }
-                />
-              </ListGroup.Item>
-            </ListGroup>
-          </Card>
+          <Accordion defaultActiveKey="payments-filters">
+            <Card className="mb-2">
+              <Accordion.Toggle
+                as={Card.Header}
+                eventKey="payments-filters"
+                style={{ cursor: 'pointer' }}
+              >
+                <Icon.Filter size={18} /> Filters
+              </Accordion.Toggle>
+              <Accordion.Collapse eventKey="payments-filters">
+                <>
+                  {/* payment status filters */}
+                  <ListGroup variant="flush">
+                    <ListGroup.Item>
+                      <Form.Check
+                        custom
+                        type="checkbox"
+                        label={<PaymentStatusBadge variant="overdue" />}
+                        id="overdue-checkbox"
+                        checked={filter.overdue}
+                        onChange={() =>
+                          updateFilter('overdue', !filter.overdue)
+                        }
+                      />
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                      <Form.Check
+                        custom
+                        type="checkbox"
+                        label={<PaymentStatusBadge variant="pending" />}
+                        id="pending-checkbox"
+                        checked={filter.pending}
+                        onChange={() =>
+                          updateFilter('pending', !filter.pending)
+                        }
+                      />
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                      <Form.Check
+                        custom
+                        type="checkbox"
+                        label={<PaymentStatusBadge variant="partial" />}
+                        id="partial-checkbox"
+                        checked={filter.partial}
+                        onChange={() =>
+                          updateFilter('partial', !filter.partial)
+                        }
+                      />
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                      <Form.Check
+                        custom
+                        type="checkbox"
+                        label={<PaymentStatusBadge variant="paid" />}
+                        id="paid-checkbox"
+                        checked={filter.paid}
+                        onChange={() => updateFilter('paid', !filter.paid)}
+                      />
+                    </ListGroup.Item>
+                    {/* payment date filters */}
+                    <ListGroup.Item>
+                      <Form.Label
+                        htmlFor="payments-date-after"
+                        className="text-muted"
+                      >
+                        <small>Payments after</small>
+                      </Form.Label>
+                      <Form.Control
+                        id="payments-date-after"
+                        type="date"
+                        value={
+                          !!filter.after
+                            ? DateTime.fromMillis(filter.after).toISODate()
+                            : ''
+                        }
+                        onChange={e =>
+                          updateFilter(
+                            'after',
+                            DateTime.fromISO(e.target.value).toMillis(),
+                          )
+                        }
+                      />
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                      <Form.Label
+                        htmlFor="payments-date-before"
+                        className="text-muted"
+                      >
+                        <small>Payments before</small>
+                      </Form.Label>
+                      <Form.Control
+                        id="payments-date-before"
+                        type="date"
+                        value={
+                          !!filter.before
+                            ? DateTime.fromMillis(filter.before).toISODate()
+                            : ''
+                        }
+                        onChange={e =>
+                          updateFilter(
+                            'before',
+                            DateTime.fromISO(e.target.value).toMillis(),
+                          )
+                        }
+                      />
+                    </ListGroup.Item>
+                    {/* payment user filter */}
+                    <ListGroup.Item>
+                      <Form.Label
+                        htmlFor="payments-user"
+                        className="text-muted"
+                      >
+                        <small>Payments created by user</small>
+                      </Form.Label>
+                      <Form.Control
+                        id="payments-user"
+                        placeholder="name@example.com"
+                        type="text"
+                        value={filter.user}
+                        onChange={e => updateFilter('user', e.target.value)}
+                      />
+                    </ListGroup.Item>
+                  </ListGroup>
+                </>
+              </Accordion.Collapse>
+            </Card>
+          </Accordion>
         </Col>
 
         <Col lg={9}>

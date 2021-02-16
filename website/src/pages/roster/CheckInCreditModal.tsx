@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Dropdown from 'react-bootstrap/Dropdown';
-import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
+import Alert from 'react-bootstrap/esm/Alert';
+import Button from 'react-bootstrap/esm/Button';
+import ButtonGroup from 'react-bootstrap/esm/ButtonGroup';
+import Dropdown from 'react-bootstrap/esm/Dropdown';
+import Form from 'react-bootstrap/esm/Form';
+import Modal from 'react-bootstrap/esm/Modal';
+import * as Icon from 'react-feather';
 import { ICreditType } from '../../model/CreditType';
-import { IMember } from '../../model/Member';
+import { hasPaidForTerm, IMember } from '../../model/Member';
+import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
 
 interface CheckInCreditModalProps {
   member: IMember;
+  membership: IMembership;
   show: boolean;
   onClose: () => void;
   onSubmit: (credit: string | null, note: string) => Promise<boolean>;
@@ -48,13 +52,13 @@ export default function CheckInCreditModal(props: CheckInCreditModalProps) {
         <Form>
           <Button
             size="lg"
-            className="mx-2"
+            className="my-1 mr-2"
             active={useCredit === false}
             onClick={() => setUseCredit(false)}
           >
             Paid Attendance
           </Button>
-          <Dropdown as={ButtonGroup} className="mx-2">
+          <Dropdown as={ButtonGroup} className="my-1">
             <Button
               size="lg"
               variant="success"
@@ -91,6 +95,20 @@ export default function CheckInCreditModal(props: CheckInCreditModalProps) {
               })}
             </Dropdown.Menu>
           </Dropdown>
+
+          {useCredit === false &&
+            !hasPaidForTerm(
+              props.member,
+              props.membership.duesId,
+              server.model.charges,
+              server.term,
+            ) && (
+              <Alert variant="warning" className="mt-2">
+                <Icon.AlertTriangle size={18} /> This member has not yet paid
+                their dues for this attendance.
+              </Alert>
+            )}
+
           <hr />
           <Form.Group controlId="clubCheckInModal_textarea">
             <Form.Label>

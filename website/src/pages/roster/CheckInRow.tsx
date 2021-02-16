@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
+import Button from 'react-bootstrap/esm/Button';
+import ButtonGroup from 'react-bootstrap/esm/ButtonGroup';
+import Col from 'react-bootstrap/esm/Col';
+import Container from 'react-bootstrap/esm/Container';
+import Row from 'react-bootstrap/esm/Row';
 import * as Icon from 'react-feather';
 import { AttendanceType, IAttendance } from '../../model/Attendance';
 import { IMember } from '../../model/Member';
@@ -184,6 +184,7 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
 
       <CheckInCreditModal
         member={props.member}
+        membership={props.membership}
         show={showCheckInCreditModal}
         onClose={() => setShowCheckInCreditModal(false)}
         onSubmit={sendAttendanceToServer}

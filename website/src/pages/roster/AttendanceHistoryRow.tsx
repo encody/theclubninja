@@ -1,8 +1,8 @@
 import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
-import ProgressBar from 'react-bootstrap/ProgressBar';
-import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/esm/Col';
+import Container from 'react-bootstrap/esm/Container';
+import ProgressBar from 'react-bootstrap/esm/ProgressBar';
+import Row from 'react-bootstrap/esm/Row';
 import { IMember } from '../../model/Member';
 import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';

@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from 'react-bootstrap/Button';
+import Button from 'react-bootstrap/esm/Button';
 import { Redirect } from 'react-router-dom';
 import { useServer } from '../server';
 

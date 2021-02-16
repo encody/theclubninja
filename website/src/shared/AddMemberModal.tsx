@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Modal from 'react-bootstrap/Modal';
-import Row from 'react-bootstrap/Row';
+import Button from 'react-bootstrap/esm/Button';
+import Col from 'react-bootstrap/esm/Col';
+import Form from 'react-bootstrap/esm/Form';
+import ListGroup from 'react-bootstrap/esm/ListGroup';
+import Modal from 'react-bootstrap/esm/Modal';
+import Row from 'react-bootstrap/esm/Row';
 import * as Icon from 'react-feather';
 import { IMember } from '../model/Member';
 

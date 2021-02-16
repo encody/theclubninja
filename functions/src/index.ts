@@ -208,6 +208,10 @@ router.post('/sendInvoice', async (ctx, next) => {
         ],
       };
 
+      const { email: userEmail } = await admin
+        .auth()
+        .getUser((ctx.state.profile as IUserProfile).id);
+
       const payment: IPayment = {
         id: paymentId,
         chargeId,
@@ -215,6 +219,7 @@ router.post('/sendInvoice', async (ctx, next) => {
         type: PaymentType.Online,
         value: amount,
         reference: invoice.id,
+        enteredByUserId: userEmail,
       };
 
       try {

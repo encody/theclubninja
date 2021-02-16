@@ -1,6 +1,6 @@
 import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/esm/Col';
+import Row from 'react-bootstrap/esm/Row';
 import { Link } from 'react-router-dom';
 import { hasMembership, IMember } from '../../model/Member';
 import { useServer } from '../../server';

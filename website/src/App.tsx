@@ -1,5 +1,5 @@
 import React from 'react';
-import Container from 'react-bootstrap/Container';
+import Container from 'react-bootstrap/esm/Container';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Navbar from './navbar/Navbar';
 import Members from './pages/members/Members';

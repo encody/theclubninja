@@ -1,10 +1,12 @@
+import * as Icon from 'react-feather';
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Modal from 'react-bootstrap/Modal';
-import Row from 'react-bootstrap/Row';
+import Button from 'react-bootstrap/esm/Button';
+import Col from 'react-bootstrap/esm/Col';
+import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
+import Form from 'react-bootstrap/esm/Form';
+import ListGroup from 'react-bootstrap/esm/ListGroup';
+import Modal from 'react-bootstrap/esm/Modal';
+import Row from 'react-bootstrap/esm/Row';
 import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
 import { IMember, isActiveMember } from '../../model/Member';
 import { useServer } from '../../server';
@@ -12,6 +14,9 @@ import AddMemberModal from '../../shared/AddMemberModal';
 import NewMemberModal from '../../shared/NewMemberModal';
 import MemberDetails from './MemberDetails';
 import MemberRow from './MemberRow';
+import Tooltip from 'react-bootstrap/esm/Tooltip';
+import { DateTime } from 'luxon';
+import { writeToString } from '@fast-csv/format';
 
 export default function Members() {
   const server = useServer();
@@ -35,10 +40,64 @@ export default function Members() {
     filteredMembers = getFilteredMembers();
   };
 
+  const runExport = async () => {
+    const a = document.createElement('a');
+    const items = Object.values(server.model.members)
+      .filter(m => isActiveMember(m, server.term))
+      .map(member => [
+        member.id,
+        member.institutionId,
+        member.name,
+        member.email,
+        member.memberType,
+        member.graduationYear,
+        member.referralMember,
+        member.source,
+      ]);
+
+    const headers = [
+      'Member ID',
+      'Member Institution ID',
+      'Member Name',
+      'Member Email',
+      'Member Type',
+      'Member Graduation Year',
+      'Member Referral Member ID',
+      'Member Source',
+    ];
+
+    const csvText = await writeToString(items, {
+      headers,
+    });
+
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvText);
+    const fname =
+      'members-' + server.term + '-' + DateTime.local().toISODate() + '.csv';
+
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <>
       <Row as="header">
         <h2 className="mb-3">Members</h2>
+
+        <OverlayTrigger
+          placement="left"
+          overlay={<Tooltip id="payments-export-tooltip">Export</Tooltip>}
+        >
+          <Button
+            className="ml-auto"
+            variant="link"
+            size="sm"
+            onClick={() => runExport()}
+          >
+            <Icon.Download />
+          </Button>
+        </OverlayTrigger>
       </Row>
 
       <Row className="flex-wrap-reverse">

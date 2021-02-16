@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Row from 'react-bootstrap/Row';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
+import Button from 'react-bootstrap/esm/Button';
+import Col from 'react-bootstrap/esm/Col';
+import Form from 'react-bootstrap/esm/Form';
+import ListGroup from 'react-bootstrap/esm/ListGroup';
+import Row from 'react-bootstrap/esm/Row';
+import Tab from 'react-bootstrap/esm/Tab';
+import Tabs from 'react-bootstrap/esm/Tabs';
 import { hasMembership, IMember, isActiveMember } from '../../model/Member';
 import { IMembership } from '../../model/Membership';
 import { useServer } from '../../server';
@@ -66,7 +66,7 @@ export default function Roster(props: RosterProps) {
             New Member
           </Button>
           <Button onClick={() => setShowAddMemberModal(true)}>
-            Add Members
+            Existing Members
           </Button>
         </Col>
       </Row>

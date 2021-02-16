@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
+import ButtonGroup from 'react-bootstrap/esm/ButtonGroup';
+import Dropdown from 'react-bootstrap/esm/Dropdown';
+import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import Button from 'react-bootstrap/esm/Button';
-import FormControl from 'react-bootstrap/FormControl';
+import FormControl from 'react-bootstrap/esm/FormControl';
 import { IMember } from '../model/Member';
 import { useServer } from '../server';
 import * as Icon from 'react-feather';

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import Table from 'react-bootstrap/Table';
+import Modal from 'react-bootstrap/esm/Modal';
+import Table from 'react-bootstrap/esm/Table';
 import { IMember } from '../../model/Member';
 
 interface MemberDetailsProps {

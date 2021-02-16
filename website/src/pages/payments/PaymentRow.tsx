@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/esm/Col';
+import Row from 'react-bootstrap/esm/Row';
 import { Link } from 'react-router-dom';
 import { ICharge } from '../../model/Charge';
 import { IMember } from '../../model/Member';

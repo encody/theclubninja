@@ -1,16 +1,16 @@
 import { DateTime } from 'luxon';
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/esm/Button';
+import Col from 'react-bootstrap/esm/Col';
+import Container from 'react-bootstrap/esm/Container';
 import Spinner from 'react-bootstrap/esm/Spinner';
 import Tooltip from 'react-bootstrap/esm/Tooltip';
-import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import Row from 'react-bootstrap/Row';
-import Table from 'react-bootstrap/Table';
+import Form from 'react-bootstrap/esm/Form';
+import Modal from 'react-bootstrap/esm/Modal';
+import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
+import Popover from 'react-bootstrap/esm/Popover';
+import Row from 'react-bootstrap/esm/Row';
+import Table from 'react-bootstrap/esm/Table';
 import * as Icon from 'react-feather';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import * as uuid from 'uuid';
@@ -169,22 +169,24 @@ export const ChargeDetails = withRouter(
                               View
                             </a>
                           ) : payment.type === PaymentType.Online ? (
-                            <OverlayTrigger
-                              placement="top"
-                              overlay={
-                                <Tooltip
-                                  id={'ChargeDetails_Processing' + payment.id}
-                                >
-                                  Processing.
-                                </Tooltip>
-                              }
-                            >
-                              <Icon.Clock className="text-info" size={16} />
-                            </OverlayTrigger>
+                            <>
+                              <OverlayTrigger
+                                placement="top"
+                                overlay={
+                                  <Tooltip
+                                    id={'ChargeDetails_Processing' + payment.id}
+                                  >
+                                    Processing.
+                                  </Tooltip>
+                                }
+                              >
+                                <Icon.Clock className="text-info" size={16} />
+                              </OverlayTrigger>
+                              <ExternalPaymentStatusIcon payment={payment} />
+                            </>
                           ) : (
                             <span className="text-muted">N/A</span>
-                          )}{' '}
-                          <ExternalPaymentStatusIcon payment={payment} />
+                          )}
                         </td>
                         <td>
                           {payment.enteredByUserId ? (
@@ -224,11 +226,11 @@ export const ChargeDetails = withRouter(
                       <tr>
                         <td colSpan={5}>
                           <Container fluid>
-                            <Form inline>
-                              <Row>
-                                <Col sm className="m-1">
+                            <Form inline className="text-right">
+                              <Row className="no-gutters w-100">
+                                <Col lg={4} className="m-1">
                                   <CurrencyInput
-                                    className="form-control"
+                                    className="form-control w-100"
                                     placeholder="Amount"
                                     autoFocus
                                     value={newPaymentValue}
@@ -239,22 +241,24 @@ export const ChargeDetails = withRouter(
                                     }
                                   />
                                 </Col>
-                                <Col sm className="m-1">
+                                <Col lg className="m-1">
                                   <Form.Control
                                     placeholder="Reference link (optional)"
                                     type="url"
                                     value={newPaymentReference}
+                                    className="w-100"
                                     onChange={e =>
                                       setNewPaymentReference(e.target.value)
                                     }
                                   />
                                 </Col>
-                                <Col sm className="m-1">
+                                <Col lg="auto" className="m-1">
                                   <Button
-                                    className="mx-1"
+                                    className="mr-1"
                                     onClick={async () => {
                                       setIsAddingPayment(false);
                                       setIsAwaitingAddingPayment(true);
+                                      // TODO: Check server-side
                                       props.charge!.payments.push({
                                         id: uuid.v4(),
                                         chargeId: props.charge!.id,
@@ -263,6 +267,7 @@ export const ChargeDetails = withRouter(
                                         value: newPaymentValue,
                                         enteredByUserId: server.user!.email!,
                                         reference: newPaymentReference,
+                                        status: 'paid',
                                       });
                                       if (
                                         await server.setCharges({
@@ -279,7 +284,7 @@ export const ChargeDetails = withRouter(
                                     Add
                                   </Button>
                                   <Button
-                                    className="mx-1"
+                                    className="ml-1"
                                     variant="secondary"
                                     onClick={() => setIsAddingPayment(false)}
                                   >

@@ -1,11 +1,11 @@
 import { DateTime } from 'luxon';
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
-import Row from 'react-bootstrap/Row';
+import Button from 'react-bootstrap/esm/Button';
+import Col from 'react-bootstrap/esm/Col';
+import Container from 'react-bootstrap/esm/Container';
+import Form from 'react-bootstrap/esm/Form';
+import Modal from 'react-bootstrap/esm/Modal';
+import Row from 'react-bootstrap/esm/Row';
 import * as uuid from 'uuid';
 import { ICharge } from '../model/Charge';
 import { IMember } from '../model/Member';

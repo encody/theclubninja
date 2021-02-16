@@ -1,5 +1,5 @@
 import React from 'react';
-import Alert from 'react-bootstrap/Alert';
+import Alert from 'react-bootstrap/esm/Alert';
 import { hasPayment, ICharge, isOverdue, isPaid } from '../../model/Charge';
 
 export function PaymentStatusAlert(props: { charge: ICharge }) {

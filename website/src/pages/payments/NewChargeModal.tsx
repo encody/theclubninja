@@ -1,11 +1,11 @@
 import { DateTime } from 'luxon';
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/esm/Button';
+import Col from 'react-bootstrap/esm/Col';
 import Container from 'react-bootstrap/esm/Container';
-import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
-import Row from 'react-bootstrap/Row';
+import Form from 'react-bootstrap/esm/Form';
+import Modal from 'react-bootstrap/esm/Modal';
+import Row from 'react-bootstrap/esm/Row';
 import * as uuid from 'uuid';
 import { ICharge } from '../../model/Charge';
 import { IMember, isActiveMember } from '../../model/Member';
@@ -48,7 +48,12 @@ export default function NewChargeModal(props: NewChargeModalProps) {
   };
 
   return (
-    <Modal size="lg" show={props.show} onHide={props.onClose} dialogClassName={styles['min-dialog']}>
+    <Modal
+      size="lg"
+      show={props.show}
+      onHide={props.onClose}
+      dialogClassName={styles['min-dialog']}
+    >
       <Modal.Header closeButton>
         <Modal.Title>New Charge</Modal.Title>
       </Modal.Header>
@@ -170,9 +175,9 @@ export default function NewChargeModal(props: NewChargeModalProps) {
               chargeType: chargeType,
               value: amount,
             };
-            server.model.members[member!.id].terms[
-              server.term
-            ]!.ledger.push(newCharge.id);
+            server.model.members[member!.id].terms[server.term]!.ledger.push(
+              newCharge.id,
+            );
             if (
               await Promise.all([
                 server.setCharges(
@@ -183,8 +188,7 @@ export default function NewChargeModal(props: NewChargeModalProps) {
                 ),
                 server.setMembers(
                   {
-                    [member!.id]:
-                      server.model.members[member!.id],
+                    [member!.id]: server.model.members[member!.id],
                   },
                   true,
                 ),

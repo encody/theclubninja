@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import Nav from 'react-bootstrap/Nav';
-import BootstrapNavbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Spinner from 'react-bootstrap/Spinner';
-import Tooltip from 'react-bootstrap/Tooltip';
+import Nav from 'react-bootstrap/esm/Nav';
+import BootstrapNavbar from 'react-bootstrap/esm/Navbar';
+import NavDropdown from 'react-bootstrap/esm/NavDropdown';
+import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
+import Spinner from 'react-bootstrap/esm/Spinner';
+import Tooltip from 'react-bootstrap/esm/Tooltip';
 import * as Icon from 'react-feather';
 import { NavLink } from 'react-router-dom';
 import { mostRecentTerm } from '../model/Model';

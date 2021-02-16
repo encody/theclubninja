@@ -1,5 +1,5 @@
 import React from 'react';
-import Spinner from 'react-bootstrap/Spinner';
+import Spinner from 'react-bootstrap/esm/Spinner';
 
 export default function SpinnyBox() {
   return (
