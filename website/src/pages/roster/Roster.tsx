@@ -78,7 +78,8 @@ export default function Roster(props: RosterProps) {
               <Row className="font-weight-bold">
                 <Col xs={4}>Name</Col>
                 <Col xs={2}>Account ID</Col>
-                <Col xs={6}>Check-In</Col>
+                <Col xs={3}>Check-In</Col>
+                <Col xs={3}>Last Check-In</Col>
               </Row>
             </ListGroup.Item>
             {filteredMembers.map(member => (

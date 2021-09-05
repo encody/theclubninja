@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/esm/Button';
 import ButtonGroup from 'react-bootstrap/esm/ButtonGroup';
@@ -98,12 +99,20 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
 
   const attendanceRecord = getAttendanceRecord();
 
+  const memberAttendance = props.member.terms[server.term]?.attendance;
+  const lastAttendance = memberAttendance
+    ? memberAttendance.filter(
+        a =>
+          a.event === props.membership.id && a.type === AttendanceType.Present,
+      )[memberAttendance.length - 1]
+    : null;
+
   return (
     <Container className={'list-group-item'}>
       <Row>
         <Col xs={4}>{props.member.name}</Col>
         <Col xs={2}>{props.member.id}</Col>
-        <Col xs={6}>
+        <Col xs={3}>
           {/* Check-in buttons */}
           {props.membership.useDetailedAttendance ? (
             <ButtonGroup>
@@ -177,6 +186,11 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
             member={props.member}
             membership={props.membership}
           />
+        </Col>
+        <Col xs={3}>
+          {lastAttendance
+            ? DateTime.fromMillis(lastAttendance.timestamp).toLocaleString(DateTime.DATETIME_MED)
+            : 'N/A'}
         </Col>
       </Row>
 
