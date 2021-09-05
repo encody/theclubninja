@@ -148,7 +148,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
           </Row>
           <Row className={styles.row}>
             <Col sm={3}>
-              <Form.Label htmlFor="NewMemberModal_Id">Member ID:</Form.Label>
+              <Form.Label htmlFor="NewMemberModal_Id">Member ID (x500):</Form.Label>
             </Col>
             <Col>
               <Form.Control
@@ -172,7 +172,7 @@ export default function NewMemberModal(props: NewMemberModalProps) {
           <Row className={styles.row}>
             <Col sm={3}>
               <Form.Label htmlFor="NewMemberModal_InstitutionId">
-                Institution ID:
+                School ID:
               </Form.Label>
             </Col>
             <Col>
