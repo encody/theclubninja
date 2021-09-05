@@ -188,9 +188,15 @@ export default function TeamCheckInRow(props: TeamCheckInRowProps) {
           />
         </Col>
         <Col xs={3}>
-          {lastAttendance
-            ? DateTime.fromMillis(lastAttendance.timestamp).toLocaleString(DateTime.DATETIME_MED)
-            : 'N/A'}
+          {lastAttendance ? (
+            <time dateTime={DateTime.fromMillis(lastAttendance.timestamp).toISO()}>
+              {DateTime.fromMillis(lastAttendance.timestamp).toLocaleString(
+                DateTime.DATETIME_MED,
+              )}
+            </time>
+          ) : (
+            <span className="text-secondary small">N/A</span>
+          )}
         </Col>
       </Row>
 
