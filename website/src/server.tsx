@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from './network';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Redirect, Route, RouteProps } from 'react-router-dom';
 import firebase from './firebase';

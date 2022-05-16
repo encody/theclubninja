@@ -1,10 +1,12 @@
 import axios from 'axios';
 import firebase from './firebase';
 
-// firebase.auth().onAuthStateChanged(async newUser => {
-//   if (newUser) {
-//     axios.defaults.headers = {
-//       Authorization: 'Bearer ' + (await newUser.getIdToken()),
-//     };
-//   }
-// });
+const instance = axios.create();
+
+firebase.auth().onAuthStateChanged(async newUser => {
+  console.log({newUser});
+  if (newUser) {
+  }
+});
+
+export default instance;

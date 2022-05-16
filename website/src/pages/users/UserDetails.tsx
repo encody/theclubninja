@@ -1,15 +1,14 @@
-import axios from 'axios';
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import Modal from 'react-bootstrap/esm/Modal';
 import Table from 'react-bootstrap/esm/Table';
-import { useHistory } from 'react-router-dom';
 import { AuthResponse } from '../../model/AuthResponse';
 import {
   FULL_PERMISSIONS,
   IUserProfile,
-  NO_PERMISSIONS,
+  NO_PERMISSIONS
 } from '../../model/UserProfile';
+import axios from '../../network';
 import { IServer, useServer } from '../../server';
 
 interface UserDetailsProps {

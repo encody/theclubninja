@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useState } from 'react';
 import { Alert } from 'react-bootstrap';
 import Button from 'react-bootstrap/esm/Button';
@@ -9,6 +8,7 @@ import Modal from 'react-bootstrap/esm/Modal';
 import Row from 'react-bootstrap/esm/Row';
 import { AuthResponse } from '../model/AuthResponse';
 import { FULL_PERMISSIONS } from '../model/UserProfile';
+import axios from '../network';
 import { useServer } from '../server';
 import styles from './NewUserModal.module.css';
 
