@@ -6,6 +6,7 @@ import { IMember } from './Member';
 import { IMembership } from './Membership';
 import { IMemberType } from './MemberType';
 import { ITerm } from './Term';
+import { IUserProfile } from './UserProfile';
 
 export interface IModel {
   chargeTypes: {
@@ -28,6 +29,9 @@ export interface IModel {
   };
   terms: {
     [termId: string]: ITerm;
+  };
+  users: {
+    [userId: string]: IUserProfile;
   };
 }
 

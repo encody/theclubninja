@@ -59,6 +59,15 @@ export default function Navbar() {
                     Payments
                   </NavLink>
                 )}
+                {server.profile.permissions.users.read && (
+                  <NavLink
+                    className="nav-link"
+                    activeClassName="active"
+                    to="/users"
+                  >
+                    Users
+                  </NavLink>
+                )}
                 <NavLink
                   className="nav-link"
                   activeClassName="active"

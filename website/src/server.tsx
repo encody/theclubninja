@@ -30,6 +30,7 @@ export interface IServer {
   nonBlocking: Set<string>;
   getTerms: () => Promise<IModel['terms']>;
   getMembers: () => Promise<IModel['members']>;
+  getUsers: () => Promise<IModel['users']>;
   getCreditTypes: () => Promise<IModel['creditTypes']>;
   getChargeTypes: () => Promise<IModel['chargeTypes']>;
   getMemberTypes: () => Promise<IModel['memberTypes']>;
@@ -41,6 +42,10 @@ export interface IServer {
   clearProfile: () => void;
   setMembers: (
     members: IModel['members'],
+    doNotUpdateModel?: boolean,
+  ) => Promise<boolean>;
+  setUsers: (
+    users: IModel['users'],
     doNotUpdateModel?: boolean,
   ) => Promise<boolean>;
   setCharges: (
@@ -79,6 +84,7 @@ function useProvideServer(): IServer {
     charges: {},
     members: {},
     terms: {},
+    users: {},
   });
   const [profile, setProfile] = useState(null as IServer['profile']);
   const [profileId, setProfileId] = useState('' as IServer['profileId']);
@@ -104,6 +110,7 @@ function useProvideServer(): IServer {
 
   const getTerms = nonBlockingGet('terms');
   const getMembers = nonBlockingGet('members');
+  const getUsers = nonBlockingGet('users');
   const getCreditTypes = nonBlockingGet('creditTypes');
   const getChargeTypes = nonBlockingGet('chargeTypes');
   const getMemberTypes = nonBlockingGet('memberTypes');
@@ -144,6 +151,24 @@ function useProvideServer(): IServer {
     }
 
     nonBlocking.delete('setMembers');
+    setNonBlocking(new Set(nonBlocking));
+    return result.success;
+  };
+
+  const setUsers: IServer['setUsers'] = async (
+    users: IModel['users'],
+    doNotUpdateModel?: boolean,
+  ) => {
+    nonBlocking.add('setUsers');
+    setNonBlocking(new Set(nonBlocking));
+
+    const result: IServerResponse = (await axios.post('/api/users', users))
+      .data;
+    if (result.success && !doNotUpdateModel) {
+      updateModel();
+    }
+
+    nonBlocking.delete('setUsers');
     setNonBlocking(new Set(nonBlocking));
     return result.success;
   };
@@ -214,6 +239,7 @@ function useProvideServer(): IServer {
       memberTypes,
       memberships,
       charges,
+      users,
     ] = await Promise.all([
       getMembers(),
       getTerms(),
@@ -222,6 +248,7 @@ function useProvideServer(): IServer {
       getMemberTypes(),
       getMemberships(),
       getCharges(),
+      getUsers(),
     ]);
 
     const model: IModel = {
@@ -232,6 +259,7 @@ function useProvideServer(): IServer {
       memberTypes,
       memberships,
       charges,
+      users,
     };
     if (term === '') {
       const l = localStorage.getItem('term');
@@ -258,6 +286,7 @@ function useProvideServer(): IServer {
       charges: {},
       members: {},
       terms: {},
+      users: {},
     });
 
   const signIn = async () => {
@@ -323,6 +352,7 @@ function useProvideServer(): IServer {
     nonBlocking,
     getTerms,
     getMembers,
+    getUsers,
     getCreditTypes,
     getChargeTypes,
     getMemberTypes,
@@ -330,6 +360,7 @@ function useProvideServer(): IServer {
     getCharges,
     updateProfile,
     setMembers,
+    setUsers,
     setCharges,
     setTerms,
     setTerm,

@@ -6,6 +6,7 @@ import Members from './pages/members/Members';
 import Payments from './pages/payments/Payments';
 import Roster from './pages/roster/Roster';
 import SignIn from './pages/SignIn';
+import Users from './pages/users/Users';
 import { PrivateRoute, ProvideServer, useServer } from './server';
 import AuthenticationOverlay from './shared/AuthenticationOverlay';
 import { orderable } from './shared/util';
@@ -54,6 +55,11 @@ function Routes() {
       {server.profile?.permissions.charges.read && (
         <PrivateRoute path="/payments">
           <Payments />
+        </PrivateRoute>
+      )}
+      {server.profile?.permissions.users.read && (
+        <PrivateRoute path="/users">
+          <Users />
         </PrivateRoute>
       )}
       <PrivateRoute path="/events">

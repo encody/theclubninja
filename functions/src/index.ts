@@ -92,26 +92,64 @@ app.use(async (ctx, next) => {
   }
 });
 
-[
-  'terms',
-  'creditTypes',
-  'chargeTypes',
-  'memberTypes',
-  'memberships',
-  'members',
-].forEach(key => {
+(
+  [
+    'terms',
+    'creditTypes',
+    'chargeTypes',
+    'memberTypes',
+    'memberships',
+    'members',
+    'users',
+  ] as (keyof IUserProfile['permissions'])[]
+).forEach(key => {
   console.log('Creating route for GET /' + key + '...');
   router.get('/' + key, async (ctx, next) => {
-    ctx.response.body = await cm.get(key);
-    await next();
+    const profile = ctx.state.profile as IUserProfile;
+    const permission = profile.permissions[key];
+    const hasPermission = (permission && 'read' in permission) ? permission.read : true;
+    if (hasPermission) {
+      ctx.response.body = await cm.get(key);
+      await next();
+    } else {
+      ctx.response.status = 403;
+      ctx.response.body = { success: false, error: 'Forbidden' };
+      return;
+    }
   });
 });
 
-([
-  'members',
-  'terms',
-  'charges',
-] as (keyof IUserProfile['permissions'])[]).forEach(key => {
+router.get('/auth', async (ctx, next) => {
+  const profile = ctx.state.profile as IUserProfile;
+  const permission = profile.permissions.users;
+  const hasPermission = permission.read;
+  if (hasPermission) {
+    const { uid, email } = ctx.request.query;
+    if (uid) {
+      ctx.response.body = await admin.auth().getUser(uid);
+      await next();
+    } else if (email) {
+      ctx.response.body = await admin.auth().getUserByEmail(email);
+      await next();
+    } else {
+      ctx.response.status = 400;
+      ctx.response.body = { success: false, error: 'Bad Request' };
+    }
+  } else {
+    ctx.response.status = 403;
+    ctx.response.body = { success: false, error: 'Forbidden' };
+    return;
+  }
+});
+
+(
+  [
+    'members',
+    'terms',
+    'charges',
+    'users',
+  ] as (keyof IUserProfile['permissions'])[]
+).forEach(key => {
   router.post('/' + key, async (ctx, next) => {
     if ((ctx.state.profile as IUserProfile).permissions[key].write) {
       try {
